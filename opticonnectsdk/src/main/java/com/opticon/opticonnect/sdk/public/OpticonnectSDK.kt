@@ -1,8 +1,8 @@
-package com.opticon.opticonnect.sdk
+package com.opticon.opticonnect.sdk.public
 
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
-import kotlinx.coroutines.runBlocking
+import com.opticon.opticonnect.sdk.public.scanner_settings.ScannerSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
@@ -12,6 +12,10 @@ import timber.log.Timber
 object OpticonnectSDK : KoinComponent {
     private val bleDevicesDiscoverer: BleDevicesDiscoverer by inject()
     private val scannerHandler: SettingsHandler by inject()
+    private val scannerSettingsInstance: ScannerSettings by inject()
+
+    val scannerSettings: ScannerSettings
+        get() = scannerSettingsInstance
 
     // Asynchronous SDK initialization
     suspend fun initialize() {
