@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
+import com.opticon.opticonnect.sdk.internal.interfaces.BleCommandResponseReader
+import com.opticon.opticonnect.sdk.internal.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.public.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection
@@ -10,7 +12,7 @@ import timber.log.Timber
 import java.io.Closeable
 
 @Single
-class DataHandler : Closeable {
+class DataHandler : BleDataWriter, BleCommandResponseReader, Closeable {
 
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
     private val mutex = Mutex()
@@ -20,12 +22,12 @@ class DataHandler : Closeable {
         return dataProcessor.barcodeDataStream
     }
 
-    suspend fun getCommandResponseStream(deviceId: String): kotlinx.coroutines.flow.Flow<String> {
+    override suspend fun getCommandResponseStream(deviceId: String): kotlinx.coroutines.flow.Flow<String> {
         val dataProcessor = getDataProcessor(deviceId)
         return dataProcessor.commandStream
     }
 
-    suspend fun writeData(deviceId: String, data: String, dataBytes: ByteArray) {
+    override suspend fun writeData(deviceId: String, data: String, dataBytes: ByteArray) {
         try {
             val dataProcessor = getDataProcessor(deviceId)
             dataProcessor.writeData(dataBytes)
