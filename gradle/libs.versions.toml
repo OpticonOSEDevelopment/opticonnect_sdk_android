@@ -13,6 +13,7 @@ timber = "5.0.1"
 rxandroidble = "1.19.0"
 coroutines = "1.9.0"
 mockk = "1.12.0"
+rxkotlin = "3.0.1"
 
 [libraries]
 androidx-core = { module = "androidx.test:core", version.ref = "core" }
@@ -28,11 +29,12 @@ room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
-rxandroidble = { module = "com.polidea.rxandroidble2:rxandroidble", version.ref = "rxandroidble" }
+rxandroidble = { module = "com.polidea.rxandroidble3:rxandroidble", version.ref = "rxandroidble" }
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+rxkotlin = { group = "io.reactivex.rxjava3", name = "rxkotlin", version.ref = "rxkotlin" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

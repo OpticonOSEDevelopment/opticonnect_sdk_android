@@ -55,6 +55,7 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.coroutines.android)
     implementation(libs.mockk)
+    implementation(libs.rxkotlin)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.core)
