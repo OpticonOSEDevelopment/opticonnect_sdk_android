@@ -50,7 +50,7 @@ class DatabaseManager(private val context: Context) {
 
         val openHelper = FrameworkSQLiteOpenHelperFactory().create(configuration)
 
-        database = openHelper.writableDatabase
+        database = openHelper.readableDatabase
         return database!!
     }
 

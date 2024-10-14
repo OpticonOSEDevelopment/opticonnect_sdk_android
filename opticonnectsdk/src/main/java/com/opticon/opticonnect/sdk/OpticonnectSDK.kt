@@ -1,7 +1,7 @@
 package com.opticon.opticonnect.sdk
 
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
-import com.opticon.opticonnect.sdk.internal.services.settings.SettingsHandler
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

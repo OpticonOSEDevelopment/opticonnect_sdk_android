@@ -9,10 +9,11 @@ import org.junit.Before
 import org.junit.Test
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-import com.opticon.opticonnect.sdk.internal.services.settings.SettingsHandler
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import junit.framework.TestCase.assertTrue
 import org.junit.runner.RunWith
 import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext.getOrNull
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.defaultModule
 import org.koin.test.KoinTest
@@ -27,31 +28,63 @@ class DatabaseIntegrationTest : KoinTest {
     private val databaseTablesHelper: DatabaseTablesHelper by inject()
 
     @Before
-    fun setup() = runBlocking {
-        startKoin {
-            androidContext(ApplicationProvider.getApplicationContext())
-            modules(defaultModule) //test
+    fun setup() {
+        if (getOrNull() == null) {
+            startKoin {
+                androidContext(ApplicationProvider.getApplicationContext())
+                modules(defaultModule)
+            }
         }
-        database = databaseManager.getDatabase()
+        database = runBlocking {
+            databaseManager.getDatabase()
+        }
     }
 
     @After
-    fun teardown() = runBlocking {
-        // Close the database after the test
-        databaseManager.closeDatabase()
+    fun teardown() {
+        runBlocking {
+            databaseManager.closeDatabase()
+        }
     }
 
     @Test
-    fun testDatabaseHasTables() = runBlocking {
+    fun testDatabaseHasRequiredTables() = runBlocking {
         // Get the list of tables from the database
         val tables = databaseTablesHelper.getTables(database)
 
-        // Ensure that the database contains at least one table
-        assertTrue("The database should contain tables.", tables.isNotEmpty())
+        // List of required tables
+        val expectedTables = listOf(
+            "default_settings_options",
+            "readable_codes_options",
+            "miscellaneous_options",
+            "read_options",
+            "memorizing_options",
+            "keyboard_options",
+            "indicator_options",
+            "formatting_options",
+            "direct_input_keys",
+            "data_wizard_options",
+            "code_specific_options",
+            "code_options",
+            "barcode_validation_options"
+        )
 
-        // Log the table names (optional)
-        tables.forEach { table ->
-            println("Table found: $table")
+        // Ensure that the database contains the required tables
+        expectedTables.forEach { table ->
+            assertTrue("Table $table should exist in the database.", tables.contains(table))
         }
+    }
+
+    @Test
+    fun testInitializeCodesDataStructures() = runBlocking {
+        settingsHandler.initialize()
+
+        // Validate that specific data was loaded into the structures
+        val groupsForSomeCode = settingsHandler.getGroupsForCode("R2B")
+        assertTrue("Groups for 'R2B' should contain upcEAddon2", groupsForSomeCode.contains("upcEAddon2".lowercase()))
+        assertTrue("Groups for 'R2B' should contain addon", groupsForSomeCode.contains("addon"))
+
+        val groupsToDisableForSomeCode = settingsHandler.getGroupsToDisableForCode("4V")
+        assertTrue("Groups to disable for '4V' should contain eanISSNTranslation", groupsToDisableForSomeCode.contains("eanISSNTranslation".lowercase()))
     }
 }

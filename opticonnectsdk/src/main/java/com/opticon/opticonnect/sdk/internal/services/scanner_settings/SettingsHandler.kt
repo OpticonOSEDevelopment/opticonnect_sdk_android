@@ -1,11 +1,13 @@
-package com.opticon.opticonnect.sdk.internal.services.settings
+package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
+import org.koin.core.annotation.Single
 import timber.log.Timber
 
+@Single
 class SettingsHandler(
     private val databaseTablesHelper: DatabaseTablesHelper,
     private val databaseManager: DatabaseManager
@@ -61,7 +63,7 @@ class SettingsHandler(
             .map { it.trim().lowercase() }
     }
 
-    private suspend fun initializeCodesDataStructures(database: SupportSQLiteDatabase) {
+    private fun initializeCodesDataStructures(database: SupportSQLiteDatabase) {
         try {
             val tables = databaseTablesHelper.getTables(database)
             for (table in tables) {
@@ -119,7 +121,7 @@ class SettingsHandler(
         }
     }
 
-    private suspend fun setDescriptions(database: SupportSQLiteDatabase) {
+    private fun setDescriptions(database: SupportSQLiteDatabase) {
         try {
             val tables = databaseTablesHelper.getTables(database)
             for (table in tables) {
