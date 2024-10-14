@@ -30,7 +30,7 @@ class DatabaseIntegrationTest : KoinTest {
     fun setup() = runBlocking {
         startKoin {
             androidContext(ApplicationProvider.getApplicationContext())
-            modules(defaultModule)
+            modules(defaultModule) //test
         }
         database = databaseManager.getDatabase()
     }
