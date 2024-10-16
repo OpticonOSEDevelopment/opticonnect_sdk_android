@@ -1,20 +1,23 @@
-package com.opticon.opticonnect.sdk.public.scanner_settings
+package com.opticon.opticonnect.sdk.api.scanner_settings
 
-import com.opticon.opticonnect.sdk.public.entities.CommandResponse
-import com.opticon.opticonnect.sdk.public.enums.SymbologyType
-import com.opticon.opticonnect.sdk.public.constants.*
+import com.opticon.opticonnect.sdk.api.entities.CommandResponse
+import com.opticon.opticonnect.sdk.api.enums.SymbologyType
+import com.opticon.opticonnect.sdk.api.constants.*
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
-import com.opticon.opticonnect.sdk.public.ScannerFeedback
-import org.koin.core.annotation.Single
+import com.opticon.opticonnect.sdk.api.ScannerFeedback
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * A class representing settings for enabling and disabling symbologies in the scanner.
  *
  * This class provides methods to enable, disable, or enable-only specific symbologies on a scanner.
  */
-@Single
-class Symbology(scannerFeedback: ScannerFeedback) : SettingsBase(scannerFeedback) {
+@Singleton
+class Symbology @Inject constructor(
+    scannerFeedback: ScannerFeedback
+) : SettingsBase(scannerFeedback) {
 
     // Maps each symbology type to its respective enable command.
     private val enableSymbologyCommands: Map<SymbologyType, String> = mapOf(

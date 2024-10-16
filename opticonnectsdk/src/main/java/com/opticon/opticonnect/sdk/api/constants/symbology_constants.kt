@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.constants
+package com.opticon.opticonnect.sdk.api.constants
 
 const val DISCRETE_2_OF_5 = 2
 const val MATRIX_2_OF_5 = 3

@@ -3,21 +3,24 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 import com.opticon.opticonnect.sdk.internal.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
-import com.opticon.opticonnect.sdk.public.entities.BarcodeData
+import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.core.annotation.Single
 import timber.log.Timber
 import java.io.Closeable
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class DataHandler : BleDataWriter, BleCommandResponseReader, Closeable {
+@Singleton
+class DataHandler @Inject constructor(
+    private val opcDataHandlerFactory: OpcDataHandlerFactory // Injecting OpcDataHandlerFactory
+) : BleDataWriter, BleCommandResponseReader, Closeable {
 
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
     private val mutex = Mutex()
 
-    suspend fun getStream(deviceId: String): kotlinx.coroutines.flow.Flow<BarcodeData> {
+    suspend fun getBarcodeDataStream(deviceId: String): kotlinx.coroutines.flow.Flow<BarcodeData> {
         val dataProcessor = getDataProcessor(deviceId)
         return dataProcessor.barcodeDataStream
     }
@@ -48,7 +51,7 @@ class DataHandler : BleDataWriter, BleCommandResponseReader, Closeable {
                 deviceId = deviceId,
                 readCharacteristic = UuidConstants.OPC_SERVICE_UUID,
                 writeCharacteristic = UuidConstants.OPC_SERVICE_UUID,
-                opcDataHandler = OpcDataHandler(deviceId),
+                opcDataHandler = opcDataHandlerFactory.create(deviceId),
                 connection = connection,
             )
 

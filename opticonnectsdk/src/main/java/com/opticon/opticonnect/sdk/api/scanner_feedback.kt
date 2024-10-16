@@ -1,6 +1,7 @@
-package com.opticon.opticonnect.sdk.public
+package com.opticon.opticonnect.sdk.api
 
-import org.koin.core.annotation.Single
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Configures the feedback behavior of the scanner when executing commands.
@@ -9,9 +10,8 @@ import org.koin.core.annotation.Single
  * and vibration. The feedback is applied when the scanner executes certain commands,
  * controlling the visual (LED), auditory (buzzer), and tactile (vibration) responses.
  */
-@Single
-class ScannerFeedback {
-
+@Singleton
+class ScannerFeedback @Inject constructor() {
     private var _led: Boolean = true
 
     /**

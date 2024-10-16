@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 import com.opticon.opticonnect.sdk.internal.entities.BaseCommand
 

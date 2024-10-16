@@ -1,9 +1,9 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.public.OpticonnectSDK
-import com.opticon.opticonnect.sdk.public.ScannerFeedback
-import com.opticon.opticonnect.sdk.public.entities.CommandResponse
-import com.opticon.opticonnect.sdk.public.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.OptiConnect
+import com.opticon.opticonnect.sdk.api.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.entities.CommandResponse
+import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -30,7 +30,7 @@ abstract class SettingsBase(protected val scannerFeedback: ScannerFeedback) {
         sendFeedback: Boolean = true
     ): CommandResponse {
         return withContext(Dispatchers.IO) {
-            OpticonnectSDK.scannerSettings.executeCommand(
+            OptiConnect.scannerSettings.executeCommand(
                 deviceId,
                 ScannerCommand(
                     code = command,

@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.constants
+package com.opticon.opticonnect.sdk.api.constants
 
 // Enable 1D symbologies for scanning.
 // These commands enable or disable individual 1D barcode symbologies.

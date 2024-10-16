@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.enums
+package com.opticon.opticonnect.sdk.api.enums
 
 /**
  * Enum representing different symbologies supported by the scanner.

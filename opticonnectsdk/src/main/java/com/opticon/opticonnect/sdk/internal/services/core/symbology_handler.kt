@@ -1,10 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.services.core
 
-import com.opticon.opticonnect.sdk.public.constants.*
-import org.koin.core.annotation.Single
+import com.opticon.opticonnect.sdk.api.constants.*
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class SymbologyHandler {
+@Singleton
+class SymbologyHandler @Inject constructor() {
     private val symbologyNameMap = mapOf(
         EAN_8 to "EAN-8",
         EAN_13 to "EAN-13",

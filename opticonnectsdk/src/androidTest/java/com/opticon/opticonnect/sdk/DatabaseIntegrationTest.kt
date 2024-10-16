@@ -1,5 +1,6 @@
 package com.opticon.opticonnect.sdk
 
+import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -7,34 +8,37 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.junit.runner.RunWith
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import junit.framework.TestCase.assertTrue
-import org.junit.runner.RunWith
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.GlobalContext.getOrNull
-import org.koin.core.context.GlobalContext.startKoin
-import org.koin.ksp.generated.defaultModule
-import org.koin.test.KoinTest
-import org.koin.test.inject
+import javax.inject.Inject
 
 @RunWith(AndroidJUnit4::class)
-class DatabaseIntegrationTest : KoinTest {
+class DatabaseIntegrationTest {
+
+    @Inject
+    lateinit var settingsHandler: SettingsHandler
+
+    @Inject
+    lateinit var databaseManager: DatabaseManager
+
+    @Inject
+    lateinit var databaseTablesHelper: DatabaseTablesHelper
 
     private lateinit var database: SupportSQLiteDatabase
-    private val settingsHandler: SettingsHandler by inject()
-    private val databaseManager: DatabaseManager by inject()
-    private val databaseTablesHelper: DatabaseTablesHelper by inject()
+    private lateinit var testComponent: TestComponent
 
     @Before
     fun setup() {
-        if (getOrNull() == null) {
-            startKoin {
-                androidContext(ApplicationProvider.getApplicationContext())
-                modules(defaultModule)
-            }
-        }
+        // Create the Dagger TestComponent and inject dependencies
+        testComponent = DaggerTestComponent.builder()
+            .context(ApplicationProvider.getApplicationContext<Context>())
+            .build()
+        testComponent.inject(this)
+
+        // Initialize the database
         database = runBlocking {
             databaseManager.getDatabase()
         }

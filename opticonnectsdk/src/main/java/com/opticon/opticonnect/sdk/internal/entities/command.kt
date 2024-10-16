@@ -1,7 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.entities
 
 import com.opticon.opticonnect.sdk.internal.extensions.addCommand
-import com.opticon.opticonnect.sdk.public.entities.CommandResponse
+import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import kotlinx.coroutines.CompletableDeferred
 
 open class Command(

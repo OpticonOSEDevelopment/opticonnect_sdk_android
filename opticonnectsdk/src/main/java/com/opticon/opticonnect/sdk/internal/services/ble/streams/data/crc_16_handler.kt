@@ -1,10 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ccittrevTable
-import org.koin.core.annotation.Single
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class CRC16Handler {
+@Singleton
+class CRC16Handler  @Inject constructor() {
     fun update(data: Int, crc: Int): Int {
         var chksum = crc
         chksum = chksum.inv() and 0xFFFF

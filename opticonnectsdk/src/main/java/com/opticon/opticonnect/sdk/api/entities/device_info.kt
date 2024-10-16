@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 /**
  * A class representing basic information about a BLE device.

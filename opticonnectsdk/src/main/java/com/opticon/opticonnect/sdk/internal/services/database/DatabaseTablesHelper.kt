@@ -1,10 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.services.database
 
 import androidx.sqlite.db.SupportSQLiteDatabase
-import org.koin.core.annotation.Single
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class DatabaseTablesHelper {
+@Singleton
+class DatabaseTablesHelper @Inject constructor() {
 
     // Retrieve the list of tables from the SQLite database
     fun getTables(database: SupportSQLiteDatabase): List<String> {

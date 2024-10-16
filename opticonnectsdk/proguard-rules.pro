@@ -1,2 +1,5 @@
--keep class org.koin.** { *; }
--keepclassmembers class org.koin.** { *; }
+-keep class dagger.** { *; }
+-keep class javax.inject.** { *; }
+-keep class com.opticon.opticonnect.sdk.internal.di.** { *; }
+-keep class com.google.dagger.** { *; }
+-keep interface dagger.** { *; }

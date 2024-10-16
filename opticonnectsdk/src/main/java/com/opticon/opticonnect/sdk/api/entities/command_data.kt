@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 /**
  * Represents a command and its associated parameters for scanner settings.

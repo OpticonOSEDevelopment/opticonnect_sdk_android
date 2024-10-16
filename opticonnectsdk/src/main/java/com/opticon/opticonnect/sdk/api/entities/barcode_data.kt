@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 /**
  * This class holds detailed information about a scanned barcode, including:

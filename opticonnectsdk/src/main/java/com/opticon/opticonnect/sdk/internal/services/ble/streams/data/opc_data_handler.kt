@@ -1,7 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.*
-import com.opticon.opticonnect.sdk.public.entities.BarcodeData
+import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,18 +11,20 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.koin.java.KoinJavaComponent.inject
 import timber.log.Timber
 import java.io.Closeable
+import javax.inject.Inject
 import kotlin.math.pow
 
 enum class OpcRxState {
     Idle, ReceivingType, ReceivingData, ReceivingCrcHigh, ReceivingCrcLow
 }
 
-class OpcDataHandler(private val deviceId: String) : Closeable {
-    private val crc16Handler: CRC16Handler by inject(CRC16Handler::class.java)
-    private val symbologyHandler: SymbologyHandler by inject(SymbologyHandler::class.java)
+class OpcDataHandler @Inject constructor(
+    private val deviceId: String,
+    private val crc16Handler: CRC16Handler, // Injecting CRC16Handler
+    private val symbologyHandler: SymbologyHandler // Injecting SymbologyHandler
+) : Closeable {
 
     private val mutex = Mutex()
     private val job = Job()

@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.public.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 /**
  * A class representing the response of a command sent to a device.

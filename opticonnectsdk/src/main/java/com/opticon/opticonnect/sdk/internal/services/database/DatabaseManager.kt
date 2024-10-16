@@ -6,15 +6,15 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.koin.core.annotation.Single
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.io.OutputStream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class DatabaseManager(private val context: Context) {
-
+@Singleton
+class DatabaseManager @Inject constructor(private val context: Context) {
     companion object {
         const val DB_NAME = "commands.db"
         const val DB_PATH = "databases/$DB_NAME"

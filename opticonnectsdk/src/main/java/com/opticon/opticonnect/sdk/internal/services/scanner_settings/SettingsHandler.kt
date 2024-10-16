@@ -4,11 +4,12 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-import org.koin.core.annotation.Single
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
-@Single
-class SettingsHandler(
+@Singleton
+class SettingsHandler @Inject constructor(
     private val databaseTablesHelper: DatabaseTablesHelper,
     private val databaseManager: DatabaseManager
 ) {

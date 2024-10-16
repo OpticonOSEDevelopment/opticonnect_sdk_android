@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
-import com.opticon.opticonnect.sdk.public.entities.BarcodeData
+import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo

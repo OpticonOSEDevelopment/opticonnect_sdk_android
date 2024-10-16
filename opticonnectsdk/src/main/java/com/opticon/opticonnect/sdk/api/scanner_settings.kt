@@ -1,12 +1,13 @@
-package com.opticon.opticonnect.sdk.public.scanner_settings
+package com.opticon.opticonnect.sdk.api.scanner_settings
 
-import com.opticon.opticonnect.sdk.public.entities.CommandResponse
-import com.opticon.opticonnect.sdk.public.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.entities.CommandResponse
+import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
-import com.opticon.opticonnect.sdk.public.ScannerFeedback
-import com.opticon.opticonnect.sdk.public.constants.*
-import org.koin.core.annotation.Single
+import com.opticon.opticonnect.sdk.api.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.constants.*
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * A class representing the scanner settings for Opticon BLE scanners.
@@ -16,11 +17,11 @@ import timber.log.Timber
  * It is recommended that you access this class via the `OptiConnect` class
  * and avoid direct initialization.
  */
-@Single
-class ScannerSettings(
+@Singleton
+class ScannerSettings @Inject constructor(
     private val symbology: Symbology,
-    scannerFeedback: ScannerFeedback
-) : SettingsBase(scannerFeedback) {
+    feedback: ScannerFeedback
+) : SettingsBase(feedback) {
 
     /**
      * Sends a command to the connected BLE device.
