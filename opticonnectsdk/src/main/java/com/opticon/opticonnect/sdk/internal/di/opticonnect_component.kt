@@ -4,6 +4,8 @@ import android.content.Context
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
+import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
+import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
@@ -14,6 +16,8 @@ interface OptiConnectComponent {
     fun bleDevicesDiscoverer(): BleDevicesDiscoverer
     fun scannerHandler(): SettingsHandler
     fun scannerSettings(): ScannerSettings
+    fun databaseManager(): DatabaseManager
+    fun databaseTablesHelper(): DatabaseTablesHelper
 
     @Component.Builder
     interface Builder {

@@ -69,12 +69,11 @@ val shadowRuntimeClasspath by configurations.creating {
 }
 
 // Register the ShadowJar task manually
-// Register the ShadowJar task manually
 tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     archiveClassifier.set("all")
 
-    dependsOn("compileReleaseKotlin")
-    dependsOn("compileReleaseJavaWithJavac")
+    dependsOn("compileReleaseKotlin", "compileReleaseJavaWithJavac", "mergeReleaseResources")
+
 
     val kotlinClassesDir = file("build/tmp/kotlin-classes/release") // Path where your classes are located
     val daggerGeneratedDir = file("build/intermediates/javac/release/compileReleaseJavaWithJavac/classes")
@@ -89,9 +88,10 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
     }
 
     // Include the compiled output of the project
-    from("build/classes/kotlin/main") // Include compiled Kotlin classes
+    from("build/intermediates/javac/release/compileReleaseJavaWithJavac/classes")
+    from("build/tmp/kotlin-classes/release")
+    from("build/classes/kotlin/release")
     from(android.sourceSets["main"].resources.srcDirs)
-    from("build/generated/ksp/main/kotlin") // Include KSP-generated Kotlin files
 
     // Use the custom configuration
     configurations = listOf(
@@ -100,33 +100,86 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
         project.configurations.getByName("releaseCompileClasspath")
     )
 
-    relocate("dagger", "com.opticon.opticonnect.dagger")
-    relocate("javax.inject", "com.opticon.opticonnect.javax.inject")
-    relocate("jakarta", "com.opticon.opticonnect.jakarta")
-    relocate("org.jetbrains", "com.opticon.opticonnect.org.jetbrains")
+    val gradleCacheDir = file("${System.getProperty("user.home")}/.gradle/caches/modules-2/files-2.1")
+    val timberAarFile = gradleCacheDir.walkTopDown()
+        .filter { it.name.startsWith("timber-") && it.name.endsWith(".aar") }
+        .firstOrNull()
 
-    // Relocate dependencies to avoid conflicts with the client
-//    relocate("kotlinx", "com.opticon.opticonnect.kotlinx")
-//    relocate("org.koin", "com.opticon.opticonnect.koin")
-//    relocate("org.jetbrains", "com.opticon.opticonnect.jetbrains")
+    val roomAarFile = gradleCacheDir.walkTopDown()
+        .filter { it.name.startsWith("room-runtime-") && it.name.endsWith(".aar") }
+        .firstOrNull()
+
+    val sqliteAarFile = gradleCacheDir.walkTopDown()
+        .filter { it.name.startsWith("sqlite-") && it.name.endsWith(".aar") }
+        .firstOrNull()
+
+    val sqliteFrameworkAarFile = gradleCacheDir.walkTopDown()
+        .filter { it.name.startsWith("sqlite-framework-") && it.name.endsWith(".aar") }
+        .firstOrNull()
+
+    // Ensure the Timber .aar file was found
+    if (timberAarFile != null && roomAarFile != null && sqliteAarFile != null && sqliteFrameworkAarFile != null) {
+        val timberJar = zipTree(timberAarFile).matching {
+            include("classes.jar")
+        }.singleFile
+
+        // Include classes from the extracted classes.jar of Timber
+        from(zipTree(timberJar))
+
+        // Relocate Timber and other dependencies
+        relocate("timber.log", "com.opticon.opticonnect.timber")
+
+        val roomRuntimeJar = zipTree(roomAarFile).matching {
+            include("classes.jar")
+        }.singleFile
+
+        from(zipTree(roomRuntimeJar))
+
+        relocate("androidx.room", "com.opticon.opticonnect.androidx.room")
+
+        val sqliteJar = zipTree(sqliteAarFile).matching {
+            include("classes.jar")
+        }.singleFile
+
+        from(zipTree(sqliteJar))
+
+        val sqliteFrameworkJar = zipTree(sqliteFrameworkAarFile).matching {
+            include("classes.jar")
+        }.singleFile
+
+        from(zipTree(sqliteFrameworkJar))
+
+        relocate("androidx.sqlite", "com.opticon.opticonnect.androidx.sqlite")
+
+        relocate("dagger", "com.opticon.opticonnect.dagger")
+        relocate("javax.inject", "com.opticon.opticonnect.javax.inject")
+        relocate("jakarta", "com.opticon.opticonnect.jakarta")
+        relocate("com.jakewharton", "com.opticon.opticonnect.jakewharton")
+    } else {
+        logger.warn("Timber .aar file not found in the Gradle cache.")
+    }
 
     exclude("_COROUTINE/**")
+    exclude("bleshadow/**")
     exclude("win32-x86/**")
     exclude("win32-x86-64/**")
-    exclude("bleshadow/**") // Exclude the bleshadow package
+    exclude("androidx/annotation/**")
+    exclude("androidx/arch/**")
+    exclude("androidx/collection/**")
+    exclude("androidx/concurrent/**")
+    exclude("androidx/lifecycle/**")
     exclude("kotlin/**")
     exclude("kotlinx/**")
-    exclude("androidx/**")
     exclude("com/google/**")
-    exclude("com/jakewharton/**")
     exclude("io/**")
     exclude("junit/**")
     exclude("net/**")
+    exclude("org/jetbrains/**")
+    exclude("org/reactivestreams/**")
     exclude("org/hamcrest/**")
     exclude("org/intellij/**")
     exclude("org/junit/**")
     exclude("org/objenesis/**")
-    exclude("org/reactivestreams/**")
     exclude("**/*.aar")
 
     exclude("META-INF/kotlin/**")

@@ -33,14 +33,21 @@ class DatabaseIntegrationTest {
     @Before
     fun setup() {
         // Create the Dagger TestComponent and inject dependencies
+        var context = ApplicationProvider.getApplicationContext<Context>()
+
         testComponent = DaggerTestComponent.builder()
-            .context(ApplicationProvider.getApplicationContext<Context>())
+//            .context(context)
             .build()
         testComponent.inject(this)
 
         // Initialize the database
         database = runBlocking {
-            databaseManager.getDatabase()
+            databaseManager.getDatabase(context)
+
+        }
+
+        runBlocking {
+            settingsHandler.initialize(context)
         }
     }
 
@@ -81,7 +88,6 @@ class DatabaseIntegrationTest {
 
     @Test
     fun testInitializeCodesDataStructures() = runBlocking {
-        settingsHandler.initialize()
 
         // Validate that specific data was loaded into the structures
         val groupsForSomeCode = settingsHandler.getGroupsForCode("R2B")

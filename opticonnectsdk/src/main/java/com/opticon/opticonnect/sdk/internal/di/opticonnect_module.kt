@@ -38,10 +38,8 @@ object OptiConnectModule {
     @Provides
     @Singleton
     fun provideBlePermissionsChecker(context: Context): BlePermissionsChecker {
-        return BlePermissionsChecker(context)
+        return BlePermissionsChecker(context.applicationContext)
     }
-
-
 
     @Provides
     @Singleton
@@ -55,16 +53,15 @@ object OptiConnectModule {
     @Provides
     @Singleton
     fun provideBleDevicesDiscoverer(
-        blePermissionsChecker: BlePermissionsChecker,
-        context: Context
+        blePermissionsChecker: BlePermissionsChecker
     ): BleDevicesDiscoverer {
-        return BleDevicesDiscoverer(context, blePermissionsChecker)
+        return BleDevicesDiscoverer(blePermissionsChecker)
     }
 
     @Provides
     @Singleton
-    fun provideDatabaseManager(context: Context): DatabaseManager {
-        return DatabaseManager(context)
+    fun provideDatabaseManager(): DatabaseManager {
+        return DatabaseManager()
     }
 
     @Provides

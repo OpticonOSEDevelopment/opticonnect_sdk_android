@@ -14,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DatabaseManager @Inject constructor(private val context: Context) {
+class DatabaseManager @Inject constructor() {
     companion object {
         const val DB_NAME = "commands.db"
         const val DB_PATH = "databases/$DB_NAME"
@@ -22,18 +22,18 @@ class DatabaseManager @Inject constructor(private val context: Context) {
 
     private var database: SupportSQLiteDatabase? = null
 
-    suspend fun getDatabase(): SupportSQLiteDatabase {
+    suspend fun getDatabase(context: Context): SupportSQLiteDatabase {
         if (database != null) return database!!
 
-        return initializeDatabase()
+        return initializeDatabase(context)
     }
 
-    private suspend fun initializeDatabase(): SupportSQLiteDatabase {
+    private suspend fun initializeDatabase(context: Context): SupportSQLiteDatabase {
         val databasePath = context.getDatabasePath(DB_NAME).path
 
         // Copy the prebuilt database from assets to the app's data directory
         if (!File(databasePath).exists()) {
-            copyDatabaseFromAssets(databasePath)
+            copyDatabaseFromAssets(databasePath, context)
         }
 
         val configuration = SupportSQLiteOpenHelper.Configuration.builder(context)
@@ -54,7 +54,7 @@ class DatabaseManager @Inject constructor(private val context: Context) {
         return database!!
     }
 
-    private suspend fun copyDatabaseFromAssets(databasePath: String) {
+    private suspend fun copyDatabaseFromAssets(databasePath: String, context: Context) {
         withContext(Dispatchers.IO) {
             val inputStream: InputStream = context.assets.open(DB_PATH)
             val outputStream: OutputStream = FileOutputStream(databasePath)

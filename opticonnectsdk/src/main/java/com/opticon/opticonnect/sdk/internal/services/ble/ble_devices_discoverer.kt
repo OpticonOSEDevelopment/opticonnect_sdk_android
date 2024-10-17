@@ -23,7 +23,6 @@ import javax.inject.Singleton
 
 @Singleton
 class BleDevicesDiscoverer @Inject constructor(
-    private val context: Context,
     private val blePermissionsChecker: BlePermissionsChecker
 ) : Closeable {
 
@@ -48,7 +47,7 @@ class BleDevicesDiscoverer @Inject constructor(
             scanDisposable = bleClient?.scanBleDevices(
                 ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)  // Battery efficient scanning mode
-                    .build()
+                    .build(),
             )?.subscribe(
                 { result ->
                     CoroutineScope(Dispatchers.IO).launch {

@@ -6,6 +6,8 @@ import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
+import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
+import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -15,6 +17,8 @@ object OptiConnect {
     private lateinit var bleDevicesDiscovererInstance: BleDevicesDiscoverer
     private lateinit var scannerHandler: SettingsHandler
     private lateinit var scannerSettingsInstance: ScannerSettings
+    private lateinit var databaseManagerInstance: DatabaseManager
+    private lateinit var databaseTablesHelperInstance: DatabaseTablesHelper
     private var isInitialized = false
 
     // Public getters for clients to access the SDK services
@@ -23,6 +27,12 @@ object OptiConnect {
 
     val bleDevicesDiscoverer: BleDevicesDiscoverer
         get() = bleDevicesDiscovererInstance
+
+    val databaseManager: DatabaseManager
+        get() = databaseManagerInstance
+
+    val databaseTablesHelper: DatabaseTablesHelper
+        get() = databaseTablesHelperInstance
 
     // Initialize the SDK
     suspend fun initialize(context: Context) {
@@ -37,13 +47,20 @@ object OptiConnect {
         bleDevicesDiscovererInstance = component.bleDevicesDiscoverer()
         scannerHandler = component.scannerHandler()
         scannerSettingsInstance = component.scannerSettings()
+        databaseManagerInstance = component.databaseManager()
+        databaseTablesHelperInstance = component.databaseTablesHelper()
+
+        if (Timber.forest().isEmpty()) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         withContext(Dispatchers.IO) {
-            Timber.i("Initializing SDK...")
+            Timber.d("Initializing SDK...")
 
             try {
                 // Call initialization on scanner settings
-                scannerHandler.initialize()
+                scannerHandler.initialize(context)
+                var db = databaseManager.getDatabase(context)
                 Timber.i("SDK initialized successfully.")
             } catch (e: Exception) {
                 Timber.e("Failed to initialize SDK: $e")
@@ -52,9 +69,5 @@ object OptiConnect {
         }
 
         isInitialized = true
-    }
-
-    fun getTestVal(): Int {
-        return 42
     }
 }

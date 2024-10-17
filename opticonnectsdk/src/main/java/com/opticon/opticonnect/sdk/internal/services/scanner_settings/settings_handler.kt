@@ -1,5 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
+import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
@@ -26,9 +27,9 @@ class SettingsHandler @Inject constructor(
     private var directInputKeysSet = mutableSetOf<String>()
     private var directInputKeys = listOf<String>()
 
-    suspend fun initialize() {
+    suspend fun initialize(context: Context) {
         runCatching {
-            val database = databaseManager.getDatabase()
+            val database = databaseManager.getDatabase(context)
             initializeCodesDataStructures(database)
             setDescriptions(database)
             setDirectInputKeys()
