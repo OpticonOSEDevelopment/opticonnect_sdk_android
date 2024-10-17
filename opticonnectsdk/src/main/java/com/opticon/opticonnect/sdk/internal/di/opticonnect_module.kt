@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
+import com.opticon.opticonnect.sdk.api.BluetoothManager
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
@@ -14,6 +15,7 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandle
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandlerFactory
 import dagger.Module
@@ -130,6 +132,28 @@ object OptiConnectModule {
     fun provideDataHandler(opcDataHandlerFactory: OpcDataHandlerFactory): DataHandler {
         // Assume DataHandler has a default constructor or no dependencies
         return DataHandler(opcDataHandlerFactory)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBleDevicesStreamsHandler(
+        dataHandler: DataHandler
+    ): BleDevicesStreamsHandler {
+        return BleDevicesStreamsHandler(dataHandler)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBluetoothManager(
+        bleDevicesDiscoverer: BleDevicesDiscoverer,
+        bleConnectivityHandler: BleConnectivityHandler,
+        bleDevicesStreamsHandler: BleDevicesStreamsHandler
+    ): BluetoothManager {
+        return BluetoothManager(
+            bleDevicesDiscoverer,
+            bleConnectivityHandler,
+            bleDevicesStreamsHandler
+        )
     }
 }
 

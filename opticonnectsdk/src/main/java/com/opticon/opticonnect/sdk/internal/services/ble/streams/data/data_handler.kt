@@ -5,6 +5,7 @@ import com.opticon.opticonnect.sdk.internal.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
@@ -20,12 +21,12 @@ class DataHandler @Inject constructor(
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
     private val mutex = Mutex()
 
-    suspend fun getBarcodeDataStream(deviceId: String): kotlinx.coroutines.flow.Flow<BarcodeData> {
+    suspend fun getBarcodeDataStream(deviceId: String): Flow<BarcodeData> {
         val dataProcessor = getDataProcessor(deviceId)
         return dataProcessor.barcodeDataStream
     }
 
-    override suspend fun getCommandResponseStream(deviceId: String): kotlinx.coroutines.flow.Flow<String> {
+    override suspend fun getCommandResponseStream(deviceId: String): Flow<String> {
         val dataProcessor = getDataProcessor(deviceId)
         return dataProcessor.commandStream
     }

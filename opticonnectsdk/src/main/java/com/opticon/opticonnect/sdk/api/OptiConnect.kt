@@ -1,20 +1,20 @@
 package com.opticon.opticonnect.sdk.api
 
+import OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
-import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
-import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
+import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 object OptiConnect {
     // Private lateinit variables for dependencies
-    private lateinit var bleDevicesDiscovererInstance: BleDevicesDiscoverer
+    private lateinit var bluetoothManagerInstance: BluetoothManager
     private lateinit var scannerHandler: SettingsHandler
     private lateinit var scannerSettingsInstance: ScannerSettings
     private lateinit var databaseManagerInstance: DatabaseManager
@@ -25,8 +25,8 @@ object OptiConnect {
     val scannerSettings: ScannerSettings
         get() = scannerSettingsInstance
 
-    val bleDevicesDiscoverer: BleDevicesDiscoverer
-        get() = bleDevicesDiscovererInstance
+    val bluetoothManager: BluetoothManager
+        get() = bluetoothManagerInstance
 
     val databaseManager: DatabaseManager
         get() = databaseManagerInstance
@@ -44,14 +44,14 @@ object OptiConnect {
             .build()
 
         // Manually initialize the dependencies using the component
-        bleDevicesDiscovererInstance = component.bleDevicesDiscoverer()
+        bluetoothManagerInstance = component.bluetoothManager()
         scannerHandler = component.scannerHandler()
         scannerSettingsInstance = component.scannerSettings()
         databaseManagerInstance = component.databaseManager()
         databaseTablesHelperInstance = component.databaseTablesHelper()
 
         if (Timber.forest().isEmpty()) {
-            Timber.plant(Timber.DebugTree())
+            Timber.plant(OptiConnectDebugTree())
         }
 
         withContext(Dispatchers.IO) {
@@ -60,7 +60,6 @@ object OptiConnect {
             try {
                 // Call initialization on scanner settings
                 scannerHandler.initialize(context)
-                var db = databaseManager.getDatabase(context)
                 Timber.i("SDK initialized successfully.")
             } catch (e: Exception) {
                 Timber.e("Failed to initialize SDK: $e")

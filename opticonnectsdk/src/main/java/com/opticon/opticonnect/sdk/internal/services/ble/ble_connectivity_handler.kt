@@ -14,6 +14,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,12 +29,22 @@ class BleConnectivityHandler @Inject constructor(
     private val compositeDisposable = CompositeDisposable()
     private val connectionMutexes = mutableMapOf<String, Mutex>()
     private val connectionStateSubscriptions = mutableMapOf<String, CompositeDisposable>()
+    private val connectionStateFlows = mutableMapOf<String, MutableSharedFlow<BleDeviceConnectionState>>()
+
+    fun getConnectionStateFlow(deviceId: String): MutableSharedFlow<BleDeviceConnectionState> {
+        return connectionStateFlows.getOrPut(deviceId) {
+            MutableSharedFlow(replay = 1)
+        }
+    }
 
     suspend fun connect(deviceId: String) {
         connectionMutexes.putIfAbsent(deviceId, Mutex())
 
         connectionMutexes[deviceId]?.withLock {
             val bleDevice = bleClient.getBleDevice(deviceId)
+
+            connectionStateFlows.putIfAbsent(deviceId, MutableSharedFlow(replay = 1))
+            connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.CONNECTING)
 
             // Disconnect if already connected
             if (bleDevice.connectionState == RxBleConnection.RxBleConnectionState.CONNECTED) {
@@ -63,6 +75,7 @@ class BleConnectivityHandler @Inject constructor(
                     Timber.w("Connection attempt failed ($retryCount/$maxRetries): $e")
                     if (retryCount >= maxRetries) {
                         Timber.e("Failed to connect after $retryCount retries.")
+                        connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
                         break
                     }
                     delayForRetry()
@@ -79,11 +92,15 @@ class BleConnectivityHandler @Inject constructor(
                 { connection ->
                     Timber.i("Connected to device: ${bleDevice.macAddress}")
                     CoroutineScope(Dispatchers.IO).launch {
+                        connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.CONNECTED)
                         initializeDevice(bleDevice.macAddress)
                     }
                 },
                 { error ->
                     Timber.e("Connection failed: ${error.localizedMessage}")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
+                    }
                 }
             ).addTo(compositeDisposable)
     }
@@ -159,6 +176,9 @@ class BleConnectivityHandler @Inject constructor(
         dataHandler.closeForDevice(deviceId)
         connectionStateSubscriptions[deviceId]?.dispose()
         connectionStateSubscriptions.remove(deviceId)
+        CoroutineScope(Dispatchers.IO).launch {
+            connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
+        }
     }
 
     private fun delayForRetry() {
