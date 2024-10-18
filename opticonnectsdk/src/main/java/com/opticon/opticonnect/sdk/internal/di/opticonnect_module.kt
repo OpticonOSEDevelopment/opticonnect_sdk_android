@@ -13,11 +13,15 @@ import com.opticon.opticonnect.sdk.api.ScannerFeedback
 import com.polidea.rxandroidble3.RxBleClient
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
-import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
+import com.opticon.opticonnect.sdk.api.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandlerFactory
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandFactory
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandFeedbackService
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -154,6 +158,33 @@ object OptiConnectModule {
             bleConnectivityHandler,
             bleDevicesStreamsHandler
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandFeedbackService(): CommandFeedbackService {
+        return CommandFeedbackService()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandFactoryService(): CommandFactory {
+        return CommandFactory()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDataWizardHelper(): DataWizardHelper {
+        return DataWizardHelper()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSettingsCompressorService(
+        settingsHandler: SettingsHandler,
+        dataWizardHelper: DataWizardHelper
+    ): SettingsCompressor {
+        return SettingsCompressor(settingsHandler, dataWizardHelper)
     }
 }
 

@@ -1,8 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
-import android.bluetooth.BluetoothGattCharacteristic
-import com.opticon.opticonnect.sdk.internal.interfaces.BleCommandResponseReader
-import com.opticon.opticonnect.sdk.internal.interfaces.BleDataWriter
+import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
+import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection

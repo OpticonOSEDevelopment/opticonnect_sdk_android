@@ -1,11 +1,9 @@
-package com.opticon.opticonnect.sdk.api.scanner_settings
+package com.opticon.opticonnect.sdk.api
 
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
-import com.opticon.opticonnect.sdk.api.ScannerFeedback
-import com.opticon.opticonnect.sdk.api.constants.*
-import timber.log.Timber
+import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
 import javax.inject.Inject
 import javax.inject.Singleton
 

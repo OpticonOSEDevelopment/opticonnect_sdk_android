@@ -2,9 +2,8 @@ package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.BluetoothManager
-import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
-import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
+import com.opticon.opticonnect.sdk.api.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import dagger.BindsInstance

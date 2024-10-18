@@ -7,7 +7,6 @@ import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-import com.opticon.opticonnect.sdk.api.scanner_settings.ScannerSettings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber

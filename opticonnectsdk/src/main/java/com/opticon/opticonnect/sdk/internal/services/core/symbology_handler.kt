@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.core
 
-import com.opticon.opticonnect.sdk.api.constants.*
+import com.opticon.opticonnect.sdk.api.constants.symbology.*
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,7 +1,9 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
-import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.*
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.DLE_V
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ETX_V
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.STX_V
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
