@@ -72,7 +72,7 @@ class BleDevicesDiscoverer @Inject constructor(
         )
 
         if (isValidDeviceName(discoveredDevice.name)) {
-            Timber.i("Discovered device: ${discoveredDevice.name}, ${discoveredDevice.deviceId}")
+            Timber.d("Discovered device: ${discoveredDevice.name}, ${discoveredDevice.deviceId}")
             try {
                 deviceDiscoveryFlow.emit(discoveredDevice)
             }

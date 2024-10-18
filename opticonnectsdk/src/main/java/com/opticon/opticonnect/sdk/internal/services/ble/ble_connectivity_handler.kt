@@ -9,13 +9,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import kotlinx.coroutines.flow.MutableSharedFlow
+import io.reactivex.rxjava3.disposables.Disposable
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,6 +29,7 @@ class BleConnectivityHandler @Inject constructor(
     private val connectionMutexes = mutableMapOf<String, Mutex>()
     private val connectionStateSubscriptions = mutableMapOf<String, CompositeDisposable>()
     private val connectionStateFlows = mutableMapOf<String, MutableSharedFlow<BleDeviceConnectionState>>()
+    private val connectionDisposables = mutableMapOf<String, Disposable>()
 
     fun getConnectionStateFlow(deviceId: String): MutableSharedFlow<BleDeviceConnectionState> {
         return connectionStateFlows.getOrPut(deviceId) {
@@ -46,18 +46,10 @@ class BleConnectivityHandler @Inject constructor(
             connectionStateFlows.putIfAbsent(deviceId, MutableSharedFlow(replay = 1))
             connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.CONNECTING)
 
-            // Disconnect if already connected
+            // Check and disconnect if already connected
             if (bleDevice.connectionState == RxBleConnection.RxBleConnectionState.CONNECTED) {
-                try {
-                    bleDevice.establishConnection(false)
-                        .timeout(10, TimeUnit.SECONDS)
-                        .doFinally { Timber.d("Disconnected from device: $deviceId") }
-                        .subscribe({}, { Timber.e("Failed to disconnect: $it") })
-                        .addTo(compositeDisposable)
-                } catch (e: Exception) {
-                    Timber.e(e, "Failed to disconnect from device: $deviceId")
-                    throw e
-                }
+                Timber.d("Device $deviceId is already connected. Disconnecting first.")
+                disconnect(deviceId)
             }
 
             val maxRetries = 3
@@ -65,10 +57,8 @@ class BleConnectivityHandler @Inject constructor(
 
             while (true) {
                 try {
-                    // Notify connecting state
-                    Timber.i("Connecting to device: $deviceId")
+                    Timber.d("Attempting to connect to device: $deviceId")
                     establishConnection(bleDevice)
-                    listenToConnectionStateUpdates(bleDevice)
                     break
                 } catch (e: Exception) {
                     retryCount++
@@ -85,19 +75,26 @@ class BleConnectivityHandler @Inject constructor(
     }
 
     private fun establishConnection(bleDevice: com.polidea.rxandroidble3.RxBleDevice) {
-        bleDevice.establishConnection(false)
+        connectionDisposables[bleDevice.macAddress] = bleDevice.establishConnection(false)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
+            .doOnSubscribe {
+                Timber.d("Establishing connection to device: ${bleDevice.macAddress}")
+            }
             .subscribe(
                 { connection ->
-                    Timber.i("Connected to device: ${bleDevice.macAddress}")
+                    Timber.d("Connected to device: ${bleDevice.macAddress}")
+                    // Emit the CONNECTED state
                     CoroutineScope(Dispatchers.IO).launch {
-                        connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.CONNECTED)
-                        initializeDevice(bleDevice.macAddress)
+                        // Initialize the device after establishing the connection
+                        if (initializeDevice(bleDevice.macAddress, connection)) {
+                            connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.CONNECTED)
+                            listenToConnectionStateUpdates(bleDevice)
+                        }
                     }
                 },
                 { error ->
-                    Timber.e("Connection failed: ${error.localizedMessage}")
+                    Timber.e(error, "Connection failed for device: ${bleDevice.macAddress}")
                     CoroutineScope(Dispatchers.IO).launch {
                         connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
                     }
@@ -113,13 +110,6 @@ class BleConnectivityHandler @Inject constructor(
         bleDevice.observeConnectionStateChanges()
             .subscribe { state ->
                 when (state) {
-                    RxBleConnection.RxBleConnectionState.CONNECTED -> {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            if (!initializeDevice(deviceId)) {
-                                Timber.e("Failed to initialize device: $deviceId")
-                            }
-                        }
-                    }
                     RxBleConnection.RxBleConnectionState.DISCONNECTED -> {
                         CoroutineScope(Dispatchers.IO).launch {
                             processDisconnect(deviceId)
@@ -132,21 +122,9 @@ class BleConnectivityHandler @Inject constructor(
             })
     }
 
-    private suspend fun initializeDevice(deviceId: String): Boolean {
+    private suspend fun initializeDevice(deviceId: String, connection: RxBleConnection): Boolean {
         return try {
-            val bleDevice = bleClient.getBleDevice(deviceId)
-
-            // Establish connection
-            val connection = bleDevice.establishConnection(false)
-                .timeout(10, TimeUnit.SECONDS)
-                .firstOrError()
-                .await() // This should now properly work within coroutines
-
-            // Discover services
-            val services = connection.discoverServices().await()
-
-            // If you have some service-specific logic, add it here
-
+            Timber.d("Initializing services for device: $deviceId")
             // Directly pass the RxBleConnection to the DataHandler
             dataHandler.addDataProcessor(deviceId, connection)
 
@@ -161,19 +139,28 @@ class BleConnectivityHandler @Inject constructor(
 
     fun disconnect(deviceId: String) {
         val bleDevice = bleClient.getBleDevice(deviceId)
+        try {
+            // Dispose of any active connection streams
+            connectionStateSubscriptions[deviceId]?.dispose()
+            connectionStateSubscriptions.remove(deviceId)
 
-        if (bleDevice.connectionState != RxBleConnection.RxBleConnectionState.DISCONNECTED) {
-            bleDevice.establishConnection(false)
-                .doOnDispose { Timber.i("Disconnected from device: $deviceId") }
-                .subscribe({}, { Timber.e("Failed to disconnect: $it") })
-                .addTo(compositeDisposable)
+            // Now disconnect the BLE device if it's connected
+            if (bleDevice.connectionState == RxBleConnection.RxBleConnectionState.CONNECTED) {
+                processDisconnect(deviceId)
+                Timber.i("Disconnected from device: $deviceId")
+            } else {
+                Timber.i("Device: $deviceId is already disconnected")
+                processDisconnect(deviceId)
+            }
+        } catch (e: Exception) {
+            Timber.e(e, "Error during disconnect for device: $deviceId")
         }
-
-        processDisconnect(deviceId)
     }
 
     private fun processDisconnect(deviceId: String) {
         dataHandler.closeForDevice(deviceId)
+        connectionDisposables[deviceId]?.dispose()
+        connectionDisposables.remove(deviceId)
         connectionStateSubscriptions[deviceId]?.dispose()
         connectionStateSubscriptions.remove(deviceId)
         CoroutineScope(Dispatchers.IO).launch {

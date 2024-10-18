@@ -5,20 +5,20 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CRC16Handler  @Inject constructor() {
-    fun update(data: Int, crc: Int): Int {
-        var chksum = crc
-        chksum = chksum.inv() and 0xFFFF
-        chksum = (chksum shr 8) xor ccittrevTable[(chksum and 0xFF) xor data]
-        chksum = chksum.inv() and 0xFFFF
-        return chksum
+class CRC16Handler @Inject constructor() {
+    fun update(data: UByte, crc: Int): Int {
+        var checksum = crc
+        checksum = checksum.inv() and 0xFFFF
+        checksum = (checksum shr 8) xor ccittrevTable[(checksum and 0xFF) xor data.toInt()]
+        checksum = checksum.inv() and 0xFFFF
+        return checksum
     }
 
-    fun compute(pData: List<Int>, pCrc: Int? = 0xFFFF): Int {
-        var chksum = pCrc ?: 0xFFFF
-        for (i in pData.indices) {
-            chksum = (chksum shr 8) xor ccittrevTable[(chksum and 0xFF) xor pData[i]]
+    fun compute(pData: List<UByte>, pCrc: Int? = 0xFFFF): Int {
+        var checksum = pCrc ?: 0xFFFF
+        for (data in pData) {
+            checksum = (checksum shr 8) xor ccittrevTable[(checksum and 0xFF) xor data.toInt()]
         }
-        return chksum.inv() and 0xFFFF
+        return checksum.inv() and 0xFFFF
     }
 }

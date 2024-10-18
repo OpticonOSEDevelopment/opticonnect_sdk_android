@@ -1,5 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
+import android.bluetooth.BluetoothGattCharacteristic
 import com.opticon.opticonnect.sdk.internal.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
@@ -12,6 +13,7 @@ import timber.log.Timber
 import java.io.Closeable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.rx3.await
 
 @Singleton
 class DataHandler @Inject constructor(
@@ -48,15 +50,27 @@ class DataHandler @Inject constructor(
 
     suspend fun addDataProcessor(deviceId: String, connection: RxBleConnection): DataProcessor {
         return mutex.withLock {
+            val services = connection.discoverServices().await()
+
+            val readCharacteristic = services.getCharacteristic(UuidConstants.OPC_READ_CHARACTERISTIC_UUID)?.await()
+            val writeCharacteristic = services.getCharacteristic(UuidConstants.OPC_WRITE_CHARACTERISTIC_UUID)?.await()
+
+            if (readCharacteristic == null || writeCharacteristic == null) {
+                Timber.e("Required OPC characteristics not found for device: $deviceId")
+                throw Exception("Required OPC characteristics not found")
+            }
+
             val dataProcessor = DataProcessor(
                 deviceId = deviceId,
-                readCharacteristic = UuidConstants.OPC_SERVICE_UUID,
-                writeCharacteristic = UuidConstants.OPC_SERVICE_UUID,
+                readCharacteristic = readCharacteristic.uuid,
+                writeCharacteristic = writeCharacteristic.uuid,
                 opcDataHandler = opcDataHandlerFactory.create(deviceId),
-                connection = connection,
+                connection = connection
             )
 
             dataProcessors[deviceId] = dataProcessor
+
+            dataProcessor.initializeStreams()
 
             return dataProcessor
         }

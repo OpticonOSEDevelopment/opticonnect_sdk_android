@@ -60,21 +60,21 @@ class OpcDataHandler @Inject constructor(
 
     private val OPC_DLE_STX_CRC = 0x4e72
 
-    suspend fun processData(data: List<Int>, shouldReturnResult: Boolean = false): String {
+    suspend fun processData(data: List<UByte>, shouldReturnResult: Boolean = false): String {
         var result = ""
         mutex.withLock {
             try {
-                for (ch in data) {
+                for (byte in data) {
                     when (state) {
                         OpcRxState.Idle -> {
-                            if (ch == DLE_V) {
+                            if (byte == DLE_V) {
                                 opcDleFlag = !opcDleFlag
                                 continue
                             }
 
                             if (opcDleFlag) {
                                 opcDleFlag = false
-                                if (ch == STX_V) {
+                                if (byte == STX_V) {
                                     state = OpcRxState.ReceivingType
                                     opcCrc = OPC_DLE_STX_CRC
                                 }
@@ -82,23 +82,23 @@ class OpcDataHandler @Inject constructor(
                         }
 
                         OpcRxState.ReceivingType -> {
-                            if (ch == DLE_V) {
+                            if (byte == DLE_V) {
                                 opcDleFlag = true
                                 state = OpcRxState.Idle
                                 continue
                             }
-                            type = ch
+                            type = byte.toInt()
                             headerLen = if ((type shr 5) != 0) (2.0.pow((type shr 5) - 1)).toInt() else 0
                             state = OpcRxState.ReceivingData
                             dataOffset = 0
                             headerBytes.clear()
                             dataBytes.clear()
-                            opcCrc = crc16Handler.update(ch, opcCrc)
+                            opcCrc = crc16Handler.update(byte, opcCrc)
                         }
 
                         OpcRxState.ReceivingData -> {
-                            opcCrc = crc16Handler.update(ch, opcCrc)
-                            if (ch == DLE_V) {
+                            opcCrc = crc16Handler.update(byte, opcCrc)
+                            if (byte == DLE_V) {
                                 if (!opcDleFlag) {
                                     opcDleFlag = true
                                     continue
@@ -107,7 +107,7 @@ class OpcDataHandler @Inject constructor(
                             } else {
                                 if (opcDleFlag) {
                                     opcDleFlag = false
-                                    when (ch) {
+                                    when (byte) {
                                         STX_V -> {
                                             state = OpcRxState.ReceivingType
                                             opcCrc = OPC_DLE_STX_CRC
@@ -120,26 +120,27 @@ class OpcDataHandler @Inject constructor(
                             }
 
                             if (dataOffset < headerLen) {
-                                headerBytes.add(ch)
+                                headerBytes.add(byte.toInt())
                             } else {
-                                dataBytes.add(ch)
+                                dataBytes.add(byte.toInt())
                             }
                             dataOffset++
                         }
 
                         OpcRxState.ReceivingCrcHigh -> {
-                            opcRxCrc = ch shl 8
+                            opcRxCrc = byte.toInt() shl 8
                             state = OpcRxState.ReceivingCrcLow
                         }
 
                         OpcRxState.ReceivingCrcLow -> {
-                            opcRxCrc = opcRxCrc or ch
+                            opcRxCrc = opcRxCrc or byte.toInt()
                             state = OpcRxState.Idle
                             if (opcRxCrc != opcCrc && opcRxCrc != 0) {
-                                opcDleFlag = (ch == DLE_V)
+                                opcDleFlag = (byte == DLE_V)
                             } else {
                                 val dataBytesArray = dataBytes.map { it.toByte() }.toByteArray()
                                 val dataString = String(dataBytesArray, Charsets.UTF_8)
+                                Timber.d("Barcode Data Processed: $dataString")
                                 if (shouldReturnResult) {
                                     result = dataString
                                     return result
