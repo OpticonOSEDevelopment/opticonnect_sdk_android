@@ -4,6 +4,8 @@ import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
 import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -18,8 +20,9 @@ import javax.inject.Singleton
 @Singleton
 class ScannerSettings @Inject constructor(
     private val symbology: Symbology,
-    feedback: ScannerFeedback
-) : SettingsBase(feedback) {
+    private val commandExecutorsManager: CommandExecutorsManager,
+    private val feedback: ScannerFeedback,
+    ) : SettingsBase(feedback) {
 
     /**
      * Sends a command to the connected BLE device.
@@ -36,8 +39,12 @@ class ScannerSettings @Inject constructor(
         command: ScannerCommand
     ): CommandResponse {
         return try {
-            return CommandResponse.succeeded()
+            // Use CommandExecutorsManager to send the command
+            Timber.d("Sending command to device $deviceId: $command")
+            commandExecutorsManager.sendCommand(deviceId, command)
         } catch (e: Exception) {
+            // Log the error and rethrow the exception
+            Timber.e("Error sending command to device $deviceId: $e")
             throw e
         }
     }

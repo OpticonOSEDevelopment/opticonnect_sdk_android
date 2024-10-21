@@ -50,7 +50,7 @@ class DatabaseManager @Inject constructor() {
 
         val openHelper = FrameworkSQLiteOpenHelperFactory().create(configuration)
 
-        database = openHelper.readableDatabase
+        database = openHelper.writableDatabase
         return database!!
     }
 

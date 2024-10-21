@@ -13,6 +13,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
 
@@ -23,6 +24,7 @@ import javax.inject.Singleton
 class BleConnectivityHandler @Inject constructor(
     private val bleClient: RxBleClient,
     private val dataHandler: DataHandler,
+    private val commandExecutorsManager: CommandExecutorsManager
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -125,8 +127,12 @@ class BleConnectivityHandler @Inject constructor(
     private suspend fun initializeDevice(deviceId: String, connection: RxBleConnection): Boolean {
         return try {
             Timber.d("Initializing services for device: $deviceId")
-            // Directly pass the RxBleConnection to the DataHandler
+
+            //Add the data processor to process reads from and writes to the device.
             dataHandler.addDataProcessor(deviceId, connection)
+
+            //Add the command executor to send commands to the device and receive feedback for sent commands.
+            commandExecutorsManager.createCommandExecutor(deviceId)
 
             Timber.i("Successfully initialized services for device: $deviceId")
             true
@@ -158,7 +164,7 @@ class BleConnectivityHandler @Inject constructor(
     }
 
     private fun processDisconnect(deviceId: String) {
-        dataHandler.closeForDevice(deviceId)
+        dataHandler.close(deviceId)
         connectionDisposables[deviceId]?.dispose()
         connectionDisposables.remove(deviceId)
         connectionStateSubscriptions[deviceId]?.dispose()

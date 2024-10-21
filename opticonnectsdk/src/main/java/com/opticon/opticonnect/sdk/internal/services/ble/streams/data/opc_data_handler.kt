@@ -142,12 +142,12 @@ class OpcDataHandler @Inject constructor(
                             } else {
                                 val dataBytesArray = dataBytes.map { it.toByte() }.toByteArray()
                                 val dataString = String(dataBytesArray, Charsets.UTF_8)
-                                Timber.d("Barcode Data Processed: $dataString")
                                 if (shouldReturnResult) {
                                     result = dataString
                                     return result
                                 } else if (type == BARCODE_TYPE || type == BARCODE_WITH_TIME_TYPE) {
                                     try {
+                                        Timber.d("Barcode data processed: $dataString")
                                         val sequenceNumber = extractSequenceNumber(headerBytes)
                                         if (sequenceNumber == previousSeqNr) {
                                             return result
@@ -158,6 +158,7 @@ class OpcDataHandler @Inject constructor(
                                     }
                                     postProcessAndSendBarcodeData(dataString, dataBytes)
                                 } else if (type == MENU_COMMAND_RSP_TYPE) {
+                                    Timber.d("Command response processed: $dataString")
                                     _commandDataStream.emit(dataString)
                                 }
                             }

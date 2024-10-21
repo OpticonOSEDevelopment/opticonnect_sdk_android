@@ -19,9 +19,9 @@ class BleDevicesStreamsHandler @Inject constructor(
         }
     }
 
-    fun closeForDevice(deviceId: String) {
+    fun close(deviceId: String) {
         try {
-            dataHandler.closeForDevice(deviceId)
+            dataHandler.close(deviceId)
             Timber.d("Disposed streams for device: $deviceId")
         } catch (e: Exception) {
             Timber.e(e, "Error during disposal for device: $deviceId")

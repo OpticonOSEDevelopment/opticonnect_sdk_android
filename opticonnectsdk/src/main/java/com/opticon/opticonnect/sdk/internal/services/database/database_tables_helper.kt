@@ -34,7 +34,7 @@ class DatabaseTablesHelper @Inject constructor() {
     }
 
     // Check if a specific table exists in the database
-    suspend fun containsTable(database: SupportSQLiteDatabase, tableName: String): Boolean {
+    fun containsTable(database: SupportSQLiteDatabase, tableName: String): Boolean {
         val tables = getTables(database)
         return tables.contains(tableName)
     }

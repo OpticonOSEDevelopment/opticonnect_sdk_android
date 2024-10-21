@@ -4,6 +4,7 @@ import OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
+import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
@@ -18,6 +19,7 @@ object OptiConnect {
     private lateinit var scannerSettingsInstance: ScannerSettings
     private lateinit var databaseManagerInstance: DatabaseManager
     private lateinit var databaseTablesHelperInstance: DatabaseTablesHelper
+    private lateinit var devicesInfoManagerInstance: DevicesInfoManager
     private var isInitialized = false
 
     // Public getters for clients to access the SDK services
@@ -32,6 +34,9 @@ object OptiConnect {
 
     val databaseTablesHelper: DatabaseTablesHelper
         get() = databaseTablesHelperInstance
+
+    val devicesInfoManager: DevicesInfoManager
+        get() = devicesInfoManagerInstance
 
     // Initialize the SDK
     suspend fun initialize(context: Context) {
@@ -48,6 +53,7 @@ object OptiConnect {
         scannerSettingsInstance = component.scannerSettings()
         databaseManagerInstance = component.databaseManager()
         databaseTablesHelperInstance = component.databaseTablesHelper()
+        devicesInfoManagerInstance = component.devicesInfoManager()
 
         if (Timber.forest().isEmpty()) {
             Timber.plant(OptiConnectDebugTree())

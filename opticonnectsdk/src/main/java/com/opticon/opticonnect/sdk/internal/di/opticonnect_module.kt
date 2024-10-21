@@ -15,11 +15,18 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandle
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import com.opticon.opticonnect.sdk.api.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
+import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
+import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandlerFactory
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorFactory
+import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandFactory
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandFeedbackService
+import com.opticon.opticonnect.sdk.internal.services.commands.OpcCommandProtocolHandler
+import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider
+import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import dagger.Module
@@ -51,9 +58,10 @@ object OptiConnectModule {
     @Singleton
     fun provideBleConnectivityHandler(
         bleClient: RxBleClient,
-        dataHandler: DataHandler
+        dataHandler: DataHandler,
+        commandExecutorsManager: CommandExecutorsManager
     ): BleConnectivityHandler {
-        return BleConnectivityHandler(bleClient, dataHandler)
+        return BleConnectivityHandler(bleClient, dataHandler, commandExecutorsManager)
     }
 
     @Provides
@@ -97,9 +105,10 @@ object OptiConnectModule {
     @Singleton
     fun provideScannerSettings(
         symbology: Symbology,
+        commandExecutorsManager: CommandExecutorsManager,
         scannerFeedback: ScannerFeedback
     ): ScannerSettings {
-        return ScannerSettings(symbology, scannerFeedback)
+        return ScannerSettings(symbology, commandExecutorsManager, scannerFeedback)
     }
 
     @Provides
@@ -134,8 +143,23 @@ object OptiConnectModule {
     @Provides
     @Singleton
     fun provideDataHandler(opcDataHandlerFactory: OpcDataHandlerFactory): DataHandler {
-        // Assume DataHandler has a default constructor or no dependencies
         return DataHandler(opcDataHandlerFactory)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBleDataWriter(
+        dataHandler: DataHandler
+    ): BleDataWriter {
+        return dataHandler
+    }
+
+    @Provides
+    @Singleton
+    fun provideBleCommandResponseReader(
+        dataHandler: DataHandler
+    ): BleCommandResponseReader {
+        return dataHandler
     }
 
     @Provides
@@ -185,6 +209,60 @@ object OptiConnectModule {
         dataWizardHelper: DataWizardHelper
     ): SettingsCompressor {
         return SettingsCompressor(settingsHandler, dataWizardHelper)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandExecutorFactory(
+        bleDataWriter: BleDataWriter,
+        bleCommandResponseReader: BleCommandResponseReader,
+        commandBytesProvider: CommandBytesProvider,
+        commandFeedbackService: CommandFeedbackService,
+    ): CommandExecutorFactory {
+        return CommandExecutorFactory(
+            bleDataWriter,
+            bleCommandResponseReader,
+            commandBytesProvider,
+            commandFeedbackService,
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandExecutorsManager(
+        commandExecutorFactory: CommandExecutorFactory,
+        commandFactory: CommandFactory,
+        settingsCompressor: SettingsCompressor
+    ): CommandExecutorsManager {
+        return CommandExecutorsManager(
+            commandExecutorFactory,
+            commandFactory,
+            settingsCompressor
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideOpcCommandProtocolHandler(
+        crc16Handler: CRC16Handler
+    ): OpcCommandProtocolHandler {
+        return OpcCommandProtocolHandler(crc16Handler)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCommandBytesProvider(
+        opcCommandProtocolHandler: OpcCommandProtocolHandler
+    ): CommandBytesProvider {
+        return opcCommandProtocolHandler
+    }
+
+    @Provides
+    @Singleton
+    fun provideDevicesInfoManager(
+        commandExecutorsManager: CommandExecutorsManager
+    ): DevicesInfoManager {
+        return DevicesInfoManager(commandExecutorsManager)
     }
 }
 

@@ -4,19 +4,25 @@ import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.opticon.opticonnect.sdk.di.DaggerTestComponent
+import com.opticon.opticonnect.sdk.di.TestComponent
 import kotlinx.coroutines.runBlocking
-import org.junit.After
-import org.junit.Before
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import junit.framework.TestCase.assertTrue
+import org.junit.Before
 import javax.inject.Inject
 
 @RunWith(AndroidJUnit4::class)
 class DatabaseIntegrationTest {
+
+    @Inject
+    lateinit var databaseTablesHelper: DatabaseTablesHelper
 
     @Inject
     lateinit var settingsHandler: SettingsHandler
@@ -24,42 +30,60 @@ class DatabaseIntegrationTest {
     @Inject
     lateinit var databaseManager: DatabaseManager
 
-    @Inject
-    lateinit var databaseTablesHelper: DatabaseTablesHelper
+    companion object {
+        private lateinit var context: Context
+        private lateinit var testComponent: TestComponent
+        private lateinit var database: SupportSQLiteDatabase
+        private lateinit var settingsHandler: SettingsHandler
+        private lateinit var databaseManager: DatabaseManager
 
-    private lateinit var database: SupportSQLiteDatabase
-    private lateinit var testComponent: TestComponent
+        @BeforeClass
+        @JvmStatic
+        fun setupClass() {
+            // Get the context and set up Dagger
+            context = ApplicationProvider.getApplicationContext<Context>()
 
-    @Before
-    fun setup() {
-        // Create the Dagger TestComponent and inject dependencies
-        var context = ApplicationProvider.getApplicationContext<Context>()
+            // Initialize Dagger TestComponent
+            testComponent = DaggerTestComponent.builder()
+                .context(context)
+                .build()
 
-        testComponent = DaggerTestComponent.builder()
-//            .context(context)
-            .build()
-        testComponent.inject(this)
+            // Inject dependencies into a temporary instance for the companion setup
+            val tempInstance = DatabaseIntegrationTest()
+            testComponent.inject(tempInstance)
 
-        // Initialize the database
-        database = runBlocking {
-            databaseManager.getDatabase(context)
+            settingsHandler = tempInstance.settingsHandler
+            databaseManager = tempInstance.databaseManager
 
+            // Initialize the database once for all tests
+            database = runBlocking {
+                databaseManager.getDatabase(context)
+            }
+
+            // Initialize the settings handler without closing the database
+            runBlocking {
+                settingsHandler.initialize(context, closeDB = false)
+            }
         }
 
-        runBlocking {
-            settingsHandler.initialize(context)
+        @AfterClass
+        @JvmStatic
+        fun teardownClass() {
+            // Close the database after all tests are done
+            runBlocking {
+                databaseManager.closeDatabase()
+            }
         }
     }
 
-    @After
-    fun teardown() {
-        runBlocking {
-            databaseManager.closeDatabase()
-        }
+    @Before
+    fun injectDependencies() {
+        // Inject dependencies into the instance
+        testComponent.inject(this)
     }
 
     @Test
-    fun testDatabaseHasRequiredTables() = runBlocking {
+    fun testDatabaseHasRequiredTables() {
         // Get the list of tables from the database
         val tables = databaseTablesHelper.getTables(database)
 
@@ -88,7 +112,6 @@ class DatabaseIntegrationTest {
 
     @Test
     fun testInitializeCodesDataStructures() = runBlocking {
-
         // Validate that specific data was loaded into the structures
         val groupsForSomeCode = settingsHandler.getGroupsForCode("R2B")
         assertTrue("Groups for 'R2B' should contain upcEAddon2", groupsForSomeCode.contains("upcEAddon2".lowercase()))

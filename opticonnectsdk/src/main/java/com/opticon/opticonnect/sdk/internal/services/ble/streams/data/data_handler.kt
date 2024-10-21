@@ -34,6 +34,7 @@ class DataHandler @Inject constructor(
 
     override suspend fun writeData(deviceId: String, data: String, dataBytes: ByteArray) {
         try {
+            Timber.d("Writing data to device: $deviceId")
             val dataProcessor = getDataProcessor(deviceId)
             dataProcessor.writeData(dataBytes)
         } catch (e: Exception) {
@@ -86,7 +87,7 @@ class DataHandler @Inject constructor(
         Timber.d("All data processors closed and cleared.")
     }
 
-    fun closeForDevice(deviceId: String) {
+    fun close(deviceId: String) {
         dataProcessors[deviceId]?.close() // Close the processor for the specific device
         dataProcessors.remove(deviceId)
         Timber.d("Closed and removed data processor for device: $deviceId")

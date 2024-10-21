@@ -20,11 +20,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.util.LinkedList
-import java.util.Timer
 import javax.inject.Inject
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
+import java.io.Closeable
 
 class CommandExecutor @Inject constructor(
     private val deviceId: String,
@@ -33,7 +33,7 @@ class CommandExecutor @Inject constructor(
     private val commandBytesProvider: CommandBytesProvider,
     private val commandFeedbackService: CommandFeedbackService,
     private val timeoutManager: TimeoutManager
-) : CommandSender {
+) : CommandSender, Closeable {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -55,8 +55,10 @@ class CommandExecutor @Inject constructor(
     }
 
     override fun sendCommand(command: Command) {
+        Timber.d("Sending command to queue: ${command.code}")
         coroutineScope.launch {
             mutex.withLock {
+                Timber.d("Enqueueing command: ${command.code}")
                 enqueueCommand(command)
             }
         }
@@ -70,12 +72,14 @@ class CommandExecutor @Inject constructor(
     }
 
     private fun executeCommand(command: Command) {
+        Timber.d("Executing command from queue: ${command.code}")
         responseData.clear()
         startCommandTimeout(command)
 
         try {
-            val bytes = commandBytesProvider.getCommandBytes(command).toByteArray()
+            val bytes = commandBytesProvider.getCommandBytes(command)
             coroutineScope.launch {
+
                 bleDataWriter.writeData(deviceId, command.code, bytes)
             }
         } catch (e: Exception) {
@@ -150,6 +154,7 @@ class CommandExecutor @Inject constructor(
 
     private suspend fun retryCommand(command: Command) {
         Timber.w("Retrying command: ${command.code}")
+        delay(200L)
         command.retried = true
         mutex.withLock {
             pendingCommandsQueue.removeFirst()
@@ -162,7 +167,7 @@ class CommandExecutor @Inject constructor(
         if (pendingCommandsQueue.isEmpty()) return
 
         val command = pendingCommandsQueue.first()
-        Timber.w("Command response received for: ${command.code}, Data: $data")
+        Timber.d("Command response received for: ${command.code}, Data: $data")
 
         when (data) {
             NAK.toString() -> {
@@ -192,8 +197,9 @@ class CommandExecutor @Inject constructor(
         }
     }
 
-    fun dispose() {
+    override fun close() {
         pendingCommandsQueue.clear()
         timeoutManager.dispose()
+        saveToNonVolatileMemoryJob?.cancel()
     }
 }
