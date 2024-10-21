@@ -2,13 +2,11 @@ package com.opticon.opticonnect.sdk
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.opticon.opticonnect.sdk.api.OptiConnect
-import com.opticon.opticonnect.sdk.api.constants.commands.single_letter.GOOD_READ_BUZZER
+import com.opticon.opticonnect.sdk.api.constants.commands.single_letter.SingleLetterCommands
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
-import com.opticon.opticonnect.sdk.di.DaggerTestComponent
-import com.opticon.opticonnect.sdk.di.TestComponent
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.fail
@@ -37,8 +35,6 @@ class ScannerBluetoothTest {
         private const val TEST_DEVICE_MAC_ADDRESS = "38:89:DC:0E:00:4F"  // Set the MAC address of the test device
         private lateinit var context: android.content.Context
 
-        private lateinit var testComponent: TestComponent
-
         @BeforeClass
         @JvmStatic
         fun globalSetup() {
@@ -53,14 +49,6 @@ class ScannerBluetoothTest {
                 "pm grant ${instrumentation.targetContext.packageName} ${android.Manifest.permission.ACCESS_FINE_LOCATION}").close()
 
             context = instrumentation.targetContext
-
-            testComponent = DaggerTestComponent.builder()
-                .context(context)
-                .build()
-
-            // Inject dependencies for the static companion object
-            val tempInstance = ScannerBluetoothTest()
-            testComponent.inject(tempInstance)
 
             runBlocking {
                 OptiConnect.initialize(context)
@@ -103,8 +91,6 @@ class ScannerBluetoothTest {
 
     // Connect to the device
     suspend fun connectDevice(deviceId: String, connectionStateFlow: MutableStateFlow<BleDeviceConnectionState>): Boolean {
-        val connectionStateDeferred = CompletableDeferred<BleDeviceConnectionState?>()
-
         // Launch a job to listen to the connection state of the device
         val connectionStateJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToConnectionState(deviceId).collect { connectionState ->
@@ -229,7 +215,8 @@ class ScannerBluetoothTest {
             val connectionStateFlow = MutableStateFlow<BleDeviceConnectionState>(BleDeviceConnectionState.DISCONNECTED)
             val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
             if (isDeviceConnected) {
-                var response = OptiConnect.scannerSettings.executeCommand((TEST_DEVICE_MAC_ADDRESS), ScannerCommand(GOOD_READ_BUZZER, sendFeedback = false))
+                var response = OptiConnect.scannerSettings.executeCommand((TEST_DEVICE_MAC_ADDRESS), ScannerCommand(
+                    SingleLetterCommands.GOOD_READ_BUZZER, sendFeedback = false))
                 delay(1000)
                 assert(response.succeeded)
             } else {

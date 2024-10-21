@@ -1,10 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.core
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.TRANSMIT_DEVICE_INFORMATION
-import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DIRECT_INPUT_KEY_1
-import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DIRECT_INPUT_KEY_5
-import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DIRECT_INPUT_KEY_M
-import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DIRECT_INPUT_KEY_N
+import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DirectInputKeyCommands
 import com.opticon.opticonnect.sdk.api.entities.DeviceInfo
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
@@ -33,10 +30,10 @@ class DevicesInfoManager @Inject constructor(
     }
 
     suspend fun fetchInfo(deviceId: String) {
-        fetchAndStoreInfo(deviceId, macAddresses, DIRECT_INPUT_KEY_M)
-        fetchAndStoreInfo(deviceId, serialNumbers, DIRECT_INPUT_KEY_5)
-        fetchAndStoreInfo(deviceId, localNames, DIRECT_INPUT_KEY_N)
-        fetchAndStoreInfo(deviceId, firmwareVersions, DIRECT_INPUT_KEY_1)
+        fetchAndStoreInfo(deviceId, macAddresses, DirectInputKeyCommands.DIRECT_INPUT_KEY_M)
+        fetchAndStoreInfo(deviceId, serialNumbers, DirectInputKeyCommands.DIRECT_INPUT_KEY_5)
+        fetchAndStoreInfo(deviceId, localNames, DirectInputKeyCommands.DIRECT_INPUT_KEY_N)
+        fetchAndStoreInfo(deviceId, firmwareVersions, DirectInputKeyCommands.DIRECT_INPUT_KEY_1)
     }
 
     private suspend fun fetchAndStoreInfo(
@@ -48,12 +45,12 @@ class DevicesInfoManager @Inject constructor(
             if (!store.containsKey(deviceId)) {
                 val result = commandExecutorsManager.sendCommand(
                     deviceId,
-                    ScannerCommand(TRANSMIT_DEVICE_INFORMATION, listOf(parameter), sendFeedback = false)
+                    ScannerCommand(CommunicationCommands.TRANSMIT_DEVICE_INFORMATION, listOf(parameter), sendFeedback = false)
                 )
 
                 if (result.succeeded) {
                     var fetchedData = result.response
-                    if (parameter == DIRECT_INPUT_KEY_M) {
+                    if (parameter == DirectInputKeyCommands.DIRECT_INPUT_KEY_M) {
                         fetchedData = formatMacAddress(fetchedData)
                     }
                     store[deviceId] = fetchedData

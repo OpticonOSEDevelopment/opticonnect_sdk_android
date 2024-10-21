@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.SAVE_SETTINGS
+import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.helpers.TimeoutManager
@@ -132,7 +132,7 @@ class CommandExecutor @Inject constructor(
 
                     pendingCommandsQueue.removeFirst()
 
-                    if (command.code != SAVE_SETTINGS) {
+                    if (command.code != CommunicationCommands.SAVE_SETTINGS) {
                         persistSettings()
                     }
                 }
@@ -193,7 +193,7 @@ class CommandExecutor @Inject constructor(
 
         saveToNonVolatileMemoryJob = coroutineScope.launch {
             delay(5000L)  // Wait for 5 seconds
-            sendCommand(Command(SAVE_SETTINGS, sendFeedback = false))
+            sendCommand(Command(CommunicationCommands.SAVE_SETTINGS, sendFeedback = false))
         }
     }
 

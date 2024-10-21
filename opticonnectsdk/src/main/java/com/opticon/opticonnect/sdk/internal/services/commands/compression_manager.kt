@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.FETCH_SETTINGS
+import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ class CompressionManager(
 
             try {
                 // Fetch the current uncompressed settings
-                val command = Command(FETCH_SETTINGS, sendFeedback = false)
+                val command = Command(CommunicationCommands.FETCH_SETTINGS, sendFeedback = false)
                 commandExecutor.sendCommand(command)
 
                 // Await the result of the command
