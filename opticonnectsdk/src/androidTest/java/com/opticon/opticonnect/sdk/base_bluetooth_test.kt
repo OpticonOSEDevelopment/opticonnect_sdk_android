@@ -1,7 +1,6 @@
 import com.opticon.opticonnect.sdk.api.OptiConnect
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
-import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -10,7 +9,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.AfterClass
@@ -38,9 +36,7 @@ abstract class BaseBluetoothTest {
 
             context = instrumentation.targetContext
 
-            runBlocking {
-                OptiConnect.initialize(context)
-            }
+            OptiConnect.setContext(context)
             OptiConnect.bluetoothManager.startDiscovery(context)
         }
 

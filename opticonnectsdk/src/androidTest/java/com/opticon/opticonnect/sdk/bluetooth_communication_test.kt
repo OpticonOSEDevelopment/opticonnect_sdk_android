@@ -75,35 +75,34 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         }
     }
 
-//    // Test to fetch device info
-//    @Test
-//    fun test3FetchDeviceInfo() = runBlocking {
-//        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
-//        assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
-//
-//        val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-//        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
-//        if (isDeviceConnected) {
-//            Timber.d("Fetching device info for device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
-//            OptiConnect.bluetoothManager.devicesInfoManager.fetchInfo(TEST_DEVICE_MAC_ADDRESS)
-//            val deviceInfo = OptiConnect.bluetoothManager.devicesInfoManager.getInfo(TEST_DEVICE_MAC_ADDRESS)
-//            delay(1000)
-//            Timber.d("Device MAC: ${deviceInfo.macAddress}")
-//            Timber.d("Device Local Name: ${deviceInfo.localName}")
-//            Timber.d("Device Serial Number: ${deviceInfo.serialNumber}")
-//            Timber.d("Device Firmware Version: ${deviceInfo.firmwareVersion}")
-//
-//            assertTrue(
-//                "Device info check failed.",
-//                deviceInfo.macAddress == TEST_DEVICE_MAC_ADDRESS &&
-//                        deviceInfo.localName.isNotEmpty() &&
-//                        deviceInfo.serialNumber.isNotEmpty() &&
-//                        deviceInfo.firmwareVersion.isNotEmpty()
-//            )
-//        } else {
-//            fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
-//        }
-//    }
+    // Test to fetch device info
+    @Test
+    fun test3FetchDeviceInfo() = runBlocking {
+        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+        assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
+
+        val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
+        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        if (isDeviceConnected) {
+            Timber.d("Fetching device info for device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
+            val deviceInfo = OptiConnect.scannerInfo.getInfo(TEST_DEVICE_MAC_ADDRESS)
+            delay(1000)
+            Timber.d("Device MAC: ${deviceInfo.macAddress}")
+            Timber.d("Device Local Name: ${deviceInfo.localName}")
+            Timber.d("Device Serial Number: ${deviceInfo.serialNumber}")
+            Timber.d("Device Firmware Version: ${deviceInfo.firmwareVersion}")
+
+            assertTrue(
+                "Device info check failed.",
+                deviceInfo.macAddress == TEST_DEVICE_MAC_ADDRESS &&
+                        deviceInfo.localName.isNotEmpty() &&
+                        deviceInfo.serialNumber.isNotEmpty() &&
+                        deviceInfo.firmwareVersion.isNotEmpty()
+            )
+        } else {
+            fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
+        }
+    }
 
     @Test
     fun test4SettingsCompressionTest1()  = runBlocking {
@@ -187,6 +186,5 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         } else {
             fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
         }
-
     }
 }

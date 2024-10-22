@@ -28,17 +28,13 @@ internal class SettingsHandlerImpl @Inject constructor(
     private var directInputKeysSet = mutableSetOf<String>()
     private var directInputKeys = listOf<String>()
 
-    override suspend fun initialize(context: Context, closeDB: Boolean) {
-        runCatching {
-            val database = databaseManager.getDatabase(context)
-            initializeCodesDataStructures(database)
-            setDescriptions(database)
-            setDirectInputKeys()
-            if (closeDB) {
-                databaseManager.closeDatabase()
-            }
-        }.onFailure { e ->
-            Timber.e("Failed to initialize ScannerSettingsHandler: $e")
+    override fun initialize(context: Context, closeDB: Boolean) {
+        val database = databaseManager.getDatabase(context)
+        initializeCodesDataStructures(database)
+        setDescriptions(database)
+        setDirectInputKeys()
+        if (closeDB) {
+            databaseManager.closeDatabase()
         }
     }
 

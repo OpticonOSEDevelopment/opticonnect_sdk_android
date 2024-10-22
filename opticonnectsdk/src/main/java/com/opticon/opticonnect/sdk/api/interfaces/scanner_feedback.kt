@@ -1,18 +1,13 @@
-package com.opticon.opticonnect.sdk.api
-
-import javax.inject.Inject
-import javax.inject.Singleton
+package com.opticon.opticonnect.sdk.api.interfaces
 
 /**
- * Configures the feedback behavior of the scanner when executing commands.
+ * Interface for configuring feedback behavior for the scanner when executing commands.
  *
- * This class allows you to update the individual feedback settings for LED, buzzer,
+ * This interface allows you to update the individual feedback settings for LED, buzzer,
  * and vibration. The feedback is applied when the scanner executes certain commands,
  * controlling the visual (LED), auditory (buzzer), and tactile (vibration) responses.
  */
-@Singleton
-class ScannerFeedback @Inject constructor() {
-    private var _led: Boolean = true
+interface ScannerFeedback {
 
     /**
      * Indicates whether LED feedback is enabled.
@@ -21,9 +16,6 @@ class ScannerFeedback @Inject constructor() {
      * Default value is `true`.
      */
     val led: Boolean
-        get() = _led
-
-    private var _buzzer: Boolean = true
 
     /**
      * Indicates whether buzzer feedback is enabled.
@@ -32,9 +24,6 @@ class ScannerFeedback @Inject constructor() {
      * Default value is `true`.
      */
     val buzzer: Boolean
-        get() = _buzzer
-
-    private var _vibration: Boolean = true
 
     /**
      * Indicates whether vibration feedback is enabled.
@@ -43,7 +32,6 @@ class ScannerFeedback @Inject constructor() {
      * Default value is `true`.
      */
     val vibration: Boolean
-        get() = _vibration
 
     /**
      * Sets the feedback preferences for the scanner.
@@ -55,13 +43,5 @@ class ScannerFeedback @Inject constructor() {
      * @param buzzer Set this to `true` to enable buzzer feedback, or `false` to disable it. If `null`, the setting remains unchanged.
      * @param vibration Set this to `true` to enable vibration feedback, or `false` to disable it. If `null`, the setting remains unchanged.
      */
-    fun set(
-        led: Boolean? = null,
-        buzzer: Boolean? = null,
-        vibration: Boolean? = null
-    ) {
-        led?.let { _led = it }
-        buzzer?.let { _buzzer = it }
-        vibration?.let { _vibration = it }
-    }
+    fun set(led: Boolean? = null, buzzer: Boolean? = null, vibration: Boolean? = null)
 }

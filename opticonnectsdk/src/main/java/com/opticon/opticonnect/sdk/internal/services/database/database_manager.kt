@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -22,13 +20,13 @@ internal class DatabaseManager @Inject constructor() {
 
     private var database: SupportSQLiteDatabase? = null
 
-    suspend fun getDatabase(context: Context): SupportSQLiteDatabase {
+    fun getDatabase(context: Context): SupportSQLiteDatabase {
         if (database != null) return database!!
 
         return initializeDatabase(context)
     }
 
-    private suspend fun initializeDatabase(context: Context): SupportSQLiteDatabase {
+    private fun initializeDatabase(context: Context): SupportSQLiteDatabase {
         val databasePath = context.getDatabasePath(DB_NAME).path
 
         // Copy the prebuilt database from assets to the app's data directory
@@ -54,27 +52,23 @@ internal class DatabaseManager @Inject constructor() {
         return database!!
     }
 
-    private suspend fun copyDatabaseFromAssets(databasePath: String, context: Context) {
-        withContext(Dispatchers.IO) {
-            val inputStream: InputStream = context.assets.open(DB_PATH)
-            val outputStream: OutputStream = FileOutputStream(databasePath)
+    private fun copyDatabaseFromAssets(databasePath: String, context: Context) {
+        val inputStream: InputStream = context.assets.open(DB_PATH)
+        val outputStream: OutputStream = FileOutputStream(databasePath)
 
-            val buffer = ByteArray(1024)
-            var length: Int
-            while (inputStream.read(buffer).also { length = it } > 0) {
-                outputStream.write(buffer, 0, length)
-            }
-
-            outputStream.flush()
-            outputStream.close()
-            inputStream.close()
+        val buffer = ByteArray(1024)
+        var length: Int
+        while (inputStream.read(buffer).also { length = it } > 0) {
+            outputStream.write(buffer, 0, length)
         }
+
+        outputStream.flush()
+        outputStream.close()
+        inputStream.close()
     }
 
-    suspend fun closeDatabase() {
-        withContext(Dispatchers.IO) {
-            database?.close()
-            database = null
-        }
+    fun closeDatabase() {
+        database?.close()
+        database = null
     }
 }

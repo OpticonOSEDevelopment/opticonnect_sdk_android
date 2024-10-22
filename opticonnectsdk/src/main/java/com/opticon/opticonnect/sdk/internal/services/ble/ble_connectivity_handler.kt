@@ -14,6 +14,7 @@ import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
+import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
 
@@ -24,7 +25,8 @@ import javax.inject.Singleton
 internal class BleConnectivityHandler @Inject constructor(
     private val bleClient: RxBleClient,
     private val dataHandler: DataHandler,
-    private val commandExecutorsManager: CommandExecutorsManager
+    private val commandExecutorsManager: CommandExecutorsManager,
+    private val devicesInfoManager: DevicesInfoManager
 ) {
 
     private val compositeDisposable = CompositeDisposable()
@@ -133,6 +135,8 @@ internal class BleConnectivityHandler @Inject constructor(
 
             //Add the command executor to send commands to the device and receive feedback for sent commands.
             commandExecutorsManager.createCommandExecutor(deviceId)
+
+            devicesInfoManager.fetchInfo(deviceId)
 
             Timber.i("Successfully initialized services for device: $deviceId")
             true

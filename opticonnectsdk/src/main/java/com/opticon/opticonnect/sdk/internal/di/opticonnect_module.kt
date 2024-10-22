@@ -8,7 +8,8 @@ import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.CRC16Handler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-import com.opticon.opticonnect.sdk.api.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.polidea.rxandroidble3.RxBleClient
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
@@ -29,6 +30,7 @@ import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsMa
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandFactory
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandFeedbackService
 import com.opticon.opticonnect.sdk.internal.services.commands.OpcCommandProtocolHandler
+import com.opticon.opticonnect.sdk.internal.services.commands.ScannerFeedbackImpl
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
@@ -40,12 +42,6 @@ import javax.inject.Singleton
 
 @Module
 internal object OptiConnectModule {
-
-    @Provides
-    @Singleton
-    fun provideScannerFeedback(): ScannerFeedback {
-        return ScannerFeedback()
-    }
 
     @Provides
     @Singleton
@@ -64,9 +60,10 @@ internal object OptiConnectModule {
     fun provideBleConnectivityHandler(
         bleClient: RxBleClient,
         dataHandler: DataHandler,
-        commandExecutorsManager: CommandExecutorsManager
+        commandExecutorsManager: CommandExecutorsManager,
+        devicesInfoManager: DevicesInfoManager
     ): BleConnectivityHandler {
-        return BleConnectivityHandler(bleClient, dataHandler, commandExecutorsManager)
+        return BleConnectivityHandler(bleClient, dataHandler, commandExecutorsManager, devicesInfoManager)
     }
 
     @Provides
@@ -96,6 +93,12 @@ internal object OptiConnectModule {
         databaseManager: DatabaseManager
     ): SettingsHandler {
         return SettingsHandlerImpl(databaseTablesHelper, databaseManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideScannerFeedback(): ScannerFeedback {
+        return ScannerFeedbackImpl()
     }
 
     @Provides
@@ -277,6 +280,14 @@ internal object OptiConnectModule {
         commandExecutorsManager: CommandExecutorsManager
     ): DevicesInfoManager {
         return DevicesInfoManager(commandExecutorsManager)
+    }
+
+    @Provides
+    @Singleton
+    fun provideScannerInfo(
+        devicesInfoManager: DevicesInfoManager
+    ): ScannerInfo {
+        return devicesInfoManager
     }
 }
 

@@ -1,9 +1,9 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.constants.commands.indicator.IndicatorCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.LEDColor
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.*
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
 import javax.inject.Inject

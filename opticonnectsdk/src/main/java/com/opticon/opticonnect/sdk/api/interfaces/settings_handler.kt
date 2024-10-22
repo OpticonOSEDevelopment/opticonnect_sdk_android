@@ -13,7 +13,7 @@ interface SettingsHandler {
      * @param context The application context.
      * @param closeDB Flag to indicate whether the database should be closed after initialization.
      */
-    suspend fun initialize(context: Context, closeDB: Boolean = true)
+    fun initialize(context: Context, closeDB: Boolean = true)
 
     /**
      * Checks if the provided code is a direct input key.

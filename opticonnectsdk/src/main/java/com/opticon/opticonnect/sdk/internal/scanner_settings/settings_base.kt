@@ -1,9 +1,9 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
 import com.opticon.opticonnect.sdk.api.OptiConnect
-import com.opticon.opticonnect.sdk.api.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 

@@ -3,58 +3,89 @@ package com.opticon.opticonnect.sdk.api
 import OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.lang.ref.WeakReference
 
 object OptiConnect {
-    // Private lateinit variables for dependencies
-    private lateinit var bluetoothManagerInstance: BluetoothManager
-    private lateinit var scannerSettingsInstance: ScannerSettings
-    private lateinit var settingsHandler: SettingsHandler
-    private var isInitialized = false
 
-    // Public getters for clients to access the SDK services
-    val scannerSettings: ScannerSettings
-        get() = scannerSettingsInstance
+    private var component: OptiConnectComponent? = null
+    private var isSettingsHandlerInitialized = false
 
-    val bluetoothManager: BluetoothManager
-        get() = bluetoothManagerInstance
+    // Hold context as a WeakReference to avoid memory leaks
+    private var contextRef: WeakReference<Context>? = null
 
-    // Initialize the SDK
-    suspend fun initialize(context: Context) {
-        if (isInitialized) return
+    // Private method to lazily build the Dagger component
+    private fun getComponent(context: Context): OptiConnectComponent {
+        if (component == null) {
+            component = DaggerOptiConnectComponent.builder()
+                .context(context.applicationContext)  // Use application context to avoid memory leaks
+                .build()
 
-        // Create the Dagger component and initialize dependencies
-        val component: OptiConnectComponent = DaggerOptiConnectComponent.builder()
-            .context(context)
-            .build()
-
-        // Manually initialize the dependencies using the component
-        bluetoothManagerInstance = component.bluetoothManager()
-        scannerSettingsInstance = component.scannerSettings()
-        settingsHandler = component.settingsHandler()
-
-        if (Timber.forest().isEmpty()) {
-            Timber.plant(OptiConnectDebugTree())
-        }
-
-        withContext(Dispatchers.IO) {
-            Timber.d("Initializing SDK...")
-
-            try {
-                settingsHandler.initialize(context)
-                Timber.i("SDK initialized successfully.")
-            } catch (e: Exception) {
-                Timber.e("Failed to initialize SDK: $e")
-                throw e
+            if (Timber.forest().isEmpty()) {
+                Timber.plant(OptiConnectDebugTree())
             }
-        }
 
-        isInitialized = true
+            Timber.d("OptiConnect component initialized")
+        }
+        return component!!
+    }
+
+    // Function to ensure settingsHandler is initialized
+    private fun ensureSettingsHandlerInitialized(settingsHandler: SettingsHandler) {
+        if (!isSettingsHandlerInitialized) {
+            settingsHandler.initialize(getContext())
+            isSettingsHandlerInitialized = true
+            Timber.i("Initialized SettingsHandler")
+        }
+    }
+
+    // Public getters for clients to access the SDK services, lazily initialized via Dagger
+    val scannerSettings: ScannerSettings by lazy {
+        val settingsHandler = getComponentFromContext().settingsHandler()
+        ensureSettingsHandlerInitialized(settingsHandler)
+        getComponentFromContext().scannerSettings()
+    }
+
+    val bluetoothManager: BluetoothManager by lazy {
+        val settingsHandler = getComponentFromContext().settingsHandler()
+        ensureSettingsHandlerInitialized(settingsHandler)
+        getComponentFromContext().bluetoothManager()
+    }
+
+    val settingsHandler: SettingsHandler by lazy {
+        val handler = getComponentFromContext().settingsHandler()
+        ensureSettingsHandlerInitialized(handler)
+        handler
+    }
+
+    val scannerInfo: ScannerInfo by lazy {
+        val settingsHandler = getComponentFromContext().settingsHandler()
+        ensureSettingsHandlerInitialized(settingsHandler)
+        getComponentFromContext().scannerInfo()
+    }
+
+    private fun getContext(): Context {
+        return contextRef?.get() ?: throw IllegalStateException("Context not set. You must provide a context when accessing the SDK services.")
+    }
+
+    // Set the context, store it as a weak reference to avoid memory leaks
+    fun setContext(ctx: Context) {
+        contextRef = WeakReference(ctx.applicationContext)
+    }
+
+    fun withContext(ctx: Context): OptiConnect {
+        setContext(ctx)
+        return this
+    }
+
+    // Retrieve the component using the weak-referenced context
+    private fun getComponentFromContext(): OptiConnectComponent {
+        val ctx = getContext()
+        return getComponent(ctx)
     }
 }
