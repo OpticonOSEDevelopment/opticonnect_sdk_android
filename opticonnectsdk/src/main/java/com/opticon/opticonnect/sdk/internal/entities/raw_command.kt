@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.entities
 
-class RawCommand(
+internal class RawCommand(
     code: String,
     parameters: List<String> = emptyList(),
     sendFeedback: Boolean = true,

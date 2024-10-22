@@ -6,7 +6,7 @@ import timber.log.Timber
 import java.io.Closeable
 
 @Singleton
-class BleDevicesStreamsHandler @Inject constructor(
+internal class BleDevicesStreamsHandler @Inject constructor(
     val dataHandler: DataHandler
 ) : Closeable {
 

@@ -2,12 +2,11 @@ package com.opticon.opticonnect.sdk.api
 
 import OptiConnectDebugTree
 import android.content.Context
+import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
-import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
-import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
-import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
-import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -15,11 +14,8 @@ import timber.log.Timber
 object OptiConnect {
     // Private lateinit variables for dependencies
     private lateinit var bluetoothManagerInstance: BluetoothManager
-    private lateinit var scannerHandler: SettingsHandler
     private lateinit var scannerSettingsInstance: ScannerSettings
-    private lateinit var databaseManagerInstance: DatabaseManager
-    private lateinit var databaseTablesHelperInstance: DatabaseTablesHelper
-    private lateinit var devicesInfoManagerInstance: DevicesInfoManager
+    private lateinit var settingsHandler: SettingsHandler
     private var isInitialized = false
 
     // Public getters for clients to access the SDK services
@@ -28,15 +24,6 @@ object OptiConnect {
 
     val bluetoothManager: BluetoothManager
         get() = bluetoothManagerInstance
-
-    val databaseManager: DatabaseManager
-        get() = databaseManagerInstance
-
-    val databaseTablesHelper: DatabaseTablesHelper
-        get() = databaseTablesHelperInstance
-
-    val devicesInfoManager: DevicesInfoManager
-        get() = devicesInfoManagerInstance
 
     // Initialize the SDK
     suspend fun initialize(context: Context) {
@@ -49,11 +36,8 @@ object OptiConnect {
 
         // Manually initialize the dependencies using the component
         bluetoothManagerInstance = component.bluetoothManager()
-        scannerHandler = component.scannerHandler()
         scannerSettingsInstance = component.scannerSettings()
-        databaseManagerInstance = component.databaseManager()
-        databaseTablesHelperInstance = component.databaseTablesHelper()
-        devicesInfoManagerInstance = component.devicesInfoManager()
+        settingsHandler = component.settingsHandler()
 
         if (Timber.forest().isEmpty()) {
             Timber.plant(OptiConnectDebugTree())
@@ -63,8 +47,7 @@ object OptiConnect {
             Timber.d("Initializing SDK...")
 
             try {
-                // Call initialization on scanner settings
-                scannerHandler.initialize(context)
+                settingsHandler.initialize(context)
                 Timber.i("SDK initialized successfully.")
             } catch (e: Exception) {
                 Timber.e("Failed to initialize SDK: $e")

@@ -17,7 +17,7 @@ import timber.log.Timber
 import java.util.UUID
 import java.io.Closeable
 
-class DataProcessor(
+internal class DataProcessor(
     private val deviceId: String,
     private val readCharacteristic: UUID,
     private val writeCharacteristic: UUID,

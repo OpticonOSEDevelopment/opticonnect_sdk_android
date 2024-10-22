@@ -22,7 +22,7 @@ enum class OpcRxState {
     Idle, ReceivingType, ReceivingData, ReceivingCrcHigh, ReceivingCrcLow
 }
 
-class OpcDataHandler @Inject constructor(
+internal class OpcDataHandler @Inject constructor(
     private val deviceId: String,
     private val crc16Handler: CRC16Handler, // Injecting CRC16Handler
     private val symbologyHandler: SymbologyHandler // Injecting SymbologyHandler

@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CRC16Handler @Inject constructor() {
+internal class CRC16Handler @Inject constructor() {
     fun update(data: UByte, crc: Int): Int {
         var checksum = crc
         checksum = checksum.inv() and 0xFFFF

@@ -50,14 +50,4 @@ object ScanCommands {
     const val READ_7_TIMES_REDUNDANCY_6 = "BU"
     const val READ_8_TIMES_REDUNDANCY_7 = "BV"
     const val READ_9_TIMES_REDUNDANCY_8 = "BW"
-
-    const val GOOD_READ_LED_DURATION_DISABLED = "T4"
-    const val GOOD_READ_LED_DURATION_10_MS = "[XT9"
-    const val GOOD_READ_LED_DURATION_60_MS = "[XTH"
-    const val GOOD_READ_LED_DURATION_100_MS = "[XT8"
-    const val GOOD_READ_LED_DURATION_200_MS = "T5"
-    const val GOOD_READ_LED_DURATION_400_MS = "T6"
-    const val GOOD_READ_LED_DURATION_500_MS = "[XTI"
-    const val GOOD_READ_LED_DURATION_800_MS = "T7"
-    const val GOOD_READ_LED_DURATION_2000_MS = "[XTJ"
 }

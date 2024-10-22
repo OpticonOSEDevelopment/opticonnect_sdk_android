@@ -22,7 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BleDevicesDiscoverer @Inject constructor(
+internal class BleDevicesDiscoverer @Inject constructor(
     private val blePermissionsChecker: BlePermissionsChecker
 ) : Closeable {
 

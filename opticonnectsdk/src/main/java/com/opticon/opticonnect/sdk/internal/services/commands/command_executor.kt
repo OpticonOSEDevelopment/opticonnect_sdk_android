@@ -26,7 +26,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import java.io.Closeable
 
-class CommandExecutor @Inject constructor(
+internal class CommandExecutor @Inject constructor(
     private val deviceId: String,
     private val bleDataWriter: BleDataWriter,
     private val bleCommandResponseReader: BleCommandResponseReader,

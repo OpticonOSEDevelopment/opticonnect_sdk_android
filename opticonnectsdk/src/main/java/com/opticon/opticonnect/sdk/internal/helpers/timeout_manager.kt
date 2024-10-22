@@ -3,7 +3,7 @@ package com.opticon.opticonnect.sdk.internal.helpers
 import android.os.Handler
 import android.os.Looper
 
-class TimeoutManager {
+internal class TimeoutManager {
 
     private var timeoutHandler: Handler? = null
     private var timeoutRunnable: Runnable? = null

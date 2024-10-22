@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DataWizardHelper @Inject constructor() {
+internal class DataWizardHelper @Inject constructor() {
 
     private val dataWizardCommands: Set<String> = setOf(
         DataWizardCommands.DATA_WIZARD_CONFIGURATION_0,

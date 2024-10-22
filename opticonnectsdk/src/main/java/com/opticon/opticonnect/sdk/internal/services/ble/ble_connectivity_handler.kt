@@ -21,7 +21,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BleConnectivityHandler @Inject constructor(
+internal class BleConnectivityHandler @Inject constructor(
     private val bleClient: RxBleClient,
     private val dataHandler: DataHandler,
     private val commandExecutorsManager: CommandExecutorsManager

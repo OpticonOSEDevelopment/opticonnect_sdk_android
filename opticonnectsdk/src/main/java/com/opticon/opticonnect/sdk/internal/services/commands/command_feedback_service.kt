@@ -6,7 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CommandFeedbackService @Inject constructor() {
+internal class CommandFeedbackService @Inject constructor() {
 
     fun generateFeedbackCommands(
         sendAckFeedback: Boolean,

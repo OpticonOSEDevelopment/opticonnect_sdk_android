@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class BlePermissionsChecker @Inject constructor(private val context: Context) {
+internal class BlePermissionsChecker @Inject constructor(private val context: Context) {
 
     // Check Bluetooth permissions
     fun hasBluetoothPermissions(): Boolean {

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 import kotlinx.coroutines.rx3.await
 
 @Singleton
-class DataHandler @Inject constructor(
+internal class DataHandler @Inject constructor(
     private val opcDataHandlerFactory: OpcDataHandlerFactory // Injecting OpcDataHandlerFactory
 ) : BleDataWriter, BleCommandResponseReader, Closeable {
 

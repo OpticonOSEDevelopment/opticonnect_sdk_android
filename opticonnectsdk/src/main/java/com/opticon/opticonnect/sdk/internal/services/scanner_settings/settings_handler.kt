@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
 import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
@@ -10,10 +11,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SettingsHandler @Inject constructor(
+internal class SettingsHandlerImpl @Inject constructor(
     private val databaseTablesHelper: DatabaseTablesHelper,
     private val databaseManager: DatabaseManager
-) {
+) : SettingsHandler {
 
     private val groupsForCode = mutableMapOf<String, List<String>>()
     private val dimensionsForCode = mutableMapOf<String, List<String>>()
@@ -27,7 +28,7 @@ class SettingsHandler @Inject constructor(
     private var directInputKeysSet = mutableSetOf<String>()
     private var directInputKeys = listOf<String>()
 
-    suspend fun initialize(context: Context, closeDB: Boolean = true) {
+    override suspend fun initialize(context: Context, closeDB: Boolean) {
         runCatching {
             val database = databaseManager.getDatabase(context)
             initializeCodesDataStructures(database)
@@ -41,7 +42,7 @@ class SettingsHandler @Inject constructor(
         }
     }
 
-    fun isDirectInputKey(code: String): Boolean {
+    override fun isDirectInputKey(code: String): Boolean {
         return directInputKeysSet.contains(code)
     }
 
@@ -53,11 +54,11 @@ class SettingsHandler @Inject constructor(
         }
     }
 
-    fun getGroupsToDisableForCode(code: String): List<String> {
+    override fun getGroupsToDisableForCode(code: String): List<String> {
         return groupsToDisableForCode[getStrippedCode(code)] ?: listOf()
     }
 
-    fun getGroupsForCode(code: String): List<String> {
+    override fun getGroupsForCode(code: String): List<String> {
         return groupsForCode[getStrippedCode(code)] ?: listOf()
     }
 

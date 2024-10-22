@@ -8,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CommandExecutorFactory @Inject constructor(
+internal class CommandExecutorFactory @Inject constructor(
     private val bleDataWriter: BleDataWriter,
     private val bleCommandResponseReader: BleCommandResponseReader,
     private val commandBytesProvider: CommandBytesProvider,

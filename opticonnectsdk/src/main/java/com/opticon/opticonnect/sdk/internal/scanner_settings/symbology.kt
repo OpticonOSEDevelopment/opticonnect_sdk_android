@@ -1,23 +1,18 @@
-package com.opticon.opticonnect.sdk.api.scanner_settings
+package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
-import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
-import com.opticon.opticonnect.sdk.api.ScannerFeedback
-import com.opticon.opticonnect.sdk.api.constants.commands.symbology.*
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * A class representing settings for enabling and disabling symbologies in the scanner.
- *
- * This class provides methods to enable, disable, or enable-only specific symbologies on a scanner.
- */
 @Singleton
-class Symbology @Inject constructor(
+internal class SymbologyImpl @Inject constructor(
     scannerFeedback: ScannerFeedback
-) : SettingsBase(scannerFeedback) {
+) : SettingsBase(scannerFeedback), Symbology {
 
     // Maps each symbology type to its respective enable command.
     private val enableSymbologyCommands: Map<SymbologyType, String> = mapOf(
@@ -144,7 +139,7 @@ class Symbology @Inject constructor(
     // Maps each symbology type to its respective enable-only command.
     private val enableOnlySymbologyCommands: Map<SymbologyType, String> = mapOf(
         SymbologyType.ALL_CODES to SymbologyCommands.ENABLE_ALL_CODES_EXCL_ADDON,
-        SymbologyType.ALL_1D_CODES to SymbologyCommands.ENABLE_1D_ALL_CODES_EXCL_ADDON_ONLY,
+        SymbologyType.ALL_1D_CODES to SymbologyCommands.ENABLE_ALL_1D_CODES_EXCL_ADDON_ONLY,
         SymbologyType.CODE_11 to SymbologyCommands.ENABLE_CODE_11_ONLY,
         SymbologyType.CODE_39 to SymbologyCommands.ENABLE_CODE_39_ONLY,
         SymbologyType.CODE_93 to SymbologyCommands.ENABLE_CODE_93_ONLY,
@@ -177,7 +172,7 @@ class Symbology @Inject constructor(
         SymbologyType.GS1_DATABAR to SymbologyCommands.ENABLE_GS1_DATABAR_ONLY,
         SymbologyType.GS1_DATABAR_LIMITED to SymbologyCommands.ENABLE_GS1_DATABAR_LIMITED_ONLY,
         SymbologyType.GS1_DATABAR_EXPANDED to SymbologyCommands.ENABLE_GS1_DATABAR_EXPANDED_ONLY,
-        SymbologyType.ALL_2D_CODES to SymbologyCommands.ENABLE_2D_ALL_CODES_ONLY,
+        SymbologyType.ALL_2D_CODES to SymbologyCommands.ENABLE_ALL_2D_CODES_ONLY,
         SymbologyType.AZTEC_CODE to SymbologyCommands.ENABLE_AZTEC_CODE_ONLY,
         SymbologyType.AZTEC_RUNES to SymbologyCommands.ENABLE_AZTEC_RUNES_ONLY,
         SymbologyType.CHINESE_SENSIBLE_CODE to SymbologyCommands.ENABLE_CHINESE_SENSIBLE_CODE_ONLY,
@@ -202,14 +197,7 @@ class Symbology @Inject constructor(
         SymbologyType.UK_POSTAL to SymbologyCommands.ENABLE_UK_POSTAL_ONLY
     )
 
-    /**
-     * Enables a specific symbology on the device.
-     *
-     * @param deviceId The ID of the device where the symbology should be enabled.
-     * @param type The symbology to enable exclusively.
-     * @return A [CommandResponse] indicating the success or failure of the operation.
-     */
-    suspend fun enableOnlySymbology(deviceId: String, type: SymbologyType): CommandResponse {
+    override suspend fun enableOnlySymbology(deviceId: String, type: SymbologyType): CommandResponse {
         val command = enableOnlySymbologyCommands[type]
 
         return if (command != null) {
@@ -221,15 +209,7 @@ class Symbology @Inject constructor(
         }
     }
 
-    /**
-     * Toggles a specific symbology on the device based on the [enabled] flag.
-     *
-     * @param deviceId The ID of the device where the symbology should be enabled or disabled.
-     * @param type The symbology to enable or disable.
-     * @param enabled A boolean flag indicating whether to enable (true) or disable (false) the symbology.
-     * @return A [CommandResponse] indicating the success or failure of the operation.
-     */
-    suspend fun setSymbology(deviceId: String, type: SymbologyType, enabled: Boolean): CommandResponse {
+    override suspend fun setSymbology(deviceId: String, type: SymbologyType, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             enableSymbologyCommands[type]
         } else {

@@ -3,7 +3,7 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import javax.inject.Inject
 
-class OpcDataHandlerFactory @Inject constructor(
+internal class OpcDataHandlerFactory @Inject constructor(
     private val crc16Handler: CRC16Handler,
     private val symbologyHandler: SymbologyHandler
 ) {

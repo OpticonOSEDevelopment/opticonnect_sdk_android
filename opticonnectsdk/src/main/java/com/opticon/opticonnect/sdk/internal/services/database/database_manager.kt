@@ -14,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DatabaseManager @Inject constructor() {
+internal class DatabaseManager @Inject constructor() {
     companion object {
         const val DB_NAME = "commands.db"
         const val DB_PATH = "databases/$DB_NAME"

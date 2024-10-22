@@ -28,6 +28,16 @@ object IndicatorCommands {
     const val BUZZER_ON_KEYCLICK_ON = "WK"
     const val BUZZER_ON_KEYCLICK_OFF = "WL"
 
+    const val GOOD_READ_LED_DURATION_DISABLED = "T4"
+    const val GOOD_READ_LED_DURATION_10_MS = "[XT9"
+    const val GOOD_READ_LED_DURATION_60_MS = "[XTH"
+    const val GOOD_READ_LED_DURATION_100_MS = "[XT8"
+    const val GOOD_READ_LED_DURATION_200_MS = "T5"
+    const val GOOD_READ_LED_DURATION_400_MS = "T6"
+    const val GOOD_READ_LED_DURATION_500_MS = "[XTI"
+    const val GOOD_READ_LED_DURATION_800_MS = "T7"
+    const val GOOD_READ_LED_DURATION_2000_MS = "[XTJ"
+
     const val VIBRATOR_ENABLED = "[EBI"
     const val VIBRATOR_DISABLED = "[EBH"
 

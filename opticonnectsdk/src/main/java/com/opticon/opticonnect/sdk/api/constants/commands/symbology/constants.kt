@@ -3,7 +3,7 @@ package com.opticon.opticonnect.sdk.api.constants.commands.symbology
 object SymbologyCommands {
     // Enable 1D symbologies for scanning.
 // These commands enable or disable individual 1D barcode symbologies.
-    const val ENABLE_1D_ALL_CODES_EXCL_ADDON_ONLY = "[BCA"
+    const val ENABLE_ALL_1D_CODES_EXCL_ADDON_ONLY = "[BCA"
     const val ENABLE_CODE_11_ONLY = "[BLB"
     const val ENABLE_CODE_39_ONLY = "A2"
     const val ENABLE_CODE_93_ONLY = "A5"
@@ -45,7 +45,7 @@ object SymbologyCommands {
     const val ENABLE_GS1_DATABAR_EXPANDED_ONLY = "JK"
 
     // Enable 2D symbologies for scanning.
-    const val ENABLE_2D_ALL_CODES_ONLY = "[BCB"
+    const val ENABLE_ALL_2D_CODES_ONLY = "[BCB"
     const val ENABLE_AZTEC_CODE_ONLY = "[BC5"
     const val ENABLE_AZTEC_RUNES_ONLY = "[BF4"
     const val ENABLE_CHINESE_SENSIBLE_CODE_ONLY = "[D4K"

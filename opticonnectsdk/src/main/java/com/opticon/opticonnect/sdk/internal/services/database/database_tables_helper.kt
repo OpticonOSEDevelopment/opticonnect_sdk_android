@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DatabaseTablesHelper @Inject constructor() {
+internal class DatabaseTablesHelper @Inject constructor() {
 
     // Retrieve the list of tables from the SQLite database
     fun getTables(database: SupportSQLiteDatabase): List<String> {

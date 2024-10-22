@@ -1,13 +1,14 @@
 package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
 import com.opticon.opticonnect.sdk.api.entities.CommandData
+import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.entities.RawCommand
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SettingsCompressor @Inject constructor(
+internal class SettingsCompressor @Inject constructor(
     private val settingsHandler: SettingsHandler,
     private val dataWizardHelper: DataWizardHelper
 ) {

@@ -10,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DevicesInfoManager @Inject constructor(
+internal class DevicesInfoManager @Inject constructor(
     private val commandExecutorsManager: CommandExecutorsManager
 ) {
 

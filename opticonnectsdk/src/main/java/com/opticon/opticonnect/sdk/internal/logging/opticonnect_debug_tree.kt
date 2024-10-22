@@ -1,6 +1,6 @@
 import timber.log.Timber
 
-class OptiConnectDebugTree : Timber.DebugTree() {
+internal class OptiConnectDebugTree : Timber.DebugTree() {
     override fun createStackElementTag(element: StackTraceElement): String? {
         // Prefix log with "OptiConnect: "
         return "OptiConnect: ${super.createStackElementTag(element)}"

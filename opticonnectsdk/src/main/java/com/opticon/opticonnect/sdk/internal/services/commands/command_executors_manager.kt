@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class CommandExecutorsManager @Inject constructor(
+internal class CommandExecutorsManager @Inject constructor(
     private val commandExecutorFactory: CommandExecutorFactory,
     private val commandFactory: CommandFactory,
     private val settingsCompressor: SettingsCompressor // Inject SettingsCompressor

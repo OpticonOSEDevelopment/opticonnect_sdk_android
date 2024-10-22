@@ -1,20 +1,24 @@
 package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
-import com.opticon.opticonnect.sdk.api.BluetoothManager
+import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.CRC16Handler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 import com.opticon.opticonnect.sdk.api.ScannerFeedback
+import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.polidea.rxandroidble3.RxBleClient
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
-import com.opticon.opticonnect.sdk.api.ScannerSettings
-import com.opticon.opticonnect.sdk.api.scanner_settings.Symbology
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
+import com.opticon.opticonnect.sdk.internal.scanner_settings.IndicatorImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.ScannerSettingsImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.SymbologyImpl
+import com.opticon.opticonnect.sdk.internal.services.ble.BluetoothManagerImpl
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
@@ -29,12 +33,13 @@ import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.Command
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandlerImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
 
 @Module
-object OptiConnectModule {
+internal object OptiConnectModule {
 
     @Provides
     @Singleton
@@ -90,7 +95,7 @@ object OptiConnectModule {
         databaseTablesHelper: DatabaseTablesHelper,
         databaseManager: DatabaseManager
     ): SettingsHandler {
-        return SettingsHandler(databaseTablesHelper, databaseManager)
+        return SettingsHandlerImpl(databaseTablesHelper, databaseManager)
     }
 
     @Provides
@@ -98,34 +103,43 @@ object OptiConnectModule {
     fun provideSymbology(
         scannerFeedback: ScannerFeedback
     ): Symbology {
-        return Symbology(scannerFeedback)
+        return SymbologyImpl(scannerFeedback)
+    }
+
+    @Provides
+    @Singleton
+    fun provideIndicator(
+        scannerFeedback: ScannerFeedback
+    ): com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator {
+        return IndicatorImpl(scannerFeedback)
     }
 
     @Provides
     @Singleton
     fun provideScannerSettings(
-        symbology: Symbology,
-        commandExecutorsManager: CommandExecutorsManager,
-        scannerFeedback: ScannerFeedback
+                symbology: Symbology,
+                indicator: com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator,
+                commandExecutorsManager: CommandExecutorsManager,
+                settingsCompressor: SettingsCompressor,
     ): ScannerSettings {
-        return ScannerSettings(symbology, commandExecutorsManager, scannerFeedback)
+        return ScannerSettingsImpl(symbology, indicator, commandExecutorsManager, settingsCompressor)
     }
 
     @Provides
     @Singleton
     fun provideCRC16Handler(): CRC16Handler {
-        return CRC16Handler() // Assuming it has a no-arg constructor
+        return CRC16Handler()
     }
 
     @Provides
     @Singleton
     fun provideSymbologyHandler(): SymbologyHandler {
-        return SymbologyHandler() // Assuming it has a no-arg constructor
+        return SymbologyHandler()
     }
 
     @Provides
     fun provideOpcDataHandler(
-        deviceId: String, // Pass deviceId at runtime
+        deviceId: String,
         crc16Handler: CRC16Handler,
         symbologyHandler: SymbologyHandler
     ): OpcDataHandler {
@@ -177,7 +191,7 @@ object OptiConnectModule {
         bleConnectivityHandler: BleConnectivityHandler,
         bleDevicesStreamsHandler: BleDevicesStreamsHandler
     ): BluetoothManager {
-        return BluetoothManager(
+        return BluetoothManagerImpl(
             bleDevicesDiscoverer,
             bleConnectivityHandler,
             bleDevicesStreamsHandler

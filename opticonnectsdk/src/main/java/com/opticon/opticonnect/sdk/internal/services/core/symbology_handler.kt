@@ -5,7 +5,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SymbologyHandler @Inject constructor() {
+internal class SymbologyHandler @Inject constructor() {
     private val symbologyNameMap = mapOf(
         Symbologies.EAN_8 to "EAN-8",
         Symbologies.EAN_13 to "EAN-13",
