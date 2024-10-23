@@ -39,6 +39,11 @@ interface ScannerSettings {
     val formatting: Formatting
 
     /**
+     * Settings to manage the connection pool settings of scanners.
+     */
+    val connectionPool: ConnectionPool
+
+    /**
      * Sends a command to the connected BLE device.
      *
      * @param deviceId The unique identifier of the BLE device to send the command to.

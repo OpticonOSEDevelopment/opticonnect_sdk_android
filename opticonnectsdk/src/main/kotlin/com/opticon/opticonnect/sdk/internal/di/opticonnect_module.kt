@@ -12,6 +12,7 @@ import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelp
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
@@ -39,6 +40,7 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCA
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE1
+import com.opticon.opticonnect.sdk.internal.scanner_settings.ConnectionPoolImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.IndicatorImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.ScannerSettingsImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SymbologyImpl
@@ -318,10 +320,12 @@ internal object OptiConnectModule {
                 readOptions: ReadOptions,
                 indicator: Indicator,
                 formatting: Formatting,
+                connectionPool: ConnectionPool,
                 commandExecutorsManager: CommandExecutorsManager,
                 settingsCompressor: SettingsCompressor,
     ): ScannerSettings {
-        return ScannerSettingsImpl(symbology, codeSpecific, readOptions, indicator, formatting, commandExecutorsManager, settingsCompressor)
+        return ScannerSettingsImpl(symbology, codeSpecific, readOptions, indicator, formatting, connectionPool,
+            commandExecutorsManager, settingsCompressor)
     }
 
     @Provides
@@ -504,6 +508,12 @@ internal object OptiConnectModule {
     @Singleton
     fun provideReadOptions(): ReadOptions {
         return ReadOptionsImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideConnectionPool(directInputKeysHelper: DirectInputKeysHelper): ConnectionPool {
+        return ConnectionPoolImpl(directInputKeysHelper)
     }
 }
 

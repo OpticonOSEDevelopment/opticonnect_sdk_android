@@ -4,6 +4,7 @@ import com.opticon.opticonnect.sdk.api.constants.commands.communication.Communic
 import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
@@ -23,6 +24,7 @@ internal class ScannerSettingsImpl @Inject constructor(
     override val readOptions: ReadOptions,
     override val indicator: Indicator,
     override val formatting: Formatting,
+    override val connectionPool: ConnectionPool,
     private val commandExecutorsManager: CommandExecutorsManager,
     private val settingsCompressor: SettingsCompressor
 ) : ScannerSettings {

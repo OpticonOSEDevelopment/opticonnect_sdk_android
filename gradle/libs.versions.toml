@@ -13,7 +13,8 @@ coroutines = "1.9.0"
 mockk = "1.12.0"
 rxkotlin = "3.0.1"
 shadowVersion = "8.3.3"
-dagger="2.52"
+dagger = "2.52"
+dokkaVersion = "1.9.20"
 
 [libraries]
 androidx-core = { module = "androidx.core:core", version.ref = "core" }
@@ -33,6 +34,7 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 rxkotlin = { group = "io.reactivex.rxjava3", name = "rxkotlin", version.ref = "rxkotlin" }
 dagger = { module = "com.google.dagger:dagger", version.ref = "dagger" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "dagger" }
+android-documentation = { module = "org.jetbrains.dokka:android-documentation-plugin", version.ref = "dokkaVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -40,3 +42,5 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadowVersion" }
+dokka = { id = "org.jetbrains.dokka", version = "1.9.20" }
+

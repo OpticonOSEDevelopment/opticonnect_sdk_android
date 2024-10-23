@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.shadow)
+    alias(libs.plugins.dokka)
 }
 
 android {
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.coroutines.rx3)
     implementation(libs.mockk)
     implementation(libs.rxkotlin)
+    implementation(libs.android.documentation)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.core)
@@ -249,4 +251,18 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
 
     archiveFileName.set("${project.name}-shadowed-release.aar")
     destinationDirectory.set(layout.buildDirectory.dir("outputs/shadowed-aar"))
+}
+
+tasks.register<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtmlCustom") {
+    outputDirectory.set(layout.buildDirectory.dir("docs/html"))
+
+    dokkaSourceSets {
+        named("main") {
+            includes.from("src/main/kotlin", "src/main/java")
+            noAndroidSdkLink.set(false)
+            reportUndocumented.set(true)
+            skipDeprecated.set(false)
+            jdkVersion.set(17)
+        }
+    }
 }
