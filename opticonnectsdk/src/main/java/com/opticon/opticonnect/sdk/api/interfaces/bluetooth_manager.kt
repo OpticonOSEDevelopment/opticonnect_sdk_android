@@ -5,6 +5,7 @@ import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import kotlinx.coroutines.flow.Flow
+import java.io.Closeable
 
 /**
  * Interface for managing Bluetooth operations such as device discovery, connection, disconnection,
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
  *
  * Clients of the SDK should interact with this interface.
  */
-interface BluetoothManager {
+interface BluetoothManager : Closeable {
     /**
      * Initializes the BluetoothManager with the given [context].
      */
@@ -70,4 +71,9 @@ interface BluetoothManager {
      * @return A flow of [BarcodeData] received from the device.
      */
     suspend fun subscribeToBarcodeDataStream(deviceId: String): Flow<BarcodeData>
+
+    /**
+     * Closes the Bluetooth manager, releasing resources like stopping discovery, disconnecting devices, etc.
+     */
+    override fun close()
 }

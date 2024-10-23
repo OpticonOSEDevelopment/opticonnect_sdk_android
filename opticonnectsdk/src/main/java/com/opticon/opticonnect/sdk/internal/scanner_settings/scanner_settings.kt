@@ -4,7 +4,9 @@ import com.opticon.opticonnect.sdk.api.constants.commands.communication.Communic
 import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
@@ -18,7 +20,9 @@ import javax.inject.Singleton
 internal class ScannerSettingsImpl @Inject constructor(
     override val symbology: Symbology,
     override val codeSpecific: CodeSpecific,
+    override val readOptions: ReadOptions,
     override val indicator: Indicator,
+    override val formatting: Formatting,
     private val commandExecutorsManager: CommandExecutorsManager,
     private val settingsCompressor: SettingsCompressor
 ) : ScannerSettings {

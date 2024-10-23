@@ -8,7 +8,6 @@ import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
-import java.io.Closeable
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +22,7 @@ internal class BluetoothManagerImpl @Inject constructor(
     private val bleDevicesDiscoverer: BleDevicesDiscoverer,
     private val bleConnectivityHandler: BleConnectivityHandler,
     private val bleDevicesStreamsHandler: BleDevicesStreamsHandler
-) : BluetoothManager, Closeable {
+) : BluetoothManager {
 
     private lateinit var context: Context
 
@@ -81,7 +80,7 @@ internal class BluetoothManagerImpl @Inject constructor(
 
     override fun close() {
         try {
-            bleConnectivityHandler.dispose()
+            bleConnectivityHandler.close()
             bleDevicesDiscoverer.close()
             bleDevicesStreamsHandler.close()
         } catch (e: Exception) {

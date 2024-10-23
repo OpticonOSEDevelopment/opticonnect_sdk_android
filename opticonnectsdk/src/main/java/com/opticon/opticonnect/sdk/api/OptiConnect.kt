@@ -91,4 +91,9 @@ object OptiConnect {
         val ctx = getContext()
         return getComponent(ctx)
     }
+
+    fun close() {
+        bluetoothManager.close()
+        Timber.d("OptiConnect resources released")
+    }
 }

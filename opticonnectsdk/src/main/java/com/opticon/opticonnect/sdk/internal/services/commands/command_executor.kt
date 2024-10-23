@@ -199,7 +199,7 @@ internal class CommandExecutor @Inject constructor(
 
     override fun close() {
         pendingCommandsQueue.clear()
-        timeoutManager.dispose()
+        timeoutManager.close()
         saveToNonVolatileMemoryJob?.cancel()
     }
 }

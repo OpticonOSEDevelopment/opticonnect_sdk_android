@@ -24,9 +24,19 @@ interface ScannerSettings {
     val codeSpecific: CodeSpecific
 
     /**
+     *  Settings related to scanning options such as trigger modes.
+     */
+    val readOptions: ReadOptions
+
+    /**
      * Provides access to the indicator settings, such as buzzer and LED configurations.
      */
     val indicator: Indicator
+
+    /**
+     * Provides access to the formatting settings for barcode data, such as prefix, suffix, preamble and postamble.
+     */
+    val formatting: Formatting
 
     /**
      * Sends a command to the connected BLE device.

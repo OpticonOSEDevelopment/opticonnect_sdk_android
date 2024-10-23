@@ -2,8 +2,9 @@ package com.opticon.opticonnect.sdk.internal.helpers
 
 import android.os.Handler
 import android.os.Looper
+import java.io.Closeable
 
-internal class TimeoutManager {
+internal class TimeoutManager : Closeable {
 
     private var timeoutHandler: Handler? = null
     private var timeoutRunnable: Runnable? = null
@@ -26,7 +27,7 @@ internal class TimeoutManager {
         }
     }
 
-    fun dispose() {
+    override fun close() {
         cancelTimeout()
         timeoutHandler = null
         timeoutRunnable = null

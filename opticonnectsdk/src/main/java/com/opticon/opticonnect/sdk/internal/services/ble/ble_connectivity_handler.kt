@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import java.io.Closeable
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,7 +30,7 @@ internal class BleConnectivityHandler @Inject constructor(
     private val dataHandler: DataHandler,
     private val commandExecutorsManager: CommandExecutorsManager,
     private val devicesInfoManager: DevicesInfoManager
-) {
+) : Closeable {
 
     private val compositeDisposable = CompositeDisposable()
     private val connectionMutexes = mutableMapOf<String, Mutex>()
@@ -188,7 +189,7 @@ internal class BleConnectivityHandler @Inject constructor(
         delay(retryDelayMillis)
     }
 
-    fun dispose() {
+    override fun close() {
         compositeDisposable.dispose()
         connectionStateSubscriptions.keys.toList().forEach { disconnect(it) }
         connectionStateSubscriptions.clear()

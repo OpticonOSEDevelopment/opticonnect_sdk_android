@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.api.interfaces.DirectInputKeysHelper
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
@@ -11,6 +12,9 @@ import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelp
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
 import com.polidea.rxandroidble3.RxBleClient
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
@@ -71,9 +75,12 @@ import com.opticon.opticonnect.sdk.internal.services.commands.OpcCommandProtocol
 import com.opticon.opticonnect.sdk.internal.services.commands.ScannerFeedbackImpl
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
+import com.opticon.opticonnect.sdk.internal.services.core.DirectInputKeysHelperImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.FormattingImpl
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandlerImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.ReadOptionsImpl
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -308,11 +315,13 @@ internal object OptiConnectModule {
     fun provideScannerSettings(
                 symbology: Symbology,
                 codeSpecific: CodeSpecific,
-                indicator: com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator,
+                readOptions: ReadOptions,
+                indicator: Indicator,
+                formatting: Formatting,
                 commandExecutorsManager: CommandExecutorsManager,
                 settingsCompressor: SettingsCompressor,
     ): ScannerSettings {
-        return ScannerSettingsImpl(symbology, codeSpecific, indicator, commandExecutorsManager, settingsCompressor)
+        return ScannerSettingsImpl(symbology, codeSpecific, readOptions, indicator, formatting, commandExecutorsManager, settingsCompressor)
     }
 
     @Provides
@@ -477,6 +486,24 @@ internal object OptiConnectModule {
         devicesInfoManager: DevicesInfoManager
     ): ScannerInfo {
         return devicesInfoManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideDirectInputKeyHelper(): DirectInputKeysHelper {
+        return DirectInputKeysHelperImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideFormatting(directInputKeysHelper: DirectInputKeysHelper): Formatting {
+        return FormattingImpl(directInputKeysHelper)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReadOptions(): ReadOptions {
+        return ReadOptionsImpl()
     }
 }
 

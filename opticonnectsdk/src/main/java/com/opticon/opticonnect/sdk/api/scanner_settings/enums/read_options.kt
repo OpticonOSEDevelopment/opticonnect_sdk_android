@@ -25,7 +25,7 @@ enum class ReadTime {
     INDEFINITE
 }
 
-enum class IllimunationMode {
+enum class IlluminationMode {
     ENABLE_FLOODLIGHT,
     DISABLE_FLOODLIGHT,
     ALTERNATING_FLOODLIGHT,
