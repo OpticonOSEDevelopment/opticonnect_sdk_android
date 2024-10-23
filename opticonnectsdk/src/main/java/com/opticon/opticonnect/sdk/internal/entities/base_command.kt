@@ -14,7 +14,7 @@ abstract class BaseCommand(
     val code: String,
     val parameters: List<String> = emptyList(),
     val sendFeedback: Boolean = true,
-    val ledFeedback: Boolean = true,
-    val buzzerFeedback: Boolean = true,
-    val vibrationFeedback: Boolean = true
+    val ledFeedback: Boolean? = null,
+    val buzzerFeedback: Boolean? = null,
+    val vibrationFeedback: Boolean? = null
 )

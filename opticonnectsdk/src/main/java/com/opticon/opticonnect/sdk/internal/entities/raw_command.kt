@@ -4,9 +4,9 @@ internal class RawCommand(
     code: String,
     parameters: List<String> = emptyList(),
     sendFeedback: Boolean = true,
-    ledFeedback: Boolean = true,
-    buzzerFeedback: Boolean = true,
-    vibrationFeedback: Boolean = true
+    ledFeedback: Boolean? = null,
+    buzzerFeedback: Boolean? = null,
+    vibrationFeedback: Boolean? = null
 ) : Command(
     code = code,
     parameters = parameters,

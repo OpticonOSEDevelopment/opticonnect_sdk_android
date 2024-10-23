@@ -13,13 +13,17 @@ import kotlinx.coroutines.flow.Flow
  * Clients of the SDK should interact with this interface.
  */
 interface BluetoothManager {
+    /**
+     * Initializes the BluetoothManager with the given [context].
+     */
+    fun initialize(context: Context)
 
     /**
      * Starts the BLE device discovery process.
      *
      * This method begins the scanning process for nearby BLE devices.
      */
-    fun startDiscovery(context: Context)
+    fun startDiscovery()
 
     /**
      * Stops the BLE device discovery process.

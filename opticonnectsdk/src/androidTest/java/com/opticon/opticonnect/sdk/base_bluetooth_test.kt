@@ -35,9 +35,8 @@ abstract class BaseBluetoothTest {
             ).close()
 
             context = instrumentation.targetContext
-
-            OptiConnect.setContext(context)
-            OptiConnect.bluetoothManager.startDiscovery(context)
+            OptiConnect.withContext(context).bluetoothManager.startDiscovery()
+            OptiConnect.scannerFeedback.set(led = false, buzzer = false, vibration = false)
         }
 
         @AfterClass
@@ -63,7 +62,7 @@ abstract class BaseBluetoothTest {
         }
 
         return try {
-            withTimeoutOrNull(20000) { deferredDevice.await() }
+            withTimeoutOrNull(60000) { deferredDevice.await() }
         } finally {
             collectionJob.cancel()
         }

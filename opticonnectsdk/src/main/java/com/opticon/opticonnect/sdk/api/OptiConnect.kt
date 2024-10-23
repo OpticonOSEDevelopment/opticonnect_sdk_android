@@ -3,6 +3,7 @@ package com.opticon.opticonnect.sdk.api
 import OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
@@ -54,19 +55,21 @@ object OptiConnect {
     val bluetoothManager: BluetoothManager by lazy {
         val settingsHandler = getComponentFromContext().settingsHandler()
         ensureSettingsHandlerInitialized(settingsHandler)
-        getComponentFromContext().bluetoothManager()
-    }
-
-    val settingsHandler: SettingsHandler by lazy {
-        val handler = getComponentFromContext().settingsHandler()
-        ensureSettingsHandlerInitialized(handler)
-        handler
+        val manager = getComponentFromContext().bluetoothManager()
+        manager.initialize(getContext())
+        manager
     }
 
     val scannerInfo: ScannerInfo by lazy {
         val settingsHandler = getComponentFromContext().settingsHandler()
         ensureSettingsHandlerInitialized(settingsHandler)
         getComponentFromContext().scannerInfo()
+    }
+
+    val scannerFeedback: ScannerFeedback by lazy {
+        val settingsHandler = getComponentFromContext().settingsHandler()
+        ensureSettingsHandlerInitialized(settingsHandler)
+        getComponentFromContext().scannerFeedback()
     }
 
     private fun getContext(): Context {

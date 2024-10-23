@@ -16,9 +16,47 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandle
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Codabar
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code11
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code128AndGS1128
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code2Of5AndSCode
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code39
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code93
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CompositeCodes
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.EAN13
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.EAN8
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.GS1Databar
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.IATA
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.KoreanPostalAuthority
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.MSIPlessey
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Telepen
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UKPlessey
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCA
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE1
 import com.opticon.opticonnect.sdk.internal.scanner_settings.IndicatorImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.ScannerSettingsImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SymbologyImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.CodabarImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.Code11Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.Code128AndGS1128Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.Code2Of5AndSCodeImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.Code39Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.Code93Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.CodeSpecificImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.CompositeCodesImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.EAN13Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.EAN8Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.GS1DatabarImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.IATAImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.KoreanPostalAuthorityImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.MSIPlesseyImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.TelepenImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UKPlesseyImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCAImpl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCE1Impl
+import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCEImpl
 import com.opticon.opticonnect.sdk.internal.services.ble.BluetoothManagerImpl
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
@@ -103,29 +141,178 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideSymbology(
-        scannerFeedback: ScannerFeedback
-    ): Symbology {
-        return SymbologyImpl(scannerFeedback)
+    fun provideSymbology(): Symbology {
+        return SymbologyImpl()
     }
 
     @Provides
     @Singleton
-    fun provideIndicator(
-        scannerFeedback: ScannerFeedback
-    ): com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator {
-        return IndicatorImpl(scannerFeedback)
+    fun provideIndicator(): com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator {
+        return IndicatorImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCodabar() : Codabar {
+        return CodabarImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCode11(): Code11 {
+        return Code11Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCode128AndGS1128(): Code128AndGS1128 {
+        return Code128AndGS1128Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCode2Of5AndSCode(): Code2Of5AndSCode {
+        return Code2Of5AndSCodeImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCode39(): Code39 {
+        return Code39Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCode93(): Code93 {
+        return Code93Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCompositeCodes(): CompositeCodes {
+        return CompositeCodesImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEAN8(): EAN8 {
+        return EAN8Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEAN13(): EAN13 {
+        return EAN13Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGS1Databar(): GS1Databar {
+        return GS1DatabarImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideIATA(): IATA {
+        return IATAImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideKoreanPostalAuthority(): KoreanPostalAuthority {
+        return KoreanPostalAuthorityImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideMSIPlessey(): MSIPlessey {
+        return MSIPlesseyImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTelepen(): Telepen {
+        return TelepenImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUKPlessey(): UKPlessey {
+        return UKPlesseyImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUPCA(): UPCA {
+        return UPCAImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUPCE(): UPCE {
+        return UPCEImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUPCE1(): UPCE1 {
+        return UPCE1Impl()
+    }
+
+    @Provides
+    @Singleton
+    fun provideCodeSpecific(
+        codabar: Codabar,
+        code2of5AndSCode: Code2Of5AndSCode,
+        code11: Code11,
+        code39: Code39,
+        code93: Code93,
+        code128AndGS1128: Code128AndGS1128,
+        compositeCodes: CompositeCodes,
+        ean8: EAN8,
+        ean13: EAN13,
+        gs1Databar: GS1Databar,
+        iata: IATA,
+        koreanPostalAuthority: KoreanPostalAuthority,
+        msiPlessey: MSIPlessey,
+        telepen: Telepen,
+        ukPlessey: UKPlessey,
+        upcA: UPCA,
+        upcE: UPCE,
+        upcE1: UPCE1
+    ): CodeSpecific {
+        return CodeSpecificImpl(
+            codabar,
+            code2of5AndSCode,
+            code11,
+            code39,
+            code93,
+            code128AndGS1128,
+            compositeCodes,
+            ean8,
+            ean13,
+            gs1Databar,
+            iata,
+            koreanPostalAuthority,
+            msiPlessey,
+            telepen,
+            ukPlessey,
+            upcA,
+            upcE,
+            upcE1
+        )
     }
 
     @Provides
     @Singleton
     fun provideScannerSettings(
                 symbology: Symbology,
+                codeSpecific: CodeSpecific,
                 indicator: com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator,
                 commandExecutorsManager: CommandExecutorsManager,
                 settingsCompressor: SettingsCompressor,
     ): ScannerSettings {
-        return ScannerSettingsImpl(symbology, indicator, commandExecutorsManager, settingsCompressor)
+        return ScannerSettingsImpl(symbology, codeSpecific, indicator, commandExecutorsManager, settingsCompressor)
     }
 
     @Provides
@@ -203,8 +390,10 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideCommandFeedbackService(): CommandFeedbackService {
-        return CommandFeedbackService()
+    fun provideCommandFeedbackService(
+        scannerFeedback: ScannerFeedback
+    ): CommandFeedbackService {
+        return CommandFeedbackService(scannerFeedback)
     }
 
     @Provides

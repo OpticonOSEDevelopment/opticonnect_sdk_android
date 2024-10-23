@@ -7,6 +7,7 @@ import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import timber.log.Timber
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 @Singleton
 internal class ScannerSettingsImpl @Inject constructor(
     override val symbology: Symbology,
+    override val codeSpecific: CodeSpecific,
     override val indicator: Indicator,
     private val commandExecutorsManager: CommandExecutorsManager,
     private val settingsCompressor: SettingsCompressor

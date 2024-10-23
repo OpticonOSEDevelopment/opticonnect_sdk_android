@@ -10,9 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class IndicatorImpl @Inject constructor(
-    scannerFeedback: ScannerFeedback
-) : Indicator, SettingsBase(scannerFeedback) {
+internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
 
     private val buzzerTypeCommands = mapOf(
         BuzzerType.SINGLE_TONE_BUZZER to IndicatorCommands.SINGLE_TONE_BUZZER,

@@ -3,6 +3,7 @@ package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
 
 /**
  * Interface representing the scanner settings for Opticon BLE scanners.
@@ -16,6 +17,11 @@ interface ScannerSettings {
      * Provides access to the barcode symbology settings.
      */
     val symbology: Symbology
+
+    /**
+     * Provides access to the settings of individual barcode symbologies.
+     */
+    val codeSpecific: CodeSpecific
 
     /**
      * Provides access to the indicator settings, such as buzzer and LED configurations.

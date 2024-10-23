@@ -25,7 +25,14 @@ internal class BluetoothManagerImpl @Inject constructor(
     private val bleDevicesStreamsHandler: BleDevicesStreamsHandler
 ) : BluetoothManager, Closeable {
 
-    override fun startDiscovery(context: Context) {
+    private lateinit var context: Context
+
+    override fun initialize(context: Context) {
+        this.context = context.applicationContext
+        Timber.d("BluetoothManager initialized with context")
+    }
+
+    override fun startDiscovery() {
         try {
             bleDevicesDiscoverer.startDiscovery(context)
         } catch (e: Exception) {

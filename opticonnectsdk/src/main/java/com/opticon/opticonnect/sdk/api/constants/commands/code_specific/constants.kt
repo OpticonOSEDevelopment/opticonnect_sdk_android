@@ -164,16 +164,16 @@ object CodeSpecificCommands {
     const val UK_PLESSEY_ENABLE_A_TO_X_CONVERSION = "DQ"
 
     // UPC-A settings
-    const val UPCA_NO_LEADING_ZERO_TRANSMIT_CD = "E3"
-    const val UPCA_NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E5"
-    const val UPCA_LEADING_ZERO_TRANSMIT_CD = "E2"
-    const val UPCA_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E4"
+    const val UPC_A_NO_LEADING_ZERO_TRANSMIT_CD = "E3"
+    const val UPC_A_NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E5"
+    const val UPC_A_LEADING_ZERO_TRANSMIT_CD = "E2"
+    const val UPC_A_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E4"
 
     // UPC-E settings
-    const val UPCE_NO_LEADING_ZERO_TRANSMIT_CD = "E7"
-    const val UPCE_NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E9"
-    const val UPCE_LEADING_ZERO_TRANSMIT_CD = "E6"
-    const val UPCE_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E8"
-    const val UPCE_TRANSMIT_AS_IS = "6Q"
-    const val UPCE_TRANSMIT_AS_UPCA = "6P"
+    const val UPC_E_NO_LEADING_ZERO_TRANSMIT_CD = "E7"
+    const val UPC_E_NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E9"
+    const val UPC_E_LEADING_ZERO_TRANSMIT_CD = "E6"
+    const val UPC_E_LEADING_ZERO_DO_NOT_TRANSMIT_CD = "E8"
+    const val UPC_E_TRANSMIT_AS_IS = "6Q"
+    const val UPC_E_TRANSMIT_AS_UPC_A = "6P"
 }

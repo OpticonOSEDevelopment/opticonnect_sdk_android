@@ -3,16 +3,13 @@ package com.opticon.opticonnect.sdk.internal.scanner_settings
 import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
-import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class SymbologyImpl @Inject constructor(
-    scannerFeedback: ScannerFeedback
-) : SettingsBase(scannerFeedback), Symbology {
+internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
 
     // Maps each symbology type to its respective enable command.
     private val enableSymbologyCommands: Map<SymbologyType, String> = mapOf(

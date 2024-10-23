@@ -11,6 +11,7 @@ import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import junit.framework.TestCase.*
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -36,7 +37,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
         val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         if (isDeviceConnected) {
-            val deferredBarcodeData = CompletableDeferred<BarcodeData?>()
+            val deferredBarcodeData = CompletableDeferred<BarcodeData>()
             val barcodeDataJob = launch {
                 OptiConnect.bluetoothManager.subscribeToBarcodeDataStream(TEST_DEVICE_MAC_ADDRESS)
                     .collect { barcodeData ->
@@ -66,7 +67,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         if (isDeviceConnected) {
             val response = OptiConnect.scannerSettings.executeCommand(
-                TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SingleLetterCommands.GOOD_READ_BUZZER, sendFeedback = false)
+                TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SingleLetterCommands.GOOD_READ_BUZZER)
             )
             delay(1000)
             assertTrue("Buzzer command failed.", response.succeeded)
@@ -113,11 +114,11 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_QR_CODE, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_DATA_MATRIX, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13_ONLY, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_ALL_2D_CODES_ONLY, sendFeedback = false))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_QR_CODE))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_DATA_MATRIX))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13_ONLY))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_ALL_2D_CODES_ONLY))
             var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
             Timber.d("Compressed settings: $settings")
@@ -138,18 +139,18 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.SINGLE_TONE_BUZZER, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.HIGH_LOW_BUZZER, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_10_MOD_11, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_10_MOD_10, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.LOW_HIGH_BUZZER, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_11_MOD_10, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.HIGH_LOW_BUZZER, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_3_DIGITS, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_NUMERIC_MODE, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_ASCII_MODE, sendFeedback = false))
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT, sendFeedback = false))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.SINGLE_TONE_BUZZER))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.HIGH_LOW_BUZZER))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_10_MOD_11))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_10_MOD_10))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.LOW_HIGH_BUZZER))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_11_MOD_10))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.HIGH_LOW_BUZZER))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_3_DIGITS))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_NUMERIC_MODE))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_ASCII_MODE))
+            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT))
             var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
             Timber.d("Compressed settings: $settings")
@@ -165,7 +166,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
     }
 
     @Test
-    fun test6SettingsCompressionTest3() = runBlocking {
+    fun test6CodeSpecificTest() = runBlocking {
         val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
@@ -173,16 +174,14 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-            OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.SINGLE_TONE_BUZZER, sendFeedback = false))
+            OptiConnect.scannerSettings.codeSpecific.codabar.setMode(TEST_DEVICE_MAC_ADDRESS, CodabarMode.ABC_CODE_ONLY)
+            OptiConnect.scannerSettings.codeSpecific.codabar.setMode(TEST_DEVICE_MAC_ADDRESS, CodabarMode.CODABAR_ABC_AND_CX)
+            OptiConnect.scannerSettings.codeSpecific.codabar.setMode(TEST_DEVICE_MAC_ADDRESS, CodabarMode.CX_CODE_ONLY)
             var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-            Timber.d("Compressed settings: $settings")
-            assertTrue("Settings compression test failed.", settings.size == 5 &&
+            assertTrue("Settings compression test failed.", settings.size == 2 &&
                     settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
-                    settings.any { it.command == IndicatorCommands.HIGH_LOW_BUZZER } &&
-                    settings.any { it.command == CodeSpecificCommands.MSI_PLESSEY_CHECK_2_CDS_MOD_11_MOD_10 } &&
-                    settings.any { it.command == CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT } &&
-                    settings.any { it.command == CodeSpecificCommands.TELEPEN_ASCII_MODE })
+                    settings.any { it.command == CodeSpecificCommands.CODABAR_CX_CODE_ONLY})
         } else {
             fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
         }

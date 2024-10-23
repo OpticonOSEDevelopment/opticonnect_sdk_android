@@ -17,6 +17,8 @@ import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsMa
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeout
 
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -57,12 +59,16 @@ internal class BleConnectivityHandler @Inject constructor(
             }
 
             val maxRetries = 3
+            val retryDelayMillis = 500L
+            val connectionTimeoutMillis = 7_000L
             var retryCount = 0
 
             while (true) {
                 try {
                     Timber.d("Attempting to connect to device: $deviceId")
-                    establishConnection(bleDevice)
+                    withTimeout(connectionTimeoutMillis) {
+                        establishConnection(bleDevice)
+                    }
                     break
                 } catch (e: Exception) {
                     retryCount++
@@ -72,7 +78,7 @@ internal class BleConnectivityHandler @Inject constructor(
                         connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
                         break
                     }
-                    delayForRetry()
+                    delayForRetry(retryDelayMillis)
                 }
             }
         }
@@ -178,8 +184,8 @@ internal class BleConnectivityHandler @Inject constructor(
         }
     }
 
-    private fun delayForRetry() {
-        Thread.sleep(500)  // Retry delay of 500ms
+    private suspend fun delayForRetry(retryDelayMillis: Long) {
+        delay(retryDelayMillis)
     }
 
     fun dispose() {
