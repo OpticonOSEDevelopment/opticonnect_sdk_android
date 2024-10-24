@@ -8,62 +8,71 @@ import kotlinx.coroutines.flow.Flow
 import java.io.Closeable
 
 /**
- * Interface for managing Bluetooth operations such as device discovery, connection, disconnection,
- * and streaming data for BLE devices.
+ * Interface for managing Bluetooth operations with Opticon BLE scanners.
  *
- * Clients of the SDK should interact with this interface.
+ * This interface helps you handle tasks such as discovering devices, connecting and disconnecting,
+ * and listening to data streams from your Opticon BLE scanners.
  */
 interface BluetoothManager {
     /**
-     * Starts the BLE device discovery process.
+     * Starts discovering Opticon BLE scanners nearby.
      *
-     * This method begins the scanning process for nearby BLE devices.
+     * Use this method to initiate a scan for nearby Opticon BLE scanners.
      */
     fun startDiscovery()
 
     /**
-     * Stops the BLE device discovery process.
+     * Stops discovering Opticon BLE scanners.
      *
-     * This method ends the BLE scanning process.
+     * Use this method to halt the scanning process for nearby devices.
      */
     fun stopDiscovery()
 
     /**
-     * A flow of [BleDiscoveredDevice] representing discovered BLE devices.
+     * A flow of [BleDiscoveredDevice] representing Opticon BLE scanners discovered during scanning.
      *
-     * @return A flow of BLE devices discovered during the discovery process.
+     * @return A flow of BLE devices that you have discovered during the discovery process.
      */
     val bleDiscoveredDevicesFlow: Flow<BleDiscoveredDevice>
 
     /**
-     * Connects to the BLE device with the given [deviceId].
+     * Connects to a specific Opticon BLE scanner using its [deviceId].
      *
-     * @param deviceId The identifier of the target device.
-     * Attempts to establish a connection to the BLE device.
+     * Use this method to attempt a connection with the Opticon BLE scanner
+     * specified by the [deviceId].
+     *
+     * @param deviceId The identifier of the target scanner.
      */
     suspend fun connect(deviceId: String)
 
     /**
-     * Disconnects from the BLE device with the given [deviceId].
+     * Disconnects from a specific Opticon BLE scanner using its [deviceId].
      *
-     * @param deviceId The identifier of the target device.
-     * Disconnects the BLE device.
+     * Use this method to disconnect from the specified Opticon BLE scanner.
+     *
+     * @param deviceId The identifier of the target scanner.
      */
     fun disconnect(deviceId: String)
 
     /**
-     * Listens to the connection state of the BLE device with the given [deviceId].
+     * Listens to the connection state of a specific Opticon BLE scanner.
      *
-     * @param deviceId The identifier of the target device.
-     * @return A flow of [BleDeviceConnectionState] indicating the connection state.
+     * Use this method to get updates about the connection state of the scanner specified
+     * by the [deviceId]. You will receive updates as a flow of [BleDeviceConnectionState].
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return A flow of [BleDeviceConnectionState] indicating the current connection state.
      */
     fun listenToConnectionState(deviceId: String): Flow<BleDeviceConnectionState>
 
     /**
-     * Subscribes to the barcode data stream from the BLE device with the given [deviceId].
+     * Listens to the barcode data stream from a specific Opticon BLE scanner.
      *
-     * @param deviceId The identifier of the target device.
-     * @return A flow of [BarcodeData] received from the device.
+     * Use this method to receive barcode data from the scanner specified by the [deviceId].
+     * You will get data as a flow of [BarcodeData] whenever a barcode is scanned.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return A flow of [BarcodeData] received from the scanner.
      */
-    suspend fun subscribeToBarcodeDataStream(deviceId: String): Flow<BarcodeData>
+    fun listenToBarcodeData(deviceId: String): Flow<BarcodeData>
 }

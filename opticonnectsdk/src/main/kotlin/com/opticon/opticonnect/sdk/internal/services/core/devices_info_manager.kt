@@ -1,7 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.core
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys.DirectInputKeyCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.DirectInputKeyCommands
 import com.opticon.opticonnect.sdk.api.entities.DeviceInfo
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo

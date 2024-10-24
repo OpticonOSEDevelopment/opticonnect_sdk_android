@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.single_letter
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 // Commands for configuring good/bad read settings.
 object SingleLetterCommands {

@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.datawizard.*
+import com.opticon.opticonnect.sdk.api.constants.commands.DataWizardCommands
 import javax.inject.Inject
 import javax.inject.Singleton
 

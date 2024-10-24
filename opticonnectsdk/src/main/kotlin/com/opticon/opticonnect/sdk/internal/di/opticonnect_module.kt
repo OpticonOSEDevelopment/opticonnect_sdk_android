@@ -2,8 +2,8 @@ package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
-import com.opticon.opticonnect.sdk.api.interfaces.DirectInputKeysHelper
-import com.opticon.opticonnect.sdk.api.interfaces.LifecycleHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
+import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
@@ -157,7 +157,7 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideIndicator(): com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator {
+    fun provideIndicator(): Indicator {
         return IndicatorImpl()
     }
 
@@ -531,4 +531,3 @@ internal object OptiConnectModule {
         return ConnectionPoolImpl(directInputKeysHelper)
     }
 }
-

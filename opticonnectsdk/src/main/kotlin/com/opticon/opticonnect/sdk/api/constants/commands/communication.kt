@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.communication
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object CommunicationCommands {
     const val BLUETOOTH_LOW_ENERGY_DEFAULT = "]EBLE"

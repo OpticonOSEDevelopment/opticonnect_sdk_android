@@ -35,7 +35,8 @@ abstract class BaseBluetoothTest {
             ).close()
 
             context = instrumentation.targetContext
-            OptiConnect.withContext(context).bluetoothManager.startDiscovery()
+            OptiConnect.initialize(context)
+            OptiConnect.bluetoothManager.startDiscovery()
             OptiConnect.scannerFeedback.set(led = false, buzzer = false, vibration = false)
         }
 

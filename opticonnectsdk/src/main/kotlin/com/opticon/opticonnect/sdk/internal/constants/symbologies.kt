@@ -1,6 +1,6 @@
-package com.opticon.opticonnect.sdk.api.constants.symbology
+package com.opticon.opticonnect.sdk.internal.constants
 
-object Symbologies {
+internal object Symbologies {
     const val DISCRETE_2_OF_5 = 2
     const val MATRIX_2_OF_5 = 3
     const val INTERLEAVED_2_OF_5 = 4

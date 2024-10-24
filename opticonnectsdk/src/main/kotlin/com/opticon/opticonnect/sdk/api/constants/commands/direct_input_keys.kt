@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.direct_input_keys
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object DirectInputKeyCommands {
     // Numeric

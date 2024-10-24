@@ -3,7 +3,7 @@ package com.opticon.opticonnect.sdk.api
 import com.opticon.opticonnect.sdk.internal.logging.OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
-import com.opticon.opticonnect.sdk.api.interfaces.LifecycleHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler

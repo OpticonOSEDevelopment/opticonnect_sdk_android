@@ -3,21 +3,22 @@ package com.opticon.opticonnect.sdk.api.interfaces
 import com.opticon.opticonnect.sdk.api.entities.DeviceInfo
 
 /**
- * Interface for retrieving information about a BLE device.
+ * Interface for retrieving information about a connected Opticon BLE scanner.
  *
- * The [ScannerInfo] interface defines a method to retrieve detailed information
- * about a BLE device such as its MAC address, serial number, local name, and firmware version.
+ * The [ScannerInfo] interface defines a method for you to obtain detailed information
+ * about a connected Opticon BLE scanner, such as its MAC address, serial number, local name, and firmware version.
  */
 interface ScannerInfo {
 
     /**
-     * Retrieves information about a BLE device.
+     * Retrieves detailed information about a connected Opticon BLE scanner.
      *
-     * This method fetches the stored information about the device specified by [deviceId],
-     * including the MAC address, serial number, local name, and firmware version.
+     * Use this method to get stored information about the scanner specified by [deviceId].
+     * You will receive details including the scanner's MAC address, serial number, local name,
+     * and firmware version.
      *
-     * @param deviceId The unique identifier of the BLE device.
-     * @return A [DeviceInfo] object containing detailed information about the device.
+     * @param deviceId The unique identifier of the Opticon BLE scanner.
+     * @return A [DeviceInfo] object containing detailed information about the scanner.
      */
     fun getInfo(deviceId: String): DeviceInfo
 }

@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.code_specific
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object CodeSpecificCommands {
     // Two of Five and S Code settings

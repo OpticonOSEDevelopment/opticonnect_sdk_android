@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology

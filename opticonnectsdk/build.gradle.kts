@@ -263,6 +263,28 @@ tasks.dokkaHtml {
                 setOf(org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC)
             )
             skipDeprecated.set(true)      // Skip deprecated items if needed
+
+            perPackageOption {
+                matchingRegex.set("com.opticon.opticonnect.sdk.api.opticonnect")
+                group = "OptiConnect"
+            }
+
+            // Example grouping for package names
+            perPackageOption {
+                matchingRegex.set("com.opticon.opticonnect.sdk.api.interfaces.*")
+                group = "Interfaces"
+            }
+
+            perPackageOption {
+                matchingRegex.set("com.opticon.opticonnect.sdk.api.enums.*")
+                group = "Enums"
+            }
+
+            // Group packages for Entities
+            perPackageOption {
+                matchingRegex.set("com.opticon.opticonnect.sdk.api.entities.*")
+                group = "Entities"
+            }
         }
     }
 }

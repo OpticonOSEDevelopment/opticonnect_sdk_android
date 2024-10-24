@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand

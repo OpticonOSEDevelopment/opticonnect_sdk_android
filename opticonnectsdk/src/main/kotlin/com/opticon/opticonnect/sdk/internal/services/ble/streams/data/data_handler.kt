@@ -22,7 +22,7 @@ internal class DataHandler @Inject constructor(
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
     private val mutex = Mutex()
 
-    suspend fun getBarcodeDataStream(deviceId: String): Flow<BarcodeData> {
+    fun getBarcodeDataStream(deviceId: String): Flow<BarcodeData> {
         val dataProcessor = getDataProcessor(deviceId)
         return dataProcessor.barcodeDataStream
     }
@@ -42,10 +42,8 @@ internal class DataHandler @Inject constructor(
         }
     }
 
-    private suspend fun getDataProcessor(deviceId: String): DataProcessor {
-        return mutex.withLock {
-            dataProcessors[deviceId] ?: throw Exception("Data processor not found for device: $deviceId")
-        }
+    private fun getDataProcessor(deviceId: String): DataProcessor {
+        return dataProcessors[deviceId] ?: throw Exception("Data processor not found for device: $deviceId")
     }
 
     suspend fun addDataProcessor(deviceId: String, connection: RxBleConnection): DataProcessor {

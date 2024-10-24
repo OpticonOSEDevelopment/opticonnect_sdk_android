@@ -1,7 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
-import com.opticon.opticonnect.sdk.api.constants.commands.code_specific.CodeSpecificCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCELeadingZeroAndTransmitCDMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCEConversionMode

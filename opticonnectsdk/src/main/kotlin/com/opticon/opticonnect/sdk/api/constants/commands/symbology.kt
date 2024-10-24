@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.symbology
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object SymbologyCommands {
     // Enable 1D symbologies for scanning.

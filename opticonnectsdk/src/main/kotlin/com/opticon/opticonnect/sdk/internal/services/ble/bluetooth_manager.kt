@@ -5,7 +5,7 @@ import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
-import com.opticon.opticonnect.sdk.api.interfaces.LifecycleHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
@@ -75,7 +75,7 @@ internal class BluetoothManagerImpl @Inject constructor(
         return bleConnectivityHandler.getConnectionStateFlow(deviceId)
     }
 
-    override suspend fun subscribeToBarcodeDataStream(deviceId: String): Flow<BarcodeData> {
+    override fun listenToBarcodeData(deviceId: String): Flow<BarcodeData> {
         return bleDevicesStreamsHandler.dataHandler.getBarcodeDataStream(deviceId)
     }
 
