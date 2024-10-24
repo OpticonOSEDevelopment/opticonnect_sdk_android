@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.internal.entities
+package com.opticon.opticonnect.sdk.api.entities
 
 /**
  * Abstract class representing a base command for the scanner.

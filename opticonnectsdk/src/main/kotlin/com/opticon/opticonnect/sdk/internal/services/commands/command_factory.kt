@@ -7,7 +7,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class CommandFactory @Inject constructor() {
-
     fun createCommand(scannerCommand: ScannerCommand): Command {
         return Command(
             code = scannerCommand.code,

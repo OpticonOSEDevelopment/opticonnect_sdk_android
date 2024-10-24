@@ -8,7 +8,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class CommandFeedbackService @Inject constructor(private val scannerFeedback: ScannerFeedback) {
-
     fun generateFeedbackCommands(
         sendAckFeedback: Boolean,
         sendNakFeedback: Boolean,

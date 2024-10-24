@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ConnectionPoolImpl @Inject constructor(
+internal class ConnectionPoolImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper
 ) : ConnectionPool, SettingsBase() {
 

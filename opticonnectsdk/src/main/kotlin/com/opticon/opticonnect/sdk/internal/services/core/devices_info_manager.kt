@@ -14,7 +14,6 @@ import javax.inject.Singleton
 internal class DevicesInfoManager @Inject constructor(
     private val commandExecutorsManager: CommandExecutorsManager
 ) : ScannerInfo {
-
     private val macAddresses = mutableMapOf<String, String>()
     private val serialNumbers = mutableMapOf<String, String>()
     private val localNames = mutableMapOf<String, String>()

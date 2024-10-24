@@ -11,7 +11,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FormattingImpl @Inject constructor(
+internal class FormattingImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper,
 ) : Formatting, SettingsBase() {
 

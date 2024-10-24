@@ -6,7 +6,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class DatabaseTablesHelper @Inject constructor() {
-
     // Retrieve the list of tables from the SQLite database
     fun getTables(database: SupportSQLiteDatabase): List<String> {
         val tablesList = mutableListOf<String>()

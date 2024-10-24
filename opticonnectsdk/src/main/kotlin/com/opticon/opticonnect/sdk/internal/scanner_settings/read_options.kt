@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase() {
+internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase() {
 
     // Map Positive and Negative Barcodes Modes to corresponding command strings.
     private val positiveAndNegativeBarcodesModeCommands = mapOf(

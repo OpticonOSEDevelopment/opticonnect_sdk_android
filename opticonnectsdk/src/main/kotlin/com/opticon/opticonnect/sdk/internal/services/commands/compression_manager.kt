@@ -11,7 +11,6 @@ internal class CompressionManager(
     private val commandExecutor: CommandExecutor,
     private val settingsCompressor: SettingsCompressor
 ) {
-
     companion object {
         private const val COMPRESSION_THRESHOLD = 30
     }

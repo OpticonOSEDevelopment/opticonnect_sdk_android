@@ -15,7 +15,6 @@ internal class SettingsHandlerImpl @Inject constructor(
     private val databaseTablesHelper: DatabaseTablesHelper,
     private val databaseManager: DatabaseManager
 ) : SettingsHandler {
-
     private val groupsForCode = mutableMapOf<String, List<String>>()
     private val dimensionsForCode = mutableMapOf<String, List<String>>()
     private val codesForGroup = mutableMapOf<String, MutableList<String>>()

@@ -6,8 +6,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DirectInputKeysHelperImpl @Inject constructor() : DirectInputKeysHelper {
-
+internal class DirectInputKeysHelperImpl @Inject constructor() : DirectInputKeysHelper {
     // Mapping from DirectInputKey to String code (e.g., 'Q0')
     private val directInputKeyToStringMap = mapOf(
         // Numeric digits

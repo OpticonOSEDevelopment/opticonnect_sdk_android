@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.database
 
-object DatabaseFields {
+internal object DatabaseFields {
     const val CODE = "code"
     const val DESCRIPTION_KEY = "descriptionKey"
     const val GROUPS = "groups"

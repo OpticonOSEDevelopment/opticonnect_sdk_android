@@ -3,6 +3,7 @@ package com.opticon.opticonnect.sdk.internal.di
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.interfaces.DirectInputKeysHelper
+import com.opticon.opticonnect.sdk.api.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
@@ -394,6 +395,20 @@ internal object OptiConnectModule {
         bleConnectivityHandler: BleConnectivityHandler,
         bleDevicesStreamsHandler: BleDevicesStreamsHandler
     ): BluetoothManager {
+        return BluetoothManagerImpl(
+            bleDevicesDiscoverer,
+            bleConnectivityHandler,
+            bleDevicesStreamsHandler
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideBluetoothLifecycleHandler(
+        bleDevicesDiscoverer: BleDevicesDiscoverer,
+        bleConnectivityHandler: BleConnectivityHandler,
+        bleDevicesStreamsHandler: BleDevicesStreamsHandler
+    ): LifecycleHandler {
         return BluetoothManagerImpl(
             bleDevicesDiscoverer,
             bleConnectivityHandler,

@@ -1,7 +1,5 @@
 package com.opticon.opticonnect.sdk.api.entities
 
-import com.opticon.opticonnect.sdk.internal.entities.BaseCommand
-
 /**
  * Class representing a specific scanner command, inheriting from [BaseCommand].
  *

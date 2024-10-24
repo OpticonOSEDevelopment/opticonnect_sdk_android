@@ -2,7 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.ble.constants
 
 import java.util.UUID
 
-object UuidConstants {
+internal object UuidConstants {
     val SCANNER_SERVICE_UUID: UUID = UUID.fromString("46409be5-6967-4557-8e70-784e1e55263b")
     val BATTERY_SERVICE_UUID: UUID = UUID.fromString("0000180f-0000-1000-8000-00805f9b34fb")
     val BATTERY_LEVEL_CHARACTERISTIC_UUID: UUID = UUID.fromString("00002a19-0000-1000-8000-00805f9b34fb")

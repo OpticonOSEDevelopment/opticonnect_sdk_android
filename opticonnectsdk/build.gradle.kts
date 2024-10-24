@@ -253,16 +253,16 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
     destinationDirectory.set(layout.buildDirectory.dir("outputs/shadowed-aar"))
 }
 
-tasks.register<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtmlCustom") {
-    outputDirectory.set(layout.buildDirectory.dir("docs/html"))
+tasks.dokkaHtml {
+    outputDirectory.set(layout.buildDirectory.dir("dokka"))
 
     dokkaSourceSets {
-        named("main") {
-            includes.from("src/main/kotlin", "src/main/java")
-            noAndroidSdkLink.set(false)
-            reportUndocumented.set(true)
-            skipDeprecated.set(false)
-            jdkVersion.set(17)
+        configureEach {
+            includeNonPublic.set(false)  // Exclude non-public members
+            documentedVisibilities.set(
+                setOf(org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC)
+            )
+            skipDeprecated.set(true)      // Skip deprecated items if needed
         }
     }
 }

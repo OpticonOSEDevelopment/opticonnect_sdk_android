@@ -13,12 +13,7 @@ import java.io.Closeable
  *
  * Clients of the SDK should interact with this interface.
  */
-interface BluetoothManager : Closeable {
-    /**
-     * Initializes the BluetoothManager with the given [context].
-     */
-    fun initialize(context: Context)
-
+interface BluetoothManager {
     /**
      * Starts the BLE device discovery process.
      *
@@ -71,9 +66,4 @@ interface BluetoothManager : Closeable {
      * @return A flow of [BarcodeData] received from the device.
      */
     suspend fun subscribeToBarcodeDataStream(deviceId: String): Flow<BarcodeData>
-
-    /**
-     * Closes the Bluetooth manager, releasing resources like stopping discovery, disconnecting devices, etc.
-     */
-    override fun close()
 }

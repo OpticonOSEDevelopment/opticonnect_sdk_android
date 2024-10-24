@@ -6,7 +6,6 @@ import javax.inject.Singleton
 
 @Singleton
 internal class ScannerFeedbackImpl @Inject constructor() : ScannerFeedback {
-
     private var _led: Boolean = true
     override val led: Boolean
         get() = _led

@@ -5,6 +5,7 @@ import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
+import com.opticon.opticonnect.sdk.api.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
@@ -22,7 +23,7 @@ internal class BluetoothManagerImpl @Inject constructor(
     private val bleDevicesDiscoverer: BleDevicesDiscoverer,
     private val bleConnectivityHandler: BleConnectivityHandler,
     private val bleDevicesStreamsHandler: BleDevicesStreamsHandler
-) : BluetoothManager {
+) : BluetoothManager, LifecycleHandler {
 
     private lateinit var context: Context
 
