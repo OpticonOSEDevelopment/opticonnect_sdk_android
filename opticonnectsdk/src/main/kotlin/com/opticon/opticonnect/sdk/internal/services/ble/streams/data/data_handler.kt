@@ -5,6 +5,7 @@ import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWrite
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.polidea.rxandroidble3.RxBleConnection
+import com.polidea.rxandroidble3.RxBleDeviceServices
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -16,7 +17,7 @@ import kotlinx.coroutines.rx3.await
 
 @Singleton
 internal class DataHandler @Inject constructor(
-    private val opcDataHandlerFactory: OpcDataHandlerFactory // Injecting OpcDataHandlerFactory
+    private val opcDataHandlerFactory: OpcDataHandlerFactory
 ) : BleDataWriter, BleCommandResponseReader, Closeable {
 
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
@@ -48,20 +49,10 @@ internal class DataHandler @Inject constructor(
 
     suspend fun addDataProcessor(deviceId: String, connection: RxBleConnection): DataProcessor {
         return mutex.withLock {
-            val services = connection.discoverServices().await()
-
-            val readCharacteristic = services.getCharacteristic(UuidConstants.OPC_READ_CHARACTERISTIC_UUID)?.await()
-            val writeCharacteristic = services.getCharacteristic(UuidConstants.OPC_WRITE_CHARACTERISTIC_UUID)?.await()
-
-            if (readCharacteristic == null || writeCharacteristic == null) {
-                Timber.e("Required OPC characteristics not found for device: $deviceId")
-                throw Exception("Required OPC characteristics not found")
-            }
-
             val dataProcessor = DataProcessor(
                 deviceId = deviceId,
-                readCharacteristic = readCharacteristic.uuid,
-                writeCharacteristic = writeCharacteristic.uuid,
+                readCharacteristic = UuidConstants.OPC_READ_CHARACTERISTIC_UUID,
+                writeCharacteristic = UuidConstants.OPC_WRITE_CHARACTERISTIC_UUID,
                 opcDataHandler = opcDataHandlerFactory.create(deviceId),
                 connection = connection
             )
@@ -72,10 +63,6 @@ internal class DataHandler @Inject constructor(
 
             return dataProcessor
         }
-    }
-
-    fun removeDataProcessor(deviceId: String) {
-        dataProcessors.remove(deviceId)
     }
 
     override fun close() {

@@ -12,7 +12,7 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [OptiConnectModule::class])
+@Component(modules = [OptiConnectModule::class, BluetoothManagerBindings::class])
 internal interface OptiConnectComponent {
     fun bluetoothManager(): BluetoothManager
     fun bluetoothLifecycleHandler(): LifecycleHandler

@@ -2,8 +2,8 @@ package com.opticon.opticonnect.sdk.internal.services.ble
 
 import android.content.Context
 import android.os.ParcelUuid
-import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants.OPC_SERVICE_UUID
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
+import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants.SCANNER_SERVICE_UUID
 import com.polidea.rxandroidble3.RxBleClient
 import com.polidea.rxandroidble3.scan.ScanFilter
 import com.polidea.rxandroidble3.scan.ScanResult
@@ -29,6 +29,7 @@ internal class BleDevicesDiscoverer @Inject constructor(
     private val deviceDiscoveryFlow = MutableSharedFlow<BleDiscoveredDevice>(replay = 0)
     private var scanDisposable: Disposable? = null  // Store the Disposable to manage the subscription lifecycle
     private var bleClient: RxBleClient? = null
+    private var isScanning = false
 
     fun startDiscovery(context: Context) {
         // Check Bluetooth permissions
@@ -41,21 +42,27 @@ internal class BleDevicesDiscoverer @Inject constructor(
             }
 
             val scanFilter = ScanFilter.Builder()
-                .setServiceUuid(ParcelUuid(OPC_SERVICE_UUID)) // Add the OPC Service UUID to the filter supported scanners
+                .setServiceUuid(ParcelUuid(SCANNER_SERVICE_UUID)) // Add the OPC Service UUID to the filter supported scanners
                 .build()
             // Start BLE scan using RxAndroidBle's scanning mechanism
             scanDisposable = bleClient?.scanBleDevices(
                 ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)  // Battery efficient scanning mode
                     .build(),
+                scanFilter
             )?.subscribe(
                 { result ->
                     CoroutineScope(Dispatchers.IO).launch {
                         onScanResult(result)
                     }
                 },  // Handle successful scan result
-                { throwable -> Timber.e(throwable, "Failed to start BLE scan") }  // Handle error during scanning
+                { throwable ->
+                    Timber.e(throwable, "Failed to start BLE scan")
+                    isScanning = false
+                }  // Handle error during scanning
             )
+
+            isScanning = true
             Timber.i("Started BLE device discovery.")
         }
     }
@@ -97,9 +104,14 @@ internal class BleDevicesDiscoverer @Inject constructor(
 
     fun stopDiscovery() {
         scanDisposable?.dispose()  // Dispose the scan when stopping the discovery
-
+        scanDisposable = null
+        isScanning = false
         bleClient = null
         Timber.i("Stopped BLE device discovery.")
+    }
+
+    fun isDiscovering(): Boolean {
+        return isScanning
     }
 
     fun getDeviceDiscoveryFlow(): Flow<BleDiscoveredDevice> {

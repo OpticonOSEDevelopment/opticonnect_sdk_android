@@ -13,12 +13,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.battery.BatteryHandler
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.polidea.rxandroidble3.RxBleDevice
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.withTimeout
 import java.io.Closeable
 
@@ -29,6 +31,7 @@ import javax.inject.Singleton
 internal class BleConnectivityHandler @Inject constructor(
     private val bleClient: RxBleClient,
     private val dataHandler: DataHandler,
+    private val batteryHandler: BatteryHandler,
     private val commandExecutorsManager: CommandExecutorsManager,
     private val devicesInfoManager: DevicesInfoManager
 ) : Closeable {
@@ -62,7 +65,7 @@ internal class BleConnectivityHandler @Inject constructor(
 
             val maxRetries = 3
             val retryDelayMillis = 500L
-            val connectionTimeoutMillis = 7_000L
+            val connectionTimeoutMillis = 5_000L
             var retryCount = 0
 
             while (true) {
@@ -110,6 +113,7 @@ internal class BleConnectivityHandler @Inject constructor(
                     CoroutineScope(Dispatchers.IO).launch {
                         connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
                     }
+                    throw(error)
                 }
             ).addTo(compositeDisposable)
     }
@@ -140,6 +144,7 @@ internal class BleConnectivityHandler @Inject constructor(
 
             //Add the data processor to process reads from and writes to the device.
             dataHandler.addDataProcessor(deviceId, connection)
+            batteryHandler.addBatteryListener(deviceId, connection)
 
             //Add the command executor to send commands to the device and receive feedback for sent commands.
             commandExecutorsManager.createCommandExecutor(deviceId)
@@ -177,6 +182,7 @@ internal class BleConnectivityHandler @Inject constructor(
 
     private fun processDisconnect(deviceId: String) {
         dataHandler.close(deviceId)
+        batteryHandler.close(deviceId)
         connectionDisposables[deviceId]?.dispose()
         connectionDisposables.remove(deviceId)
         connectionStateSubscriptions[deviceId]?.dispose()

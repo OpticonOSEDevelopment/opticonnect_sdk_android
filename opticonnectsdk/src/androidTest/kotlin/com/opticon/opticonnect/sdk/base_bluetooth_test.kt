@@ -8,10 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.AfterClass
+import org.junit.Before
 import org.junit.BeforeClass
 
 abstract class BaseBluetoothTest {
@@ -44,6 +47,17 @@ abstract class BaseBluetoothTest {
         @JvmStatic
         fun globalTeardown() {
             OptiConnect.bluetoothManager.stopDiscovery()
+        }
+    }
+
+    @Before
+    fun setup() {
+        runBlocking {
+            OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+            withTimeoutOrNull(2000) {
+                OptiConnect.bluetoothManager.listenToConnectionState(TEST_DEVICE_MAC_ADDRESS)
+                    .firstOrNull { it == BleDeviceConnectionState.DISCONNECTED }
+            }
         }
     }
 

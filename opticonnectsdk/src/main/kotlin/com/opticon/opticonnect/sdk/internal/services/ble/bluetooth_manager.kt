@@ -3,10 +3,11 @@ package com.opticon.opticonnect.sdk.internal.services.ble
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
-import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,6 +29,7 @@ internal class BluetoothManagerImpl @Inject constructor(
     private lateinit var context: Context
 
     override fun initialize(context: Context) {
+        Timber.d("Initializing BluetoothManager!")
         this.context = context.applicationContext
         Timber.d("BluetoothManager initialized with context")
     }
@@ -49,6 +51,9 @@ internal class BluetoothManagerImpl @Inject constructor(
             throw e
         }
     }
+
+    override val isDiscovering: Boolean
+        get() = bleDevicesDiscoverer.isDiscovering()
 
     override val bleDiscoveredDevicesFlow: Flow<BleDiscoveredDevice>
         get() = bleDevicesDiscoverer.getDeviceDiscoveryFlow()
@@ -79,6 +84,22 @@ internal class BluetoothManagerImpl @Inject constructor(
         return bleDevicesStreamsHandler.dataHandler.getBarcodeDataStream(deviceId)
     }
 
+    override fun getLatestBatteryPercentage(deviceId: String): Int {
+        return bleDevicesStreamsHandler.batteryHandler.getLatestBatteryPercentage(deviceId)
+    }
+
+    override fun listenToBatteryPercentage(deviceId: String): Flow<Int> {
+        return bleDevicesStreamsHandler.batteryHandler.getBatteryPercentageStream(deviceId)
+    }
+
+    override fun listenToBatteryStatus(deviceId: String): Flow<BatteryLevelStatus> {
+        return bleDevicesStreamsHandler.batteryHandler.getBatteryStatusStream(deviceId)
+    }
+
+    override fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {
+        return bleDevicesStreamsHandler.batteryHandler.getLatestBatteryStatus(deviceId)
+    }
+
     override fun close() {
         try {
             bleConnectivityHandler.close()
@@ -90,3 +111,4 @@ internal class BluetoothManagerImpl @Inject constructor(
         }
     }
 }
+

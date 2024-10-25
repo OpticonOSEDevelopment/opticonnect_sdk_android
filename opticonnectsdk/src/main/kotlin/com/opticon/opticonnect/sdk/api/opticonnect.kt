@@ -11,15 +11,18 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettin
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
 import timber.log.Timber
-import java.lang.ref.WeakReference
 
 object OptiConnect : LifecycleHandler {
 
     private var component: OptiConnectComponent? = null
     private var isSettingsHandlerInitialized = false
 
-    // Hold context as a WeakReference to avoid memory leaks
-    private var contextRef: WeakReference<Context>? = null
+    private lateinit var appContext: Context
+
+    override fun initialize(context: Context) {
+        // Store application context, which is safe to keep for the app's lifetime
+        appContext = context.applicationContext
+    }
 
     // Private method to lazily build the Dagger component
     private fun getComponent(context: Context): OptiConnectComponent {
@@ -31,8 +34,6 @@ object OptiConnect : LifecycleHandler {
             if (Timber.forest().isEmpty()) {
                 Timber.plant(OptiConnectDebugTree())
             }
-
-            Timber.d("OptiConnect component initialized")
         }
         return component!!
     }
@@ -40,23 +41,9 @@ object OptiConnect : LifecycleHandler {
     // Function to ensure settingsHandler is initialized
     private fun ensureSettingsHandlerInitialized(settingsHandler: SettingsHandler) {
         if (!isSettingsHandlerInitialized) {
-            settingsHandler.initialize(getContext())
+            settingsHandler.initialize(appContext)
             isSettingsHandlerInitialized = true
-            Timber.i("Initialized SettingsHandler")
         }
-    }
-
-    /**
-     * Initializes the SDK with the required context.
-     *
-     * This function must be called by the client before accessing any SDK services.
-     * It sets up the necessary context, which is used throughout the SDK for managing resources
-     * and accessing system services safely.
-     *
-     * @param context The application or activity context to be used by the SDK.
-     */
-    override fun initialize(context: Context) {
-        setContext(context)
     }
 
     /**
@@ -82,7 +69,7 @@ object OptiConnect : LifecycleHandler {
         val settingsHandler = getComponentFromContext().settingsHandler()
         ensureSettingsHandlerInitialized(settingsHandler)
         val manager = getComponentFromContext().bluetoothManager()
-        bluetoothLifeCycleManager.initialize(getContext())
+        bluetoothLifeCycleManager.initialize(appContext)
         manager
     }
 
@@ -114,17 +101,9 @@ object OptiConnect : LifecycleHandler {
         getComponentFromContext().scannerFeedback()
     }
 
-    private fun getContext(): Context {
-        return contextRef?.get() ?: throw IllegalStateException("Context not set. You must provide a context when accessing the SDK services.")
-    }
-
-    private fun setContext(ctx: Context) {
-        contextRef = WeakReference(ctx.applicationContext)
-    }
-
     // Retrieve the component using the weak-referenced context
     private fun getComponentFromContext(): OptiConnectComponent {
-        val ctx = getContext()
+        val ctx = appContext
         return getComponent(ctx)
     }
 

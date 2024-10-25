@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.api.interfaces
 
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,15 @@ interface BluetoothManager {
      * Use this method to halt the scanning process for nearby devices.
      */
     fun stopDiscovery()
+
+    /**
+     * Indicates whether the discovery process is currently active.
+     *
+     * This property helps you check if the system is currently discovering BLE scanners.
+     *
+     * @return A boolean indicating if the discovery process is ongoing.
+     */
+    val isDiscovering: Boolean
 
     /**
      * A flow of [BleDiscoveredDevice] representing Opticon BLE scanners discovered during scanning.
@@ -75,4 +85,50 @@ interface BluetoothManager {
      * @return A flow of [BarcodeData] received from the scanner.
      */
     fun listenToBarcodeData(deviceId: String): Flow<BarcodeData>
+
+    /**
+     * Listens to the battery percentage of a specific Opticon BLE scanner.
+     *
+     * Use this method to get updates on the battery percentage of the scanner specified
+     * by the [deviceId]. The percentage will be provided as an integer, typically ranging
+     * from 0 to 100.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return A flow of integers representing the current battery percentage.
+     */
+    fun listenToBatteryPercentage(deviceId: String): Flow<Int>
+
+    /**
+     * Retrieves the latest battery percentage of a specific Opticon BLE scanner.
+     *
+     * Use this method to obtain the most recent battery percentage of the scanner specified
+     * by the [deviceId]. The percentage is returned as an integer, typically ranging from 0 to 100.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return An integer representing the latest battery percentage.
+     */
+    fun getLatestBatteryPercentage(deviceId: String): Int
+
+    /**
+     * Listens to the battery status of a specific Opticon BLE scanner.
+     *
+     * Use this method to get updates on the battery status of the scanner specified by the
+     * [deviceId]. The status will be provided as a flow of [BatteryLevelStatus], indicating
+     * the current status details such as charging state and battery health.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return A flow of [BatteryLevelStatus] indicating the current battery status.
+     */
+    fun listenToBatteryStatus(deviceId: String): Flow<BatteryLevelStatus>
+
+    /**
+     * Retrieves the latest battery status of a specific Opticon BLE scanner.
+     *
+     * Use this method to obtain the most recent battery status of the scanner specified by
+     * the [deviceId]. The status includes details such as charging state, battery health, and more.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @return A [BatteryLevelStatus] object indicating the latest battery status.
+     */
+    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus
 }

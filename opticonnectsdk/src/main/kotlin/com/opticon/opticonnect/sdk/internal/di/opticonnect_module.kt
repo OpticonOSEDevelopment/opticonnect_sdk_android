@@ -67,7 +67,7 @@ import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCEI
 import com.opticon.opticonnect.sdk.internal.services.ble.BluetoothManagerImpl
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
-import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.BleDevicesStreamsHandler
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.OpcDataHandlerFactory
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorFactory
@@ -84,6 +84,7 @@ import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizard
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandlerImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.ReadOptionsImpl
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.battery.BatteryHandler
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -108,10 +109,11 @@ internal object OptiConnectModule {
     fun provideBleConnectivityHandler(
         bleClient: RxBleClient,
         dataHandler: DataHandler,
+        batteryHandler: BatteryHandler,
         commandExecutorsManager: CommandExecutorsManager,
         devicesInfoManager: DevicesInfoManager
     ): BleConnectivityHandler {
-        return BleConnectivityHandler(bleClient, dataHandler, commandExecutorsManager, devicesInfoManager)
+        return BleConnectivityHandler(bleClient, dataHandler, batteryHandler, commandExecutorsManager, devicesInfoManager)
     }
 
     @Provides
@@ -382,38 +384,17 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
+    fun provideBatteryHandler(): BatteryHandler {
+        return BatteryHandler()
+    }
+
+    @Provides
+    @Singleton
     fun provideBleDevicesStreamsHandler(
-        dataHandler: DataHandler
+        dataHandler: DataHandler,
+        batteryHandler: BatteryHandler
     ): BleDevicesStreamsHandler {
-        return BleDevicesStreamsHandler(dataHandler)
-    }
-
-    @Provides
-    @Singleton
-    fun provideBluetoothManager(
-        bleDevicesDiscoverer: BleDevicesDiscoverer,
-        bleConnectivityHandler: BleConnectivityHandler,
-        bleDevicesStreamsHandler: BleDevicesStreamsHandler
-    ): BluetoothManager {
-        return BluetoothManagerImpl(
-            bleDevicesDiscoverer,
-            bleConnectivityHandler,
-            bleDevicesStreamsHandler
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideBluetoothLifecycleHandler(
-        bleDevicesDiscoverer: BleDevicesDiscoverer,
-        bleConnectivityHandler: BleConnectivityHandler,
-        bleDevicesStreamsHandler: BleDevicesStreamsHandler
-    ): LifecycleHandler {
-        return BluetoothManagerImpl(
-            bleDevicesDiscoverer,
-            bleConnectivityHandler,
-            bleDevicesStreamsHandler
-        )
+        return BleDevicesStreamsHandler(dataHandler, batteryHandler)
     }
 
     @Provides
