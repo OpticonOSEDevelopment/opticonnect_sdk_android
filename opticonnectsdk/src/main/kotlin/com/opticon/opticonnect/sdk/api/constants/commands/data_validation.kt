@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.data_validation
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object DataValidationCommands {
     const val BARCODE_VALIDATION_DISABLED = "P0"

@@ -1,17 +1,17 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.formatting.FormattingCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.FormattingCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
 import com.opticon.opticonnect.sdk.api.enums.FormattableSymbology
-import com.opticon.opticonnect.sdk.api.interfaces.DirectInputKeysHelper
+import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FormattingImpl @Inject constructor(
+internal class FormattingImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper,
 ) : Formatting, SettingsBase() {
 

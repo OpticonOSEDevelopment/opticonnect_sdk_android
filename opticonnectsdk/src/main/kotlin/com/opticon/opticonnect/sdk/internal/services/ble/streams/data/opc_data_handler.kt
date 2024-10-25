@@ -18,7 +18,7 @@ import java.io.Closeable
 import javax.inject.Inject
 import kotlin.math.pow
 
-enum class OpcRxState {
+internal enum class OpcRxState {
     Idle, ReceivingType, ReceivingData, ReceivingCrcHigh, ReceivingCrcLow
 }
 

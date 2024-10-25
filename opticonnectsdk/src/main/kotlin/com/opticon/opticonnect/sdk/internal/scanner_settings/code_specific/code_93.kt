@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
-import com.opticon.opticonnect.sdk.api.constants.commands.code_specific.CodeSpecificCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code93
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase

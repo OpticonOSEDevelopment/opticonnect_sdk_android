@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.scan
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object ScanCommands {
     const val SINGLE_READ = "S0"

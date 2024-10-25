@@ -1,10 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.entities
 
+import com.opticon.opticonnect.sdk.api.entities.BaseCommand
 import com.opticon.opticonnect.sdk.internal.extensions.addCommand
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import kotlinx.coroutines.CompletableDeferred
 
-open class Command(
+internal open class Command(
     code: String,
     parameters: List<String> = emptyList(),
     sendFeedback: Boolean = true,

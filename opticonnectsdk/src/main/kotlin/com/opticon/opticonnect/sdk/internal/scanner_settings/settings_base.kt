@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
  *
  * This class provides methods to send commands to the scanner with optional feedback settings.
  */
-abstract class SettingsBase() {
+internal abstract class SettingsBase() {
 
     /**
      * Sends a command to the scanner with optional parameters and feedback settings.

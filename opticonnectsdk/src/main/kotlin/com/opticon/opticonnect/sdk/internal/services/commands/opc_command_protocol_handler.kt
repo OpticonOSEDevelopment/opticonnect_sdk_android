@@ -14,7 +14,6 @@ import javax.inject.Singleton
 internal class OpcCommandProtocolHandler @Inject constructor(
     private val crc16Handler: CRC16Handler // Injecting CRC16Handler for CRC computation
 ) : CommandBytesProvider {
-
     private var seqNr = 0
 
     private fun incrementSeqNr() {

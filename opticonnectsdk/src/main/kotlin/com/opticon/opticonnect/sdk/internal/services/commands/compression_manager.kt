@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +11,6 @@ internal class CompressionManager(
     private val commandExecutor: CommandExecutor,
     private val settingsCompressor: SettingsCompressor
 ) {
-
     companion object {
         private const val COMPRESSION_THRESHOLD = 30
     }

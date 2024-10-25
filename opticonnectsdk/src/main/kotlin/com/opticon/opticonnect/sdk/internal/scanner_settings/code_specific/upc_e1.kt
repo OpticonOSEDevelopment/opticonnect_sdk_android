@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
-import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE1
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase

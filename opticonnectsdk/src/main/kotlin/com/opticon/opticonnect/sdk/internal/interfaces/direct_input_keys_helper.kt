@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.interfaces
+package com.opticon.opticonnect.sdk.internal.interfaces
 
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
 
@@ -9,7 +9,7 @@ import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
  * converting from [DirectInputKey] to their respective string codes, and handling
  * conversions of lists of input keys.
  */
-interface DirectInputKeysHelper {
+internal interface DirectInputKeysHelper {
 
     /**
      * Converts a given string (e.g., 'Q0') to its corresponding [DirectInputKey].
@@ -28,7 +28,7 @@ interface DirectInputKeysHelper {
     fun directInputKeyToString(key: DirectInputKey): String?
 
     /**
-     * Converts an integer to a list of corresponding string representations of direct input keys.
+     * Converts an integer to a list of corresponding string representations of direct input key codes.
      *
      * This method is useful for generating direct input key codes from numeric values.
      *
@@ -41,12 +41,12 @@ interface DirectInputKeysHelper {
      * Converts a list of [DirectInputKey] to their corresponding string codes.
      *
      * @param keys The list of [DirectInputKey] to be converted.
-     * @return The list of corresponding string codes.
+     * @return The list of corresponding direct input key codes.
      */
     fun convertKeysToCodes(keys: List<DirectInputKey>): List<String>
 
     /**
-     * Converts a string to a list of corresponding string representations of direct input keys.
+     * Converts a string to a list of corresponding string representations of direct input key codes.
      *
      * This method is useful for generating a list of string codes from a string input.
      *

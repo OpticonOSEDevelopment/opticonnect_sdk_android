@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.indicator
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object IndicatorCommands {
     const val NON_PERSISTENT_SET_BUZZER = "[BQX"

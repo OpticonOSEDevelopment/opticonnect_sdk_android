@@ -12,7 +12,6 @@ internal class SettingsCompressor @Inject constructor(
     private val settingsHandler: SettingsHandler,
     private val dataWizardHelper: DataWizardHelper
 ) {
-
     suspend fun getCompressedSettingsCommand(settings: String): Command {
         val compressedSettingsList = getCompressedSettingsList(settings)
 

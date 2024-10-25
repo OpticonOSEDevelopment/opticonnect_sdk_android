@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.helpers.TimeoutManager

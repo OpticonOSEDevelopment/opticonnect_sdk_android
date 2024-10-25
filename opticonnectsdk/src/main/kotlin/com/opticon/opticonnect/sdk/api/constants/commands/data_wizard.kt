@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.datawizard
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object DataWizardCommands {
     // Data Wizard configuration commands

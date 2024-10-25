@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
+import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
@@ -12,8 +13,9 @@ import javax.inject.Singleton
 
 @Singleton
 @Component(modules = [OptiConnectModule::class])
-interface OptiConnectComponent {
+internal interface OptiConnectComponent {
     fun bluetoothManager(): BluetoothManager
+    fun bluetoothLifecycleHandler(): LifecycleHandler
     fun scannerSettings(): ScannerSettings
     fun settingsHandler(): SettingsHandler
     fun scannerInfo(): ScannerInfo

@@ -1,13 +1,12 @@
 package com.opticon.opticonnect.sdk.internal.services.core
 
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
-import com.opticon.opticonnect.sdk.api.interfaces.DirectInputKeysHelper
+import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DirectInputKeysHelperImpl @Inject constructor() : DirectInputKeysHelper {
-
+internal class DirectInputKeysHelperImpl @Inject constructor() : DirectInputKeysHelper {
     // Mapping from DirectInputKey to String code (e.g., 'Q0')
     private val directInputKeyToStringMap = mapOf(
         // Numeric digits

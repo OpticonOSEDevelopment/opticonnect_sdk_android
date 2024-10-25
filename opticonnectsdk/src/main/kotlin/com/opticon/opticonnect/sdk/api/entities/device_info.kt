@@ -1,33 +1,34 @@
 package com.opticon.opticonnect.sdk.api.entities
 
 /**
- * A class representing basic information about a BLE device.
- * This class holds the information fetched from a BLE device, such as
+ * A class representing basic information about a connected Opticon BLE scanner.
+ *
+ * This class contains detailed information fetched from a connected Opticon BLE scanner, including
  * its MAC address, serial number, local name, and firmware version.
  */
 data class DeviceInfo(
     /**
-     * The unique identifier (BLE device ID) for the device.
+     * The unique identifier (BLE device ID) for the connected scanner.
      */
     val deviceId: String,
 
     /**
-     * The MAC address of the device.
+     * The MAC address of the connected scanner.
      */
     val macAddress: String,
 
     /**
-     * The serial number of the device.
+     * The serial number of the connected scanner.
      */
     val serialNumber: String,
 
     /**
-     * The local name (advertising name) of the device.
+     * The local name (advertising name) of the connected scanner.
      */
     val localName: String,
 
     /**
-     * The firmware version of the device.
+     * The firmware version of the connected scanner.
      */
     val firmwareVersion: String
 ) {

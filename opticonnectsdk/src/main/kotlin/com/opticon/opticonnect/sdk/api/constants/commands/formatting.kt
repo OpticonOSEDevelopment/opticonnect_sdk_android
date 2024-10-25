@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.api.constants.commands.formatting
+package com.opticon.opticonnect.sdk.api.constants.commands
 
 object FormattingCommands {
     const val PREAMBLE = "MZ"

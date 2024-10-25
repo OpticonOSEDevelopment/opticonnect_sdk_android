@@ -1,3 +1,5 @@
+package com.opticon.opticonnect.sdk.internal.logging
+
 import timber.log.Timber
 
 internal class OptiConnectDebugTree : Timber.DebugTree() {

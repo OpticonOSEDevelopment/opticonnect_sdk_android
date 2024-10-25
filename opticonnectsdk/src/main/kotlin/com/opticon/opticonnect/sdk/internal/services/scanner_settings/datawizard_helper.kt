@@ -1,12 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.datawizard.*
+import com.opticon.opticonnect.sdk.api.constants.commands.DataWizardCommands
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class DataWizardHelper @Inject constructor() {
-
     private val dataWizardCommands: Set<String> = setOf(
         DataWizardCommands.DATA_WIZARD_CONFIGURATION_0,
         DataWizardCommands.DATA_WIZARD_CONFIGURATION_1,

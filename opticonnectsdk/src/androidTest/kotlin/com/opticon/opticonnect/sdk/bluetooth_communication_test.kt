@@ -2,15 +2,14 @@ package com.opticon.opticonnect.sdk
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.opticon.opticonnect.sdk.api.OptiConnect
-import com.opticon.opticonnect.sdk.api.constants.commands.code_specific.CodeSpecificCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.communication.CommunicationCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.indicator.IndicatorCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.single_letter.SingleLetterCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.symbology.SymbologyCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.IndicatorCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.SingleLetterCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
-import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import junit.framework.TestCase.*
 import kotlinx.coroutines.CompletableDeferred
@@ -39,7 +38,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         if (isDeviceConnected) {
             val deferredBarcodeData = CompletableDeferred<BarcodeData>()
             val barcodeDataJob = launch {
-                OptiConnect.bluetoothManager.subscribeToBarcodeDataStream(TEST_DEVICE_MAC_ADDRESS)
+                OptiConnect.bluetoothManager.listenToBarcodeData(TEST_DEVICE_MAC_ADDRESS)
                     .collect { barcodeData ->
                     Timber.i("Barcode data received: ${barcodeData.data} for device $TEST_DEVICE_MAC_ADDRESS")
                     deferredBarcodeData.complete(barcodeData)

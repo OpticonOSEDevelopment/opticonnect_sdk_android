@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
-import com.opticon.opticonnect.sdk.api.constants.commands.scan.ScanCommands
+import com.opticon.opticonnect.sdk.api.constants.commands.ScanCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.*
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
@@ -9,7 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase() {
+internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase() {
 
     // Map Positive and Negative Barcodes Modes to corresponding command strings.
     private val positiveAndNegativeBarcodesModeCommands = mapOf(
