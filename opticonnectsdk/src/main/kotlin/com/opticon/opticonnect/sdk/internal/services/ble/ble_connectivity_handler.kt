@@ -19,8 +19,8 @@ import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.polidea.rxandroidble3.RxBleDevice
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.withTimeout
 import java.io.Closeable
 
@@ -41,6 +41,8 @@ internal class BleConnectivityHandler @Inject constructor(
     private val connectionStateSubscriptions = mutableMapOf<String, CompositeDisposable>()
     private val connectionStateFlows = mutableMapOf<String, MutableSharedFlow<BleDeviceConnectionState>>()
     private val connectionDisposables = mutableMapOf<String, Disposable>()
+    
+    private val scope = CoroutineScope(Dispatchers.IO)
 
     fun getConnectionStateFlow(deviceId: String): MutableSharedFlow<BleDeviceConnectionState> {
         return connectionStateFlows.getOrPut(deviceId) {
@@ -100,7 +102,7 @@ internal class BleConnectivityHandler @Inject constructor(
                 { connection ->
                     Timber.d("Connected to device: ${bleDevice.macAddress}")
                     // Emit the CONNECTED state
-                    CoroutineScope(Dispatchers.IO).launch {
+                    scope.launch {
                         // Initialize the device after establishing the connection
                         if (initializeDevice(bleDevice.macAddress, connection)) {
                             connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.CONNECTED)
@@ -110,7 +112,7 @@ internal class BleConnectivityHandler @Inject constructor(
                 },
                 { error ->
                     Timber.e(error, "Connection failed for device: ${bleDevice.macAddress}")
-                    CoroutineScope(Dispatchers.IO).launch {
+                    scope.launch {
                         connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
                     }
                     throw(error)
@@ -127,7 +129,7 @@ internal class BleConnectivityHandler @Inject constructor(
             .subscribe { state ->
                 when (state) {
                     RxBleConnection.RxBleConnectionState.DISCONNECTED -> {
-                        CoroutineScope(Dispatchers.IO).launch {
+                        scope.launch {
                             processDisconnect(deviceId)
                         }
                     }
@@ -187,7 +189,7 @@ internal class BleConnectivityHandler @Inject constructor(
         connectionDisposables.remove(deviceId)
         connectionStateSubscriptions[deviceId]?.dispose()
         connectionStateSubscriptions.remove(deviceId)
-        CoroutineScope(Dispatchers.IO).launch {
+        scope.launch {
             connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
         }
     }
@@ -198,6 +200,7 @@ internal class BleConnectivityHandler @Inject constructor(
 
     override fun close() {
         compositeDisposable.dispose()
+        scope.cancel()
         connectionStateSubscriptions.keys.toList().forEach { disconnect(it) }
         connectionStateSubscriptions.clear()
     }
