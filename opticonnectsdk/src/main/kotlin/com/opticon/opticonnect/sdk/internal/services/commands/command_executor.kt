@@ -10,21 +10,19 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.NAK
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandSender
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
-import java.util.LinkedList
 import javax.inject.Inject
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import java.io.Closeable
+import java.util.LinkedList
 
 internal class CommandExecutor @Inject constructor(
     private val deviceId: String,
@@ -36,38 +34,31 @@ internal class CommandExecutor @Inject constructor(
 ) : CommandSender, Closeable {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
     private val pendingCommandsQueue = LinkedList<Command>()
     private val responseData = StringBuilder()
-    private val mutex = Mutex()
 
     init {
-        coroutineScope.launch {
-            initializeResponseListener()
-        }
+        coroutineScope.launch { initializeResponseListener() }
     }
 
     private suspend fun initializeResponseListener() {
         bleCommandResponseReader.getCommandResponseStream(deviceId)
             .onEach { data -> commandResponseReceivedEvent(data) }
             .catch { error -> Timber.e("Error receiving command response: $error") }
-            .launchIn(coroutineScope)  // Use the custom scope here
+            .launchIn(coroutineScope)
     }
 
     override fun sendCommand(command: Command) {
         Timber.d("Sending command to queue: ${command.code}")
         coroutineScope.launch {
-            mutex.withLock {
-                Timber.d("Enqueueing command: ${command.code}")
-                enqueueCommand(command)
-            }
+            enqueueCommand(command)
         }
     }
 
     private fun enqueueCommand(command: Command) {
         pendingCommandsQueue.addLast(command)
         if (pendingCommandsQueue.size == 1) {
-            executeCommand(pendingCommandsQueue.first())
+            executeCommand(command)
         }
     }
 
@@ -79,13 +70,13 @@ internal class CommandExecutor @Inject constructor(
         try {
             val bytes = commandBytesProvider.getCommandBytes(command)
             coroutineScope.launch {
-
                 bleDataWriter.writeData(deviceId, command.code, bytes)
             }
         } catch (e: Exception) {
             Timber.e("Error sending command: ${command.code}, Error: $e")
             coroutineScope.launch {
-                finishWithFailedRequest(command)
+                command.completer.complete(CommandResponse("", false))
+                finalizeCommandAndProcessNext()
             }
         }
     }
@@ -101,65 +92,27 @@ internal class CommandExecutor @Inject constructor(
     private suspend fun onCommandTimeout(command: Command) {
         Timber.w("Command timeout occurred for: ${command.code}")
         if (command.retried) {
-            finishWithFailedRequest(command)
+            command.completer.complete(CommandResponse("", false))
+            finalizeCommandAndProcessNext()
         } else {
             retryCommand(command)
         }
     }
 
-    private fun sendScannerFeedback(sendAckFeedback: Boolean, sendNakFeedback: Boolean, command: Command) {
-        val feedbackCommands = commandFeedbackService.generateFeedbackCommands(sendAckFeedback, sendNakFeedback, command)
-        for (feedbackCommand in feedbackCommands) {
-            sendCommand(feedbackCommand)
-        }
-    }
-
-    private fun completeCommand(command: Command, responseData: String, hasFailed: Boolean) {
-        timeoutManager.cancelTimeout()
-
-        if (!command.completer.isCompleted) {
-            command.completer.complete(CommandResponse(responseData, !hasFailed))
-        }
-    }
-
-    private suspend fun finalizeCommandAndProcessNext(responseData: String, hasFailed: Boolean) {
-        if (pendingCommandsQueue.isNotEmpty()) {
-            mutex.withLock {
-                if (pendingCommandsQueue.isNotEmpty()) {
-                    val command = pendingCommandsQueue.first()
-
-                    completeCommand(command, responseData, hasFailed)
-
-                    pendingCommandsQueue.removeFirst()
-
-                    if (command.code != CommunicationCommands.SAVE_SETTINGS) {
-                        persistSettings()
-                    }
-                }
-                if (pendingCommandsQueue.isNotEmpty()) {
-                    executeCommand(pendingCommandsQueue.first())
-                }
-            }
-        }
-    }
-
-    private suspend fun finishWithFailedRequest(command: Command) {
-        finishCommandRequest("", false, false, command, hasFailed = true)
-    }
-
-    private suspend fun finishCommandRequest(responseData: String, sendAckFeedback: Boolean, sendNakFeedback: Boolean, command: Command, hasFailed: Boolean = false) {
-        sendScannerFeedback(sendAckFeedback, sendNakFeedback, command)
-        finalizeCommandAndProcessNext(responseData, hasFailed)
-    }
-
     private suspend fun retryCommand(command: Command) {
-        Timber.w("Retrying command: ${command.code}")
-        delay(200L)
-        command.retried = true
-        mutex.withLock {
+        try {
+            Timber.w("Retrying command: ${command.code}")
+            delay(200L)
+            command.retried = true
             pendingCommandsQueue.removeFirst()
-            pendingCommandsQueue.add(command)
-            executeCommand(pendingCommandsQueue.first())
+            pendingCommandsQueue.addFirst(command)
+            executeCommand(command)
+        } catch (e: Exception) {
+            Timber.e("Failed to retry command: ${command.code}, Error: $e")
+            // Complete the completer with a failure response
+            if (!command.completer.isCompleted) {
+                command.completer.complete(CommandResponse.failed("Retry failed due to: $e"))
+            }
         }
     }
 
@@ -174,32 +127,29 @@ internal class CommandExecutor @Inject constructor(
                 if (!command.retried) {
                     retryCommand(command)
                 } else {
-                    val responseData = this.responseData.toString()
-                    finishCommandRequest(responseData, false, true, command)
+                    command.completer.complete(CommandResponse(responseData.toString(), false))
+                    finalizeCommandAndProcessNext()
                 }
             }
             ACK.toString() -> {
-                val responseData = this.responseData.toString()
-                finishCommandRequest(responseData, true, false, command)
+                command.completer.complete(CommandResponse(responseData.toString(), true))
+                finalizeCommandAndProcessNext()
             }
             else -> responseData.append(data)
         }
     }
 
-    private var saveToNonVolatileMemoryJob: Job? = null
-
-    private fun persistSettings() {
-        saveToNonVolatileMemoryJob?.cancel()
-
-        saveToNonVolatileMemoryJob = coroutineScope.launch {
-            delay(5000L)  // Wait for 5 seconds
-            sendCommand(Command(CommunicationCommands.SAVE_SETTINGS, sendFeedback = false))
+    private suspend fun finalizeCommandAndProcessNext() {
+        if (pendingCommandsQueue.isNotEmpty()) {
+            pendingCommandsQueue.removeFirst()
+            if (pendingCommandsQueue.isNotEmpty()) {
+                executeCommand(pendingCommandsQueue.first())
+            }
         }
     }
 
     override fun close() {
         pendingCommandsQueue.clear()
         timeoutManager.close()
-        saveToNonVolatileMemoryJob?.cancel()
     }
 }

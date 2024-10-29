@@ -324,6 +324,10 @@ internal class DirectInputKeysHelperImpl @Inject constructor() : DirectInputKeys
         return stringToDirectInputKeyMap[input]
     }
 
+    override fun charToDirectInputKey(input: Char): DirectInputKey? {
+        return charToDirectInputKeyMap[input]
+    }
+
     override fun directInputKeyToString(key: DirectInputKey): String? {
         return directInputKeyToStringMap[key]
     }

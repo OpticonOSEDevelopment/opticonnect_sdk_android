@@ -19,6 +19,7 @@ import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.polidea.rxandroidble3.RxBleDevice
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
@@ -67,31 +68,34 @@ internal class BleConnectivityHandler @Inject constructor(
 
             val maxRetries = 3
             val retryDelayMillis = 500L
-            val connectionTimeoutMillis = 5_000L
+            val connectionTimeoutMillis = 7_000L
             var retryCount = 0
 
             while (true) {
+                val connectionEstablished = CompletableDeferred<Boolean>()
                 try {
                     Timber.d("Attempting to connect to device: $deviceId")
                     withTimeout(connectionTimeoutMillis) {
-                        establishConnection(bleDevice)
+                        establishConnection(bleDevice, connectionEstablished)
                     }
-                    break
-                } catch (e: Exception) {
-                    retryCount++
-                    Timber.w("Connection attempt failed ($retryCount/$maxRetries): $e")
-                    if (retryCount >= maxRetries) {
-                        Timber.e("Failed to connect after $retryCount retries.")
-                        connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
+                    if (connectionEstablished.await()) {
                         break
                     }
-                    delayForRetry(retryDelayMillis)
+                } catch (e: Exception) {
+                    Timber.d("Connection attempt failed ($retryCount/$maxRetries): $e")
                 }
+                retryCount++
+                if (retryCount >= maxRetries) {
+                    Timber.e("Failed to connect after $retryCount retries.")
+                    connectionStateFlows[deviceId]?.emit(BleDeviceConnectionState.DISCONNECTED)
+                    break
+                }
+                delayForRetry(retryDelayMillis)
             }
         }
     }
 
-    private fun establishConnection(bleDevice: RxBleDevice) {
+    private fun establishConnection(bleDevice: RxBleDevice, connectionEstablished: CompletableDeferred<Boolean>) {
         connectionDisposables[bleDevice.macAddress] = bleDevice.establishConnection(false)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
@@ -107,6 +111,10 @@ internal class BleConnectivityHandler @Inject constructor(
                         if (initializeDevice(bleDevice.macAddress, connection)) {
                             connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.CONNECTED)
                             listenToConnectionStateUpdates(bleDevice)
+                            connectionEstablished.complete(true)
+                        } else {
+                            Timber.d("Failed to initialize device: ${bleDevice.macAddress}")
+                            connectionEstablished.complete(false)
                         }
                     }
                 },
@@ -115,7 +123,8 @@ internal class BleConnectivityHandler @Inject constructor(
                     scope.launch {
                         connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
                     }
-                    throw(error)
+                    // Complete the deferred with false, indicating failure before returning to connect
+                    connectionEstablished.complete(false)
                 }
             ).addTo(compositeDisposable)
     }

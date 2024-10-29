@@ -8,6 +8,7 @@ import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
 import javax.inject.Inject
@@ -31,7 +32,18 @@ internal class BluetoothManagerImpl @Inject constructor(
     override fun initialize(context: Context) {
         Timber.d("Initializing BluetoothManager!")
         this.context = context.applicationContext
+        setUpRxJavaErrorHandler()
         Timber.d("BluetoothManager initialized with context")
+    }
+
+    private fun setUpRxJavaErrorHandler() {
+        RxJavaPlugins.setErrorHandler { throwable ->
+            if (throwable is io.reactivex.rxjava3.exceptions.UndeliverableException) {
+                Timber.e("Caught undeliverable exception: ${throwable.cause}")
+            } else {
+                Timber.e("Unexpected RxJava error: $throwable")
+            }
+        }
     }
 
     override fun startDiscovery() {

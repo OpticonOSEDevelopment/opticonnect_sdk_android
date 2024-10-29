@@ -13,9 +13,10 @@ internal class ConnectionPoolImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper
 ) : ConnectionPool, SettingsBase() {
 
+    private val connectionPoolIds = mutableMapOf<String, String>()
     private val reservedHexIds = listOf("0001", "0002", "0003", "30F4", "46F9", "9BE5")
 
-    private fun validateHexId(id: String): CommandResponse {
+    private fun validateId(id: String): CommandResponse {
         val hexPattern = Regex("^[0-9A-Fa-f]{4}$")
         if (!hexPattern.matches(id)) {
             val msg = "Invalid ID: must be a 4-character hexadecimal value."
@@ -32,33 +33,41 @@ internal class ConnectionPoolImpl @Inject constructor(
 
     private fun getDirectInputKeysFromHexId(hexId: String): List<String> {
         return hexId.uppercase().mapNotNull { char ->
-            val directInputKey = directInputKeysHelper.stringToDirectInputKey(char.toString())
+            val directInputKey = directInputKeysHelper.charToDirectInputKey(char)
             directInputKey?.let { directInputKeysHelper.directInputKeyToString(it) }
         }
     }
 
-    override suspend fun setHexId(deviceId: String, poolId: String): CommandResponse {
-        val validationResponse = validateHexId(poolId)
+    override suspend fun setId(deviceId: String, poolId: String): CommandResponse {
+        val validationResponse = validateId(poolId)
         if (!validationResponse.succeeded) return validationResponse
 
         val directInputKeys = getDirectInputKeysFromHexId(poolId)
+        Timber.d("Setting connection pool ID to $poolId for device $deviceId with parameters $directInputKeys")
         val result = sendCommand(deviceId, CommunicationCommands.SET_CONNECTION_POOL_ID, parameters = directInputKeys)
-        return if (result.succeeded) {
+        if (result.succeeded) {
+            connectionPoolIds[deviceId] = poolId  // Store the new pool ID
             sendCommand(deviceId, CommunicationCommands.SAVE_SETTINGS)
-        } else result
+        }
+        return result
     }
 
-    override suspend fun resetHexId(deviceId: String): CommandResponse {
+    override suspend fun resetId(deviceId: String): CommandResponse {
+        connectionPoolIds[deviceId] = "0000"  // Reset the pool ID to "0000"
         val directInputKeys = getDirectInputKeysFromHexId("0000")
         return sendCommand(deviceId, CommunicationCommands.SET_CONNECTION_POOL_ID, parameters = directInputKeys)
     }
 
-    override fun isValidHexId(poolId: String): Boolean {
-        return validateHexId(poolId).succeeded
+    override suspend fun getId(deviceId: String): String {
+        return connectionPoolIds[deviceId] ?: "0000"  // Return "0000" if ID is unknown
+    }
+
+    override fun isValidId(poolId: String): Boolean {
+        return validateId(poolId).succeeded
     }
 
     override fun getConnectionPoolQRData(poolId: String): String {
-        if (!isValidHexId(poolId)) return ""
+        if (!isValidId(poolId)) return ""
         val directInputKeys = getDirectInputKeysFromHexId(poolId)
         return "@MENU_OPTO@ZZ@BBP@${directInputKeys.joinToString("@")}@ZZ@OTPO_UNEM@"
     }

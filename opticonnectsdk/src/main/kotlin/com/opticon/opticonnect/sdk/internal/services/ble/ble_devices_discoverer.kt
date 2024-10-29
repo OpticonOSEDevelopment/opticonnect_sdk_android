@@ -3,6 +3,7 @@ package com.opticon.opticonnect.sdk.internal.services.ble
 import android.content.Context
 import android.os.ParcelUuid
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
+import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants.SCANNER_SERVICE_UUID
 import com.polidea.rxandroidble3.RxBleClient
 import com.polidea.rxandroidble3.scan.ScanFilter
@@ -23,7 +24,8 @@ import javax.inject.Singleton
 
 @Singleton
 internal class BleDevicesDiscoverer @Inject constructor(
-    private val blePermissionsChecker: BlePermissionsChecker
+    private val blePermissionsChecker: BlePermissionsChecker,
+    private val connectionPool: ConnectionPool
 ) : Closeable {
 
     private val deviceDiscoveryFlow = MutableSharedFlow<BleDiscoveredDevice>(replay = 0)
@@ -50,7 +52,15 @@ internal class BleDevicesDiscoverer @Inject constructor(
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)  // Battery efficient scanning mode
                     .build(),
                 scanFilter
-            )?.subscribe(
+            )?.doOnError { throwable ->
+                // Handle or log the specific error gracefully
+                if (throwable is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
+                    Timber.e("BLE Disconnected during scan: ${throwable.message}")
+                    // Handle any additional recovery steps, e.g., retrying the scan if needed
+                } else {
+                    Timber.e(throwable, "An unexpected error occurred during BLE scanning.")
+                }
+            }?.subscribe(
                 { result ->
                     CoroutineScope(Dispatchers.IO).launch {
                         onScanResult(result)
@@ -69,17 +79,25 @@ internal class BleDevicesDiscoverer @Inject constructor(
 
     private suspend fun onScanResult(result: ScanResult) {
         val device = result.bleDevice
+        val deviceId = device.macAddress
+
+        val poolId = getConnectionPoolId(result)
+        Timber.d("Device ID: $deviceId, Pool ID: $poolId")
+
+        if (connectionPool.getId(deviceId) != poolId && poolId.length == 4) {
+            connectionPool.setId(deviceId, poolId)
+        }
 
         val discoveredDevice = BleDiscoveredDevice(
             name = device.name ?: "",
-            deviceId = device.macAddress,
+            deviceId = deviceId,
             rssi = result.rssi,
             timeStamp = Date(System.currentTimeMillis()),
-            connectionPoolId = getConnectionPoolId(result)
+            connectionPoolId = poolId
         )
 
         if (isValidDeviceName(discoveredDevice.name)) {
-            Timber.d("Discovered device: ${discoveredDevice.name}, ${discoveredDevice.deviceId}")
+//            Timber.d("Discovered device: ${discoveredDevice.name}, ${discoveredDevice.deviceId}")
             try {
                 deviceDiscoveryFlow.emit(discoveredDevice)
             }

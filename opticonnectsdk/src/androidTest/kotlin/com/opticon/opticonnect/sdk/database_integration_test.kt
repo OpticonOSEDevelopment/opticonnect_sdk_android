@@ -4,6 +4,7 @@
 //import androidx.sqlite.db.SupportSQLiteDatabase
 //import androidx.test.core.app.ApplicationProvider
 //import androidx.test.ext.junit.runners.AndroidJUnit4
+//import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
 //import com.opticon.opticonnect.sdk.di.DaggerTestComponent
 //import com.opticon.opticonnect.sdk.di.TestComponent
 //import kotlinx.coroutines.runBlocking
@@ -13,7 +14,6 @@
 //import org.junit.runner.RunWith
 //import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 //import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
-//import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandler
 //import junit.framework.TestCase.assertTrue
 //import org.junit.Before
 //import javax.inject.Inject
@@ -23,9 +23,6 @@
 //
 //    @Inject
 //    lateinit var databaseTablesHelper: DatabaseTablesHelper
-//
-//    @Inject
-//    lateinit var settingsHandler: SettingsHandler
 //
 //    @Inject
 //    lateinit var databaseManager: DatabaseManager

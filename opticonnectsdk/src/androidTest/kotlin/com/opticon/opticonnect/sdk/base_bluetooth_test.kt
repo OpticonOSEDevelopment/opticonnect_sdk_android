@@ -46,6 +46,7 @@ abstract class BaseBluetoothTest {
         @AfterClass
         @JvmStatic
         fun globalTeardown() {
+            Thread.sleep(200)
             OptiConnect.bluetoothManager.stopDiscovery()
         }
     }
@@ -83,7 +84,11 @@ abstract class BaseBluetoothTest {
         }
     }
 
-    suspend fun connectDevice(deviceId: String, connectionStateFlow: MutableStateFlow<BleDeviceConnectionState>): Boolean {
+    suspend fun toggleDeviceConnectionState(
+        deviceId: String,
+        connectionStateFlow: MutableStateFlow<BleDeviceConnectionState>,
+        targetState: BleDeviceConnectionState
+    ): Boolean {
         val connectionStateJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToConnectionState(deviceId).collect { connectionState ->
                 connectionStateFlow.emit(connectionState)
@@ -91,12 +96,20 @@ abstract class BaseBluetoothTest {
         }
 
         return try {
-            OptiConnect.bluetoothManager.connect(deviceId)
-            val connectionState = withTimeoutOrNull(20000) {
-                connectionStateFlow.first { it == BleDeviceConnectionState.CONNECTED }
+            // Attempt to connect or disconnect based on the target state
+            delay(500)
+            when (targetState) {
+                BleDeviceConnectionState.CONNECTED -> OptiConnect.bluetoothManager.connect(deviceId)
+                BleDeviceConnectionState.DISCONNECTED -> OptiConnect.bluetoothManager.disconnect(deviceId)
+                else -> throw IllegalArgumentException("Unsupported target state: $targetState")
             }
-            connectionStateJob.cancel()
-            connectionState == BleDeviceConnectionState.CONNECTED
+
+            // Wait for the desired state within a timeout period
+            val connectionState = withTimeoutOrNull(20000) {
+                connectionStateFlow.first { it == targetState }
+            }
+
+            connectionState == targetState
         } finally {
             connectionStateJob.cancel()
         }

@@ -32,7 +32,8 @@ class BluetoothConnectivityTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+            BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             assertDeviceStaysConnected(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
         } else {

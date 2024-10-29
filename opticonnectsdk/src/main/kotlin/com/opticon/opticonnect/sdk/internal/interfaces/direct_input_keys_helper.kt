@@ -19,6 +19,8 @@ internal interface DirectInputKeysHelper {
      */
     fun stringToDirectInputKey(input: String): DirectInputKey?
 
+    fun charToDirectInputKey(input: Char): DirectInputKey?
+
     /**
      * Converts a [DirectInputKey] to its corresponding string representation (e.g., 'Q0').
      *

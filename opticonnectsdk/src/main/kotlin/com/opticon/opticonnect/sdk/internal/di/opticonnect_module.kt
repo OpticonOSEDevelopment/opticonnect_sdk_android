@@ -119,9 +119,10 @@ internal object OptiConnectModule {
     @Provides
     @Singleton
     fun provideBleDevicesDiscoverer(
-        blePermissionsChecker: BlePermissionsChecker
+        blePermissionsChecker: BlePermissionsChecker,
+        connectionPool: ConnectionPool
     ): BleDevicesDiscoverer {
-        return BleDevicesDiscoverer(blePermissionsChecker)
+        return BleDevicesDiscoverer(blePermissionsChecker, connectionPool)
     }
 
     @Provides

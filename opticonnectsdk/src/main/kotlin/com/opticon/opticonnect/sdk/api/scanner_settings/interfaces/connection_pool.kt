@@ -16,7 +16,15 @@ interface ConnectionPool {
      * @param poolId The 4-character hexadecimal connection pool ID.
      * @return A [CommandResponse] indicating the success or failure of the operation.
      */
-    suspend fun setHexId(deviceId: String, poolId: String): CommandResponse
+    suspend fun setId(deviceId: String, poolId: String): CommandResponse
+
+    /**
+     * Retrieves the current connection pool ID for the specified device.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return The 4-character hexadecimal connection pool ID.
+     */
+    suspend fun getId(deviceId: String): String
 
     /**
      * Resets the connection pool ID to the default '0000'.
@@ -24,7 +32,7 @@ interface ConnectionPool {
      * @param deviceId The identifier of the target device.
      * @return A [CommandResponse] indicating the success or failure of the operation.
      */
-    suspend fun resetHexId(deviceId: String): CommandResponse
+    suspend fun resetId(deviceId: String): CommandResponse
 
     /**
      * Checks if the given ID is a valid 4-character hexadecimal value.
@@ -32,7 +40,7 @@ interface ConnectionPool {
      * @param poolId The connection pool ID to validate.
      * @return True if the ID is valid, false otherwise.
      */
-    fun isValidHexId(poolId: String): Boolean
+    fun isValidId(poolId: String): Boolean
 
     /**
      * Generates a configuration command string that can be encoded into a QR code.

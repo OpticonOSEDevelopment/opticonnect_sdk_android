@@ -35,7 +35,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             val deferredBarcodeData = CompletableDeferred<BarcodeData>()
             val barcodeDataJob = launch {
@@ -64,7 +65,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             val response = OptiConnect.scannerSettings.executeCommand(
                 TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SingleLetterCommands.GOOD_READ_BUZZER)
@@ -83,7 +85,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             Timber.d("Fetching device info for device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
             val deviceInfo = OptiConnect.scannerInfo.getInfo(TEST_DEVICE_MAC_ADDRESS)
@@ -111,7 +114,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_QR_CODE))
@@ -136,7 +140,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(IndicatorCommands.SINGLE_TONE_BUZZER))
@@ -175,7 +180,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             )
 
             val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-            val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+            val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
                 OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
@@ -208,7 +214,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
             val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-            val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+            val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 val batteryPercentage = OptiConnect.bluetoothManager.getLatestBatteryPercentage(TEST_DEVICE_MAC_ADDRESS)
                 Timber.d("Battery percentage: $batteryPercentage%")
@@ -226,7 +233,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
             val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-            val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+            val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 val batteryStatus = OptiConnect.bluetoothManager.getLatestBatteryStatus(TEST_DEVICE_MAC_ADDRESS)
                 Timber.d("Latest battery status: ${batteryStatus.percentage}% - Charging: ${batteryStatus.isCharging}")
@@ -244,7 +252,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
             val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-            val isDeviceConnected = connectDevice(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow)
+            val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 val deferredBatteryStatus = CompletableDeferred<BatteryLevelStatus>()
                 val batteryStatusJob = launch {
@@ -260,6 +269,39 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                     assertNotNull("Expected battery status data was not received.", receivedBatteryStatus)
                 } finally {
                     batteryStatusJob.cancel()
+                }
+            } else {
+                fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
+            }
+        }
+    }
+
+    @Test
+    fun testAConnectionPoolSet() {
+        runBlocking {
+            val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+            assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
+
+            val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
+            val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED)
+            if (isDeviceConnected) {
+                OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
+                val connectionPoolIdTarget = "4567"
+                OptiConnect.scannerSettings.connectionPool.setId(TEST_DEVICE_MAC_ADDRESS, connectionPoolIdTarget)
+                val isDeviceDisconnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                    BleDeviceConnectionState.DISCONNECTED)
+                if (isDeviceDisconnected) {
+                    val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+                    assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
+
+                    Timber.d("Found device with MAC address $TEST_DEVICE_MAC_ADDRESS and connection pool ${foundDevice?.connectionPoolId}.")
+
+                    val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                        BleDeviceConnectionState.CONNECTED)
+                    if (isDeviceConnected) {
+                        assertEquals(OptiConnect.scannerSettings.connectionPool.getId(TEST_DEVICE_MAC_ADDRESS), connectionPoolIdTarget)
+                    }
                 }
             } else {
                 fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
