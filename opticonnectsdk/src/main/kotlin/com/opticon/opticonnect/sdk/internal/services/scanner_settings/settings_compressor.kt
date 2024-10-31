@@ -12,7 +12,7 @@ internal class SettingsCompressor @Inject constructor(
     private val settingsHandler: SettingsHandler,
     private val dataWizardHelper: DataWizardHelper
 ) {
-    suspend fun getCompressedSettingsCommand(settings: String): Command {
+    fun getCompressedSettingsCommand(settings: String): Command {
         val compressedSettingsList = getCompressedSettingsList(settings)
 
         val compressedCommandData = StringBuffer()
@@ -53,7 +53,7 @@ internal class SettingsCompressor @Inject constructor(
         return compressedList
     }
 
-    suspend fun getCompressedSettingsList(settings: String): List<CommandData> {
+    fun getCompressedSettingsList(settings: String): List<CommandData> {
         val commandsList = mutableListOf<CommandData>()
         var i = 0
         while (i < settings.length) {

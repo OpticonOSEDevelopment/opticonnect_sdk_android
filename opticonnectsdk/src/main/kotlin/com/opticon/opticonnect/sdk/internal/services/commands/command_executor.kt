@@ -73,7 +73,6 @@ internal class CommandExecutor @Inject constructor(
         try {
             val bytes = commandBytesProvider.getCommandBytes(command)
             coroutineScope.launch {
-                delay(30)
                 bleDataWriter.writeData(deviceId, command.code, bytes)
             }
         } catch (e: Exception) {
@@ -95,7 +94,7 @@ internal class CommandExecutor @Inject constructor(
 
     private suspend fun onCommandTimeout(command: Command) {
         Timber.w("Command timeout occurred for: ${command.code}")
-        if (command.retried) {
+        if (command.retried || pendingCommandsQueue.isEmpty()) {
             command.completer.complete(CommandResponse("", false))
             finalizeCommandAndProcessNext(false)
         } else {
@@ -144,6 +143,8 @@ internal class CommandExecutor @Inject constructor(
     }
 
     private fun finalizeCommandAndProcessNext(succeeded: Boolean = false) {
+        timeoutManager.cancelTimeout()
+
         val command = pendingCommandsQueue.firstOrNull()
         if (command != null) {
             // Trigger settings persistence if needed

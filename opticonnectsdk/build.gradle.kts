@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.java
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -9,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.opticonnect.sdk"
+    namespace = "com.opticon.opticonnect.sdk"
     compileSdk = 34
 
     defaultConfig {
