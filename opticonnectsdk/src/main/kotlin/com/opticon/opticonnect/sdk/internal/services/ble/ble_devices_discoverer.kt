@@ -85,7 +85,7 @@ internal class BleDevicesDiscoverer @Inject constructor(
         Timber.d("Device ID: $deviceId, Pool ID: $poolId")
 
         if (connectionPool.getId(deviceId) != poolId && poolId.length == 4) {
-            connectionPool.setId(deviceId, poolId)
+            connectionPool.cacheId(deviceId, poolId)
         }
 
         val discoveredDevice = BleDiscoveredDevice(

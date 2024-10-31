@@ -5,7 +5,6 @@ object CommunicationCommands {
     const val USB_CDC_OPTICONNECT_DEFAULT = "[BQO"
     const val ENABLE_ACK_NACK = "WC"
     const val TRANSMIT_SOFTWARE_VERSION = "Z1"
-    const val SAVE_SETTINGS = "Z2"
 
     const val TRANSMIT_DEVICE_INFORMATION = "[EFK"
     const val FETCH_SETTINGS = "[BPT"

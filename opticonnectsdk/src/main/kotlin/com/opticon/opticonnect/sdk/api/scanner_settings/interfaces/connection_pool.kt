@@ -19,6 +19,18 @@ interface ConnectionPool {
     suspend fun setId(deviceId: String, poolId: String): CommandResponse
 
     /**
+     * Caches the connection pool ID locally for the specified device.
+     *
+     * This method stores the provided `poolId` for a given `deviceId` in memory,
+     * allowing it to be quickly retrieved later via [getId] without needing to re-fetch from the device.
+     * It will be called automatically whenever [setId] is executed to update the cache with the latest value.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param poolId The 4-character hexadecimal connection pool ID to cache.
+     */
+    fun cacheId(deviceId: String, poolId: String)
+
+    /**
      * Retrieves the current connection pool ID for the specified device.
      *
      * @param deviceId The identifier of the target device.

@@ -13,6 +13,7 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton

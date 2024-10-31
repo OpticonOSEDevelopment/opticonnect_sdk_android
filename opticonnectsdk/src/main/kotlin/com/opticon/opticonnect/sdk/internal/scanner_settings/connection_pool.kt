@@ -46,10 +46,13 @@ internal class ConnectionPoolImpl @Inject constructor(
         Timber.d("Setting connection pool ID to $poolId for device $deviceId with parameters $directInputKeys")
         val result = sendCommand(deviceId, CommunicationCommands.SET_CONNECTION_POOL_ID, parameters = directInputKeys)
         if (result.succeeded) {
-            connectionPoolIds[deviceId] = poolId  // Store the new pool ID
-            sendCommand(deviceId, CommunicationCommands.SAVE_SETTINGS)
+            cacheId(deviceId, poolId)  // Store the new pool ID
         }
         return result
+    }
+
+    override fun cacheId(deviceId: String, poolId: String) {
+        connectionPoolIds[deviceId] = poolId
     }
 
     override suspend fun resetId(deviceId: String): CommandResponse {

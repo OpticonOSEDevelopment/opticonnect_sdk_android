@@ -1,6 +1,5 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.entities.Command
 import com.opticon.opticonnect.sdk.internal.helpers.TimeoutManager
@@ -10,9 +9,9 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.NAK
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandSender
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,6 +36,9 @@ internal class CommandExecutor @Inject constructor(
     private val pendingCommandsQueue = LinkedList<Command>()
     private val responseData = StringBuilder()
 
+    private var saveSettingsJob: Job? = null
+    private var saveSettingsCode: String = "Z2";
+
     init {
         coroutineScope.launch { initializeResponseListener() }
     }
@@ -60,6 +62,7 @@ internal class CommandExecutor @Inject constructor(
         if (pendingCommandsQueue.size == 1) {
             executeCommand(command)
         }
+
     }
 
     private fun executeCommand(command: Command) {
@@ -70,13 +73,14 @@ internal class CommandExecutor @Inject constructor(
         try {
             val bytes = commandBytesProvider.getCommandBytes(command)
             coroutineScope.launch {
+                delay(30)
                 bleDataWriter.writeData(deviceId, command.code, bytes)
             }
         } catch (e: Exception) {
             Timber.e("Error sending command: ${command.code}, Error: $e")
             coroutineScope.launch {
                 command.completer.complete(CommandResponse("", false))
-                finalizeCommandAndProcessNext()
+                finalizeCommandAndProcessNext(false)
             }
         }
     }
@@ -93,7 +97,7 @@ internal class CommandExecutor @Inject constructor(
         Timber.w("Command timeout occurred for: ${command.code}")
         if (command.retried) {
             command.completer.complete(CommandResponse("", false))
-            finalizeCommandAndProcessNext()
+            finalizeCommandAndProcessNext(false)
         } else {
             retryCommand(command)
         }
@@ -104,14 +108,14 @@ internal class CommandExecutor @Inject constructor(
             Timber.w("Retrying command: ${command.code}")
             delay(200L)
             command.retried = true
-            pendingCommandsQueue.removeFirst()
+            pendingCommandsQueue.removeFirstOrNull()
             pendingCommandsQueue.addFirst(command)
             executeCommand(command)
         } catch (e: Exception) {
             Timber.e("Failed to retry command: ${command.code}, Error: $e")
-            // Complete the completer with a failure response
             if (!command.completer.isCompleted) {
                 command.completer.complete(CommandResponse.failed("Retry failed due to: $e"))
+                finalizeCommandAndProcessNext(false)
             }
         }
     }
@@ -127,29 +131,52 @@ internal class CommandExecutor @Inject constructor(
                 if (!command.retried) {
                     retryCommand(command)
                 } else {
-                    command.completer.complete(CommandResponse(responseData.toString(), false))
-                    finalizeCommandAndProcessNext()
+                    command.completer.complete(CommandResponse.failed(responseData.toString()))
+                    finalizeCommandAndProcessNext(false)
                 }
             }
             ACK.toString() -> {
                 command.completer.complete(CommandResponse(responseData.toString(), true))
-                finalizeCommandAndProcessNext()
+                finalizeCommandAndProcessNext(true)
             }
             else -> responseData.append(data)
         }
     }
 
-    private suspend fun finalizeCommandAndProcessNext() {
-        if (pendingCommandsQueue.isNotEmpty()) {
-            pendingCommandsQueue.removeFirst()
+    private fun finalizeCommandAndProcessNext(succeeded: Boolean = false) {
+        val command = pendingCommandsQueue.firstOrNull()
+        if (command != null) {
+            // Trigger settings persistence if needed
+            if (command.code != saveSettingsCode) {
+                persistSettings()
+            }
+
+            val feedbackCommands = commandFeedbackService.generateFeedbackCommands(succeeded, !succeeded, command)
+
+            pendingCommandsQueue.removeFirstOrNull()
+
+            feedbackCommands.forEach { enqueueCommand(it) }
+
             if (pendingCommandsQueue.isNotEmpty()) {
                 executeCommand(pendingCommandsQueue.first())
             }
         }
     }
 
+    private fun persistSettings() {
+        // Cancel any previous save settings job
+        saveSettingsJob?.cancel()
+
+        // Schedule a new save settings job after 5 seconds
+        saveSettingsJob = coroutineScope.launch {
+            delay(5000L)
+            sendCommand(Command(saveSettingsCode, sendFeedback = false))
+        }
+    }
+
     override fun close() {
         pendingCommandsQueue.clear()
         timeoutManager.close()
+        saveSettingsJob?.cancel()
     }
 }
