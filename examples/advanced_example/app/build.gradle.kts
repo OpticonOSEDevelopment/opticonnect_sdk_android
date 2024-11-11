@@ -45,7 +45,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
-    implementation(files("libs/opticonnectsdk-x.aar"))
+    implementation(files("libs/opticonnectsdk.aar"))
     implementation(libs.coroutines)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.rx3)
