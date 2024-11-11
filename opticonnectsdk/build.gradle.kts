@@ -248,5 +248,5 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
     }
 
     archiveFileName.set("${project.name}-shadowed-release.aar")
-    destinationDirectory.set(layout.buildDirectory.dir("outputs/shadowed-aar"))
+    destinationDirectory.set(layout.buildDirectory.dir("outputs/aar"))
 }
