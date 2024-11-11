@@ -1,0 +1,31 @@
+# Ignore IntelliJ IDEA project files
+*.iml
+.idea/
+
+# Ignore Gradle directories and build outputs
+.gradle/
+build/
+out/
+
+# Android specific files
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+
+# macOS specific files
+.DS_Store
+
+# Android Studio specific caches
+/.idea/caches/
+/.idea/libraries/
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+
+# Prevent tracking of any other IDE or editor specific files
+*.log
+*.tmp
+
+# Additional exclusions (if any)
