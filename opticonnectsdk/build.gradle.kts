@@ -247,6 +247,17 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
         into("/") // Place the new classes.jar at the root of the AAR
     }
 
-    archiveFileName.set("${project.name}-shadowed-release.aar")
+    // Set the archive name
+    archiveFileName.set("${project.name}.aar")
     destinationDirectory.set(layout.buildDirectory.dir("outputs/aar"))
+
+    doLast {
+        // Delete all other files except for opticonnectsdk.aar
+        val outputDir = layout.buildDirectory.dir("outputs/aar").get().asFile
+        outputDir.listFiles()?.forEach { file ->
+            if (file.name != "opticonnectsdk.aar") {
+                file.delete()
+            }
+        }
+    }
 }

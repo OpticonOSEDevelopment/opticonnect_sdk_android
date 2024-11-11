@@ -25,8 +25,8 @@ The generated `.aar` file will be located in `build/outputs/aar/`.
 
 ### 2. Adding the `.aar` library to your project
 
-1. Download or build the `.aar` file (`opticonnectsdk-release.aar`) as outlined in the previous section.
-2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk-release.aar`).
+1. Download or build the `.aar` file (`opticonnectsdk.aar`) as outlined in the previous section.
+2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk.aar`).
 
 ### 3. Updating Your `build.gradle(.kts)`
 
@@ -35,7 +35,7 @@ Add the `.aar` file and required dependencies in your `build.gradle(.kts)` file 
 ```kotlin
 dependencies {
     // Include the .aar file
-    implementation(files("libs/opticonnectsdk-release.aar"))
+    implementation(files("libs/opticonnectsdk.aar"))
 
     // Core Android and Kotlin dependencies
     implementation(libs.androidx.core.ktx)
