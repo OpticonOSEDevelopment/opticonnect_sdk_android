@@ -49,12 +49,6 @@ dependencies {
     // RxAndroidBLE and RxKotlin for BLE and reactive programming
     implementation(libs.rxandroidble)
     implementation(libs.rxkotlin)
-
-    // Optional dependencies for testing and debugging
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.core)
-    androidTestImplementation(libs.androidx.espresso.core)
 }
 ```
 
