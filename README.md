@@ -24,7 +24,7 @@ OptiConnect SDK enables seamless integration with [Opticon](https://opticon.com/
 
 ### Setup
 
-to enable Bluetooth discovery and connection on Android, add the following permissions to your AndroidManifest.xml file located at android/app/src/main/AndroidManifest.xml below the manifest entry at the top:
+to enable Bluetooth discovery and connection on Android, add the following permissions to your AndroidManifest.xml file below the manifest entry at the top:
 
 ```xml
 <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
