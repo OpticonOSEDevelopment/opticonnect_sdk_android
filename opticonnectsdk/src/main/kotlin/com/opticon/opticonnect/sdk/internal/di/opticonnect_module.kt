@@ -363,8 +363,9 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideDataHandler(opcDataHandlerFactory: OpcDataHandlerFactory): DataHandler {
-        return DataHandler(opcDataHandlerFactory)
+    fun provideDataHandler(bleDevicesStreamsHandler: BleDevicesStreamsHandler,
+                           opcDataHandlerFactory: OpcDataHandlerFactory): DataHandler {
+        return DataHandler(bleDevicesStreamsHandler, opcDataHandlerFactory)
     }
 
     @Provides
@@ -385,17 +386,14 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideBatteryHandler(): BatteryHandler {
-        return BatteryHandler()
+    fun provideBatteryHandler(bleDevicesStreamsHandler: BleDevicesStreamsHandler): BatteryHandler {
+        return BatteryHandler(bleDevicesStreamsHandler)
     }
 
     @Provides
     @Singleton
-    fun provideBleDevicesStreamsHandler(
-        dataHandler: DataHandler,
-        batteryHandler: BatteryHandler
-    ): BleDevicesStreamsHandler {
-        return BleDevicesStreamsHandler(dataHandler, batteryHandler)
+    fun provideBleDevicesStreamsHandler(): BleDevicesStreamsHandler {
+        return BleDevicesStreamsHandler()
     }
 
     @Provides

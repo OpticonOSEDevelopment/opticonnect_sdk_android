@@ -91,7 +91,6 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         if (isDeviceConnected) {
             Timber.d("Fetching device info for device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
             val deviceInfo = OptiConnect.scannerInfo.getInfo(TEST_DEVICE_MAC_ADDRESS)
-            delay(1000)
             Timber.d("Device MAC: ${deviceInfo.macAddress}")
             Timber.d("Device Local Name: ${deviceInfo.localName}")
             Timber.d("Device Serial Number: ${deviceInfo.serialNumber}")

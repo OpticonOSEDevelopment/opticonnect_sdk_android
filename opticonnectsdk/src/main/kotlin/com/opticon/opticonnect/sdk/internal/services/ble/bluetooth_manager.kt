@@ -14,12 +14,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Implementation of the [BluetoothManager] interface.
- *
- * This class handles all BLE-related operations and is hidden from the SDK clients.
- * It is injected using a dependency injection system and managed internally.
- */
 @Singleton
 internal class BluetoothManagerImpl @Inject constructor(
     private val bleDevicesDiscoverer: BleDevicesDiscoverer,
@@ -93,30 +87,29 @@ internal class BluetoothManagerImpl @Inject constructor(
     }
 
     override fun listenToBarcodeData(deviceId: String): Flow<BarcodeData> {
-        return bleDevicesStreamsHandler.dataHandler.getBarcodeDataStream(deviceId)
+        return bleDevicesStreamsHandler.getOrCreateBarcodeStream(deviceId)
     }
 
     override fun getLatestBatteryPercentage(deviceId: String): Int {
-        return bleDevicesStreamsHandler.batteryHandler.getLatestBatteryPercentage(deviceId)
+        return bleDevicesStreamsHandler.getLatestBatteryPercentage(deviceId)
     }
 
     override fun listenToBatteryPercentage(deviceId: String): Flow<Int> {
-        return bleDevicesStreamsHandler.batteryHandler.getBatteryPercentageStream(deviceId)
+        return bleDevicesStreamsHandler.getOrCreateBatteryPercentageStream(deviceId)
     }
 
     override fun listenToBatteryStatus(deviceId: String): Flow<BatteryLevelStatus> {
-        return bleDevicesStreamsHandler.batteryHandler.getBatteryStatusStream(deviceId)
+        return bleDevicesStreamsHandler.getOrCreateBatteryStatusStream(deviceId)
     }
 
     override fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {
-        return bleDevicesStreamsHandler.batteryHandler.getLatestBatteryStatus(deviceId)
+        return bleDevicesStreamsHandler.getLatestBatteryStatus(deviceId)
     }
 
     override fun close() {
         try {
             bleConnectivityHandler.close()
             bleDevicesDiscoverer.close()
-            bleDevicesStreamsHandler.close()
         } catch (e: Exception) {
             Timber.e(e, "Error disposing Bluetooth resources")
             throw e

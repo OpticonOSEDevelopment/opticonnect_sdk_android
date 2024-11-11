@@ -4,6 +4,7 @@ import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandRe
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
 import com.polidea.rxandroidble3.RxBleDeviceServices
 import kotlinx.coroutines.flow.Flow
@@ -17,20 +18,15 @@ import kotlinx.coroutines.rx3.await
 
 @Singleton
 internal class DataHandler @Inject constructor(
+    private val bleDevicesStreamsHandler: BleDevicesStreamsHandler,
     private val opcDataHandlerFactory: OpcDataHandlerFactory
 ) : BleDataWriter, BleCommandResponseReader, Closeable {
 
     private val dataProcessors = mutableMapOf<String, DataProcessor>()
     private val mutex = Mutex()
 
-    fun getBarcodeDataStream(deviceId: String): Flow<BarcodeData> {
-        val dataProcessor = getDataProcessor(deviceId)
-        return dataProcessor.barcodeDataStream
-    }
-
     override suspend fun getCommandResponseStream(deviceId: String): Flow<String> {
-        val dataProcessor = getDataProcessor(deviceId)
-        return dataProcessor.commandStream
+        return bleDevicesStreamsHandler.getOrCreateCommandStream(deviceId)
     }
 
     override suspend fun writeData(deviceId: String, data: String, dataBytes: ByteArray) {
@@ -54,7 +50,8 @@ internal class DataHandler @Inject constructor(
                 readCharacteristic = UuidConstants.OPC_READ_CHARACTERISTIC_UUID,
                 writeCharacteristic = UuidConstants.OPC_WRITE_CHARACTERISTIC_UUID,
                 opcDataHandler = opcDataHandlerFactory.create(deviceId),
-                connection = connection
+                connection = connection,
+                bleDeviceStreamManager = bleDevicesStreamsHandler
             )
 
             dataProcessors[deviceId] = dataProcessor

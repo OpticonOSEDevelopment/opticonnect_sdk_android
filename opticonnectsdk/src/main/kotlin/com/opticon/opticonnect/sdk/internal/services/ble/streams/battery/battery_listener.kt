@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.battery
 
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.battery.constants.BatteryLevelStatusFlags
 import com.polidea.rxandroidble3.RxBleConnection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -12,8 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.Closeable
@@ -23,12 +22,17 @@ internal class BatteryListener(
     private val deviceId: String,
     private val batteryLevelUuid: UUID,
     private val batteryStatusUuid: UUID,
-    private val connection: RxBleConnection
+    private val connection: RxBleConnection,
+    bleDevicesStreamsHandler: BleDevicesStreamsHandler
 ) : Closeable {
 
     private val compositeDisposable = CompositeDisposable()
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
+
+    // Cache streams during initialization
+    private val batteryStatusStream = bleDevicesStreamsHandler.getOrCreateBatteryStatusStream(deviceId)
+    private val batteryPercentageStream = bleDevicesStreamsHandler.getOrCreateBatteryPercentageStream(deviceId)
 
     private var latestBatteryStatus: BatteryLevelStatus = BatteryLevelStatus(
         isBatteryPresent = false,
@@ -40,14 +44,6 @@ internal class BatteryListener(
     )
 
     private var latestBatteryPercentage: Int = -1
-
-    // SharedFlows for broadcasting data to multiple subscribers
-    private val _batteryStatusStream = MutableSharedFlow<BatteryLevelStatus>(replay = 1)
-    private val _batteryPercentageStream = MutableSharedFlow<Int>(replay = 1)
-
-    // Exposing the SharedFlows as immutable flows
-    val batteryStatusStream: SharedFlow<BatteryLevelStatus> get() = _batteryStatusStream
-    val batteryPercentageStream: SharedFlow<Int> get() = _batteryPercentageStream
 
     fun getLatestBatteryStatus(): BatteryLevelStatus = latestBatteryStatus
     fun getLatestBatteryPercentage(): Int = latestBatteryPercentage
@@ -62,11 +58,12 @@ internal class BatteryListener(
             batteryLevelInit.await()
             batteryStatusInit.await()
 
+            // Emit new data to the cached streams managed by BleDevicesStreamsHandler
             setupNotification(batteryLevelUuid) { data ->
                 if (data.isNotEmpty()) {
                     scope.launch {
                         latestBatteryPercentage = data[0].toInt()
-                        _batteryPercentageStream.emit(latestBatteryPercentage)
+                        batteryPercentageStream.emit(latestBatteryPercentage)
                     }
                 }
             }
@@ -76,7 +73,7 @@ internal class BatteryListener(
                     scope.launch {
                         val batteryStatus = parseBatteryLevelStatus(data)
                         latestBatteryStatus = batteryStatus
-                        _batteryStatusStream.emit(batteryStatus)
+                        batteryStatusStream.emit(batteryStatus)
                     }
                 }
             }
@@ -118,6 +115,9 @@ internal class BatteryListener(
                 { value ->
                     if (value.isNotEmpty()) {
                         latestBatteryPercentage = value[0].toInt()
+                        scope.launch {
+                            batteryPercentageStream.emit(latestBatteryPercentage)
+                        }
                         deferred.complete(Unit)
                     } else {
                         deferred.completeExceptionally(
@@ -136,7 +136,7 @@ internal class BatteryListener(
         return deferred
     }
 
-    private suspend fun initializeBatteryStatus(): CompletableDeferred<Unit> {
+    private fun initializeBatteryStatus(): CompletableDeferred<Unit> {
         val deferred = CompletableDeferred<Unit>()
 
         connection.readCharacteristic(batteryStatusUuid)
@@ -146,6 +146,9 @@ internal class BatteryListener(
                 { value ->
                     if (value.isNotEmpty()) {
                         latestBatteryStatus = parseBatteryLevelStatus(value)
+                        scope.launch {
+                            batteryStatusStream.emit(latestBatteryStatus)
+                        }
                         deferred.complete(Unit)
                     } else {
                         deferred.completeExceptionally(
@@ -191,7 +194,7 @@ internal class BatteryListener(
             try {
                 job.cancelAndJoin()
                 Timber.d("Closed resources for device: $deviceId")
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 Timber.d("Battery listener job was cancelled for device: $deviceId")
             } catch (e: Exception) {
                 Timber.e(e, "Error during battery listener job cancellation for device: $deviceId")

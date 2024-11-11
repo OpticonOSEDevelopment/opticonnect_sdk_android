@@ -2,36 +2,30 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams.battery
 
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
+import java.io.Closeable
 import javax.inject.Inject
 import javax.inject.Singleton
-import java.io.Closeable
 
 @Singleton
-internal class BatteryHandler @Inject constructor() : Closeable {
+internal class BatteryHandler @Inject constructor(
+    private val bleDevicesStreamsHandler: BleDevicesStreamsHandler
+) : Closeable {
 
     private val batteryListeners = mutableMapOf<String, BatteryListener>()
     private val mutex = Mutex()
 
     fun getBatteryPercentageStream(deviceId: String): Flow<Int> {
-        val batteryListener = getBatteryListener(deviceId)
-        return batteryListener?.batteryPercentageStream ?: run {
-            Timber.e("Battery listener not found for device: $deviceId")
-            emptyFlow()
-        }
+        return bleDevicesStreamsHandler.getOrCreateBatteryPercentageStream(deviceId)
     }
 
     fun getBatteryStatusStream(deviceId: String): Flow<BatteryLevelStatus> {
-        val batteryListener = getBatteryListener(deviceId)
-        return batteryListener?.batteryStatusStream ?: run {
-            Timber.e("Battery listener not found for device: $deviceId")
-            emptyFlow()
-        }
+        return bleDevicesStreamsHandler.getOrCreateBatteryStatusStream(deviceId)
     }
 
     fun getLatestBatteryPercentage(deviceId: String): Int {
@@ -65,7 +59,8 @@ internal class BatteryHandler @Inject constructor() : Closeable {
                     deviceId = deviceId,
                     batteryLevelUuid = UuidConstants.BATTERY_LEVEL_CHARACTERISTIC_UUID,
                     batteryStatusUuid = UuidConstants.BATTERY_LEVEL_STATUS_CHARACTERISTIC_UUID,
-                    connection = connection
+                    connection = connection,
+                    bleDevicesStreamsHandler = bleDevicesStreamsHandler
                 )
 
                 batteryListener.initialize()

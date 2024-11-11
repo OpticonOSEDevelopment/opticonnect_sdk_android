@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.kotlin.addTo
@@ -10,7 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -22,7 +22,8 @@ internal class DataProcessor(
     private val readCharacteristic: UUID,
     private val writeCharacteristic: UUID,
     private val opcDataHandler: OpcDataHandler,
-    private val connection: RxBleConnection
+    private val connection: RxBleConnection,
+    private val bleDeviceStreamManager: BleDevicesStreamsHandler,
 ) : Closeable {
     private val compositeDisposable = CompositeDisposable()
 
@@ -31,8 +32,8 @@ internal class DataProcessor(
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
     // SharedFlows for broadcasting data to multiple subscribers
-    private val _commandStream = MutableSharedFlow<String>(replay = 0) // Command stream
-    private val _barcodeDataStream = MutableSharedFlow<BarcodeData>(replay = 0) // Barcode data stream
+    private val _commandStream = bleDeviceStreamManager.getOrCreateCommandStream(deviceId) // Command stream
+    private val _barcodeDataStream = bleDeviceStreamManager.getOrCreateBarcodeStream(deviceId) // Barcode data stream
 
     // Exposing the SharedFlows as immutable flows
     val commandStream: SharedFlow<String> get() = _commandStream
