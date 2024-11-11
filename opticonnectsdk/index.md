@@ -14,27 +14,31 @@ OptiConnect SDK enables seamless integration with [Opticon](https://opticon.com/
 
 ### 1. Prerequisites
 
--  Opticon BLE [OPN-2500](https://opticon.com/product/opn-2500/) or [OPN-6000](https://opticon.com/product/opn-6000/) barcode scanner(s).
+At least one of the following Opticon BLE barcode scanners is required:
 
-<table style="width: 100%; text-align: center; table-layout: fixed;">
+<table style="width: 100%; text-align: center; table-layout: fixed; margin-top: 10px;">
     <tr>
         <td style="width: 50%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); vertical-align: middle;">
             <div style="display: flex; flex-direction: column; align-items: center; height: 200px; position: relative;">
                 <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-                    <img src="images/OPN-2500.png" alt="OPN-2500" style="max-width: 150px; height: auto;">
+                    <a href="https://opticon.com/product/opn-2500/" target="_blank">
+                        <img src="images/OPN-2500.png" alt="OPN-2500" style="max-width: 150px; height: auto;">
+                    </a>
                 </div>
                 <div style="position: absolute; bottom: 0px; font-weight: bold;">
-                    OPN-2500
+                    <a href="https://opticon.com/product/opn-2500/" target="_blank" style="text-decoration: none; color: inherit;">OPN-2500</a>
                 </div>
             </div>
         </td>
         <td style="width: 50%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); vertical-align: middle;">
             <div style="display: flex; flex-direction: column; align-items: center; height: 200px; position: relative;">
                 <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
-                    <img src="images/OPN-6000.png" alt="OPN-6000" style="max-width: 150px; height: auto;">
+                    <a href="https://opticon.com/product/opn-6000/" target="_blank">
+                        <img src="images/OPN-6000.png" alt="OPN-6000" style="max-width: 150px; height: auto;">
+                    </a>
                 </div>
                 <div style="position: absolute; bottom: 0px; font-weight: bold;">
-                    OPN-6000
+                    <a href="https://opticon.com/product/opn-6000/" target="_blank" style="text-decoration: none; color: inherit;">OPN-6000</a>
                 </div>
             </div>
         </td>
