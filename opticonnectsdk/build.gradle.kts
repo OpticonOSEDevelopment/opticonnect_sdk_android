@@ -250,39 +250,3 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
     archiveFileName.set("${project.name}-shadowed-release.aar")
     destinationDirectory.set(layout.buildDirectory.dir("outputs/shadowed-aar"))
 }
-
-tasks.dokkaHtml {
-    outputDirectory.set(layout.buildDirectory.dir("dokka"))
-
-    dokkaSourceSets {
-        configureEach {
-            includeNonPublic.set(false)  // Exclude non-public members
-            documentedVisibilities.set(
-                setOf(org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC)
-            )
-            skipDeprecated.set(true)      // Skip deprecated items if needed
-
-            perPackageOption {
-                matchingRegex.set("com.opticon.opticonnect.sdk.api.opticonnect")
-                group = "OptiConnect"
-            }
-
-            // Example grouping for package names
-            perPackageOption {
-                matchingRegex.set("com.opticon.opticonnect.sdk.api.interfaces.*")
-                group = "Interfaces"
-            }
-
-            perPackageOption {
-                matchingRegex.set("com.opticon.opticonnect.sdk.api.enums.*")
-                group = "Enums"
-            }
-
-            // Group packages for Entities
-            perPackageOption {
-                matchingRegex.set("com.opticon.opticonnect.sdk.api.entities.*")
-                group = "Entities"
-            }
-        }
-    }
-}
