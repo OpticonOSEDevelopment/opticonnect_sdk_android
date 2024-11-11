@@ -1,3 +1,5 @@
+package com.opticon.opticonnect.sdk
+
 import android.Manifest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.opticon.opticonnect.sdk.api.OptiConnect
