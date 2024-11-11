@@ -18,19 +18,19 @@ OptiConnect SDK enables seamless integration with [Opticon](https://opticon.com/
 
 To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, follow these steps:
 
-1. Run the ShadowJar Task: `./gradlew shadowJar`
-2. Package the Final `.aar`: `./gradlew bundleShadowedReleaseAar`
+1. Run the shadowJar task: `./gradlew shadowJar`
+2. Package the final `.aar`: `./gradlew bundleShadowedReleaseAar`
 
 The generated `.aar` file will be located in `build/outputs/aar/`.
 
-### 2. Adding the `.aar` Library to Your Project
+### 2. Adding the `.aar` library to your project
 
 1. Download or build the `.aar` file (`opticonnectsdk-release.aar`) as outlined in the previous section.
 2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk-release.aar`).
 
 ### 3. Updating Your `build.gradle.kts`
 
-Add the `.aar` file and required dependencies in your `build.gradle.kts` file under `dependencies`:
+Add the `.aar` file and required dependencies in your `build.gradle(.kts)` file under `dependencies`:
 
 ```kotlin
 dependencies {
