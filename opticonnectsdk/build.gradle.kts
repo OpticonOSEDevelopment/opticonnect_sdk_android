@@ -39,6 +39,14 @@ android {
     sourceSets["androidTest"].java.srcDirs("src/androidTest/java")
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+}
+
+
+
 dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
