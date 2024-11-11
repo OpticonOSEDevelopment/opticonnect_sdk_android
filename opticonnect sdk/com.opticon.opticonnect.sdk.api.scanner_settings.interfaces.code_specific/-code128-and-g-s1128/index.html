@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Code128AndGS1128</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            opticonnect sdk
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":opticonnectsdk:dokkaHtml/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="opticonnect sdk::com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific/Code128AndGS1128///PointingToDeclaration//460477976">
+  <div class="breadcrumbs"><a href="../../../index.html">opticonnect sdk</a><span class="delimiter">/</span><a href="../index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific</a><span class="delimiter">/</span><span class="current">Code128AndGS1128</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Code128And</span><wbr></wbr><span><span>GS1128</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">Code128AndGS1128</a></div><p class="paragraph">Interface representing settings for Code 128 and GS1-128 symbologies.</p><p class="paragraph">This interface provides methods to configure the mode and manage concatenation for these symbologies.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="280682973%2FFunctions%2F460477976" anchor-label="setConcatenation" id="280682973%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-concatenation.html"><span>set</span><wbr></wbr><span><span>Concatenation</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="280682973%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-concatenation.html"><span class="token function">setConcatenation</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the concatenation mode for Code 128 symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1205185347%2FFunctions%2F460477976" anchor-label="setGS1128ConversionMode" id="1205185347%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-g-s1128-conversion-mode.html"><span>set</span><wbr></wbr><span>GS1128Conversion</span><wbr></wbr><span><span>Mode</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1205185347%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-g-s1128-conversion-mode.html"><span class="token function">setGS1128ConversionMode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">mode<span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/-g-s1128-conversion-mode/index.html">GS1128ConversionMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the conversion mode for GS1-128 symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1824907062%2FFunctions%2F460477976" anchor-label="setGS1128Mode" id="1824907062%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-g-s1128-mode.html"><span>set</span><wbr></wbr><span><span>GS1128Mode</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1824907062%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-g-s1128-mode.html"><span class="token function">setGS1128Mode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">mode<span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/-code128-and-g-s1128-mode/index.html">Code128AndGS1128Mode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the mode for Code 128 and GS1-128 symbologies.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="242288224%2FFunctions%2F460477976" anchor-label="setLeadingC1Output" id="242288224%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-leading-c1-output.html"><span>set</span><wbr></wbr><span>Leading</span><wbr></wbr><span><span>C1Output</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="242288224%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-leading-c1-output.html"><span class="token function">setLeadingC1Output</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the output mode for the leading ]C1 character in Code 128 symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

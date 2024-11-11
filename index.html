@@ -2,7 +2,7 @@
 <html class="no-js">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
-    <title>opticonnectsdk</title>
+    <title>opticonnect sdk</title>
     <link href="images/logo-icon.svg" rel="icon" type="image/svg">
     <script>var pathToRoot = "";</script>
     <script>document.documentElement.classList.replace("no-js","js");</script>
@@ -41,7 +41,7 @@
             <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
             <div class="library-name">
                     <a class="library-name--link" href="index.html">
-                            opticonnectsdk
+                            opticonnect sdk
                     </a>
             </div>
             <div class="library-version">
@@ -61,10 +61,34 @@
                 <div class="sidebar--inner" id="sideMenu"></div>
             </div>
             <div id="main">
-<div class="main-content" id="content" pageIds="opticonnectsdk::////PointingToDeclaration//460477976">
+<div class="main-content" id="content" pageIds="opticonnect sdk::////PointingToDeclaration//460477976">
   <div class="breadcrumbs"></div>
   <div class="cover ">
-    <h1 class="cover"><span><span>opticonnectsdk</span></span></h1>
+    <h1 class="cover"><span><span>opticonnect</span></span> <span><span>sdk</span></span></h1>
+    <div class="platform-hinted UnderCoverText" data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><p class="paragraph">OptiConnect SDK enables seamless integration with <a href="https://opticon.com/">Opticon</a>'s BLE <a href="https://opticon.com/product/opn-2500/">OPN-2500</a> and <a href="https://opticon.com/product/opn-6000/">OPN-6000</a> barcode scanners. This SDK allows you to manage Bluetooth Low Energy (BLE) connections, handle scanner data streams, and programmatically control scanner settings via commands.</p><h2 class="">Features</h2><ul><li><p class="paragraph">Bluetooth discovery and connection management for OPN-2500 and OPN-6000 BLE scanners.</p></li><li><p class="paragraph">Real-time data streaming, including barcode data reception and BLE device state monitoring.</p></li><li><p class="paragraph">Programmatic control of scanner settings (e.g., scan modes, illumination, connection pooling, etc.).</p></li><li><p class="paragraph">Exclusive connection management: Ensure stable device pairing in multi-device environments by assigning unique connection pool IDs, preventing previously paired devices from hijacking active connections.</p></li><li><p class="paragraph">Command management and customization for BLE services and scanner configurations.</p></li></ul><h2 class="">Getting Started</h2><h3 class="">1. Prerequisites</h3><ul><li><p class="paragraph">Opticon BLE <a href="https://opticon.com/product/opn-2500/">OPN-2500</a> or <a href="https://opticon.com/product/opn-6000/">OPN-6000</a> barcode scanner(s).</p></li></ul><table style="width: 100%; text-align: center; table-layout: fixed;">
+    <tr>
+        <td style="width: 50%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); vertical-align: middle;">
+            <div style="display: flex; flex-direction: column; align-items: center; height: 200px; position: relative;">
+                <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+                    <img src="images/OPN-2500.png" alt="OPN-2500" style="max-width: 150px; height: auto;">
+                </div>
+                <div style="position: absolute; bottom: 0px; font-weight: bold;">
+                    OPN-2500
+                </div>
+            </div>
+        </td>
+        <td style="width: 50%; border: 1px solid #ddd; border-radius: 8px; padding: 10px; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1); vertical-align: middle;">
+            <div style="display: flex; flex-direction: column; align-items: center; height: 200px; position: relative;">
+                <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center;">
+                    <img src="images/OPN-6000.png" alt="OPN-6000" style="max-width: 150px; height: auto;">
+                </div>
+                <div style="position: absolute; bottom: 0px; font-weight: bold;">
+                    OPN-6000
+                </div>
+            </div>
+        </td>
+    </tr>
+</table><h3 class="">2. Building the .aar library</h3><p class="paragraph">To build the <code class="lang-kotlin">.aar</code> file for the OptiConnect SDK with shadowed dependencies, follow these steps:</p><ol><li><p class="paragraph">Run the shadowJar task: <code class="lang-kotlin">./gradlew shadowJar</code></p></li><li><p class="paragraph">Package the final <code class="lang-kotlin">.aar</code>: <code class="lang-kotlin">./gradlew bundleShadowedReleaseAar</code></p></li></ol><p class="paragraph">The generated <code class="lang-kotlin">.aar</code> file will be located in <code class="lang-kotlin">build/outputs/aar/</code>.</p><h3 class="">3. Adding the <code class="lang-kotlin">.aar</code> library to your project</h3><ol><li><p class="paragraph">Download or build the <code class="lang-kotlin">.aar</code> file (<code class="lang-kotlin">opticonnectsdk.aar</code>) as outlined in the previous section.</p></li><li><p class="paragraph">Place the <code class="lang-kotlin">.aar</code> file in your project’s <code class="lang-kotlin">libs</code> directory (e.g., <code class="lang-kotlin">app/libs/opticonnectsdk.aar</code>).</p></li></ol><h3 class="">4. Updating your <code class="lang-kotlin">build.gradle(.kts)</code></h3><p class="paragraph">Add the <code class="lang-kotlin">.aar</code> file and required dependencies in your <code class="lang-kotlin">build.gradle(.kts)</code> file under <code class="lang-kotlin">dependencies</code>:</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">dependencies {<br>    // Include the .aar file<br>    implementation(files(&quot;libs/opticonnectsdk.aar&quot;))<br><br>    // Core Android and Kotlin dependencies<br>    implementation(libs.androidx.core.ktx)<br>    implementation(libs.androidx.lifecycle.runtime.ktx)<br><br>    // Coroutines dependencies<br>    implementation(libs.coroutines)<br>    implementation(libs.coroutines.android)<br>    implementation(libs.coroutines.rx3)<br><br>    // RxAndroidBLE and RxKotlin for BLE and reactive programming<br>    implementation(libs.rxandroidble)<br>    implementation(libs.rxkotlin)<br>}</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><h3 class="">4. Android Manifest Bluetooth Permissions</h3><p class="paragraph">To enable Bluetooth discovery and connection on Android, add the following permissions to your AndroidManifest.xml file located at android/app/src/main/AndroidManifest.xml below the manifest entry:</p><div class="sample-container"><pre><code class="block lang-xml" theme="idea">&lt;uses-feature android:name=&quot;android.hardware.bluetooth_le&quot; android:required=&quot;false&quot; /&gt;<br><br>&lt;!-- New Bluetooth permissions for Android 12 or higher --&gt;<br>&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH_SCAN&quot;/&gt;<br>&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH_CONNECT&quot; /&gt;<br>&lt;uses-permission android:name=&quot;android.permission.ACCESS_FINE_LOCATION&quot; /&gt;<br><br>&lt;!-- Legacy permissions for Android 11 or lower --&gt;<br>&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH&quot; android:maxSdkVersion=&quot;30&quot; /&gt;<br>&lt;uses-permission android:name=&quot;android.permission.BLUETOOTH_ADMIN&quot; android:maxSdkVersion=&quot;30&quot; /&gt;<br><br>&lt;!-- Legacy permission for Android 9 or lower --&gt;<br>&lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot; android:maxSdkVersion=&quot;28&quot; /&gt;</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div></div></div>
   </div>
   <h2 class="">Packages</h2>
   <div class="table"><a data-name="-1843735809%2FPackages%2F460477976" anchor-label="com.opticon.opticonnect.sdk.api" id="-1843735809%2FPackages%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
@@ -72,7 +96,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api/index.html">com.opticon.opticonnect.sdk.api</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api/index.html">com.opticon.opticonnect.sdk.api</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1843735809%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -90,7 +114,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.constants.commands/index.html">com.opticon.opticonnect.sdk.api.constants.commands</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.constants.commands/index.html">com.opticon.opticonnect.sdk.api.constants.commands</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1536330662%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -108,7 +132,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.entities/index.html">com.opticon.opticonnect.sdk.api.entities</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.entities/index.html">com.opticon.opticonnect.sdk.api.entities</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1725756268%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -126,7 +150,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.enums/index.html">com.opticon.opticonnect.sdk.api.enums</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.enums/index.html">com.opticon.opticonnect.sdk.api.enums</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1186880611%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -144,7 +168,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.interfaces/index.html">com.opticon.opticonnect.sdk.api.interfaces</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/index.html">com.opticon.opticonnect.sdk.api.interfaces</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2096531027%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -162,7 +186,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.scanner_settings.enums/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.enums</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.scanner_settings.enums/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.enums</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-456453445%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -180,7 +204,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1821039279%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -198,7 +222,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.scanner_settings.interfaces/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.scanner_settings.interfaces/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-190252459%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>
@@ -216,7 +240,7 @@
       <div>
         <div class="main-subrow ">
           <div class=""><span class="inline-flex">
-              <div><a href="opticonnectsdk/com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific</a></div>
+              <div><a href="opticonnect sdk/com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific/index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific</a></div>
 <span class="anchor-wrapper"><span class="anchor-icon" pointing-to="661698411%2FPackages%2F460477976"></span>
                 <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
               </span></span></div>

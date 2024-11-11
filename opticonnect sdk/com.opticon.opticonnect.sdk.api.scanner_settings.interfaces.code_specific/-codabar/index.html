@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Codabar</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            opticonnect sdk
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":opticonnectsdk:dokkaHtml/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="opticonnect sdk::com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific/Codabar///PointingToDeclaration//460477976">
+  <div class="breadcrumbs"><a href="../../../index.html">opticonnect sdk</a><span class="delimiter">/</span><a href="../index.html">com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific</a><span class="delimiter">/</span><span class="current">Codabar</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Codabar</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">interface </span><a href="index.html">Codabar</a></div><p class="paragraph">Interface for managing Codabar-specific settings on the scanner.</p><p class="paragraph">This interface provides methods for configuring Codabar-related settings such as enabling or disabling check digits, transmitting start and stop characters, and setting the Codabar mode.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="676223243%2FFunctions%2F460477976" anchor-label="setCheckCD" id="676223243%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-check-c-d.html"><span>set</span><wbr></wbr><span>Check</span><wbr></wbr><span><span>CD</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="676223243%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-check-c-d.html"><span class="token function">setCheckCD</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the check digit state for Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1962323097%2FFunctions%2F460477976" anchor-label="setIntercharacterGapCheck" id="-1962323097%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-intercharacter-gap-check.html"><span>set</span><wbr></wbr><span>Intercharacter</span><wbr></wbr><span>Gap</span><wbr></wbr><span><span>Check</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1962323097%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-intercharacter-gap-check.html"><span class="token function">setIntercharacterGapCheck</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the intercharacter gap check mode for Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="508556062%2FFunctions%2F460477976" anchor-label="setMinimumLength" id="508556062%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-minimum-length.html"><span>set</span><wbr></wbr><span>Minimum</span><wbr></wbr><span><span>Length</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="508556062%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-minimum-length.html"><span class="token function">setMinimumLength</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">length<span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/-codabar-minimum-length/index.html">CodabarMinimumLength</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the minimum data length for Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1710052560%2FFunctions%2F460477976" anchor-label="setMode" id="1710052560%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-mode.html"><span>set</span><wbr></wbr><span><span>Mode</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1710052560%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-mode.html"><span class="token function">setMode</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">mode<span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/-codabar-mode/index.html">CodabarMode</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the Codabar mode for the scanner.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1142684445%2FFunctions%2F460477976" anchor-label="setSpaceInsertion" id="1142684445%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-space-insertion.html"><span>set</span><wbr></wbr><span>Space</span><wbr></wbr><span><span>Insertion</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1142684445%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-space-insertion.html"><span class="token function">setSpaceInsertion</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the space insertion mode between characters in Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1172544866%2FFunctions%2F460477976" anchor-label="setStartStopTransmission" id="-1172544866%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-start-stop-transmission.html"><span>set</span><wbr></wbr><span>Start</span><wbr></wbr><span>Stop</span><wbr></wbr><span><span>Transmission</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1172544866%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-start-stop-transmission.html"><span class="token function">setStartStopTransmission</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">transmission<span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific/-codabar-start-stop-transmission/index.html">CodabarStartStopTransmission</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the start and stop character transmission mode for Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="641337813%2FFunctions%2F460477976" anchor-label="setTransmitCD" id="641337813%2FFunctions%2F460477976" data-filterable-set=":opticonnectsdk:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":opticonnectsdk:dokkaHtml/release" data-filterable-set=":opticonnectsdk:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-transmit-c-d.html"><span>set</span><wbr></wbr><span>Transmit</span><wbr></wbr><span><span>CD</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="641337813%2FFunctions%2F460477976"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":opticonnectsdk:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">suspend </span><span class="token keyword">fun </span><a href="set-transmit-c-d.html"><span class="token function">setTransmitCD</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deviceId<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-string/index.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">enabled<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-boolean/index.html">Boolean</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="../../com.opticon.opticonnect.sdk.api.entities/-command-response/index.html">CommandResponse</a></div><div class="brief "><p class="paragraph">Sets the transmission state of the check digit for Codabar symbology.</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
