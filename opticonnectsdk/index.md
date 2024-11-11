@@ -26,7 +26,7 @@ At least one of the following Opticon BLE barcode scanners is required:
                     </a>
                 </div>
                 <div style="position: absolute; bottom: 0px; font-weight: bold;">
-                    <a href="https://opticon.com/product/opn-2500/" target="_blank" style="text-decoration: none; color: inherit;">OPN-2500</a>
+                    OPN-2500
                 </div>
             </div>
         </td>
@@ -38,7 +38,7 @@ At least one of the following Opticon BLE barcode scanners is required:
                     </a>
                 </div>
                 <div style="position: absolute; bottom: 0px; font-weight: bold;">
-                    <a href="https://opticon.com/product/opn-6000/" target="_blank" style="text-decoration: none; color: inherit;">OPN-6000</a>
+                    OPN-6000
                 </div>
             </div>
         </td>
