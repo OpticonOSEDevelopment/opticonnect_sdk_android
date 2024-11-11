@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk
+package com.opticon.opticonnect.sdk.integration_tests
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.opticon.opticonnect.sdk.api.OptiConnect
