@@ -269,3 +269,22 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
         }
     }
 }
+
+tasks.dokkaHtml {
+    moduleName.set("opticonnect sdk")
+    dokkaSourceSets {
+        configureEach {
+            includes.from("index.md")
+        }
+    }
+}
+
+tasks.register<Copy>("copyDokkaImages") {
+    dependsOn("dokkaHtml")
+    from("images")  // Source directory containing your images
+    into(layout.buildDirectory.dir("dokka/html/images"))  // Destination in Dokka's output
+}
+
+tasks.named("dokkaHtml").configure {
+    finalizedBy("copyDokkaImages")
+}
