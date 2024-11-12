@@ -80,9 +80,7 @@ internal class BleDevicesDiscoverer @Inject constructor(
     private suspend fun onScanResult(result: ScanResult) {
         val device = result.bleDevice
         val deviceId = device.macAddress
-
         val poolId = getConnectionPoolId(result)
-        Timber.d("Device ID: $deviceId, Pool ID: $poolId")
 
         if (connectionPool.getId(deviceId) != poolId && poolId.length == 4) {
             connectionPool.cacheId(deviceId, poolId)
@@ -97,7 +95,6 @@ internal class BleDevicesDiscoverer @Inject constructor(
         )
 
         if (isValidDeviceName(discoveredDevice.name)) {
-//            Timber.d("Discovered device: ${discoveredDevice.name}, ${discoveredDevice.deviceId}")
             try {
                 deviceDiscoveryFlow.emit(discoveredDevice)
             }

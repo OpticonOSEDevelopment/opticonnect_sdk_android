@@ -1,10 +1,8 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.battery
 
-import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
@@ -19,37 +17,6 @@ internal class BatteryHandler @Inject constructor(
 
     private val batteryListeners = mutableMapOf<String, BatteryListener>()
     private val mutex = Mutex()
-
-    fun getBatteryPercentageStream(deviceId: String): Flow<Int> {
-        return bleDevicesStreamsHandler.getOrCreateBatteryPercentageStream(deviceId)
-    }
-
-    fun getBatteryStatusStream(deviceId: String): Flow<BatteryLevelStatus> {
-        return bleDevicesStreamsHandler.getOrCreateBatteryStatusStream(deviceId)
-    }
-
-    fun getLatestBatteryPercentage(deviceId: String): Int {
-        val batteryListener = getBatteryListener(deviceId)
-        return batteryListener?.getLatestBatteryPercentage() ?: run {
-            Timber.e("Battery listener not found for device: $deviceId")
-            -1
-        }
-    }
-
-    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {
-        val batteryListener = getBatteryListener(deviceId)
-        return batteryListener?.getLatestBatteryStatus() ?: run {
-            Timber.e("Battery listener not found for device: $deviceId")
-            BatteryLevelStatus(
-                isBatteryPresent = false,
-                isWirelessCharging = false,
-                isWiredCharging = false,
-                isCharging = false,
-                isBatteryFaulty = false,
-                percentage = -1
-            ) // Default status
-        }
-    }
 
     suspend fun addBatteryListener(deviceId: String, connection: RxBleConnection): BatteryListener {
         return mutex.withLock {
@@ -73,10 +40,6 @@ internal class BatteryHandler @Inject constructor(
                 throw Exception(msg)
             }
         }
-    }
-
-    private fun getBatteryListener(deviceId: String): BatteryListener? {
-        return batteryListeners[deviceId]
     }
 
     override fun close() {

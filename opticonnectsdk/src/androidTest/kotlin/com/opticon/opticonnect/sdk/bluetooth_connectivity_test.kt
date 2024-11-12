@@ -50,7 +50,7 @@ class BluetoothConnectivityTest : BaseBluetoothTest() {
 
         // Verify that no devices are discovered when discovery is stopped
         val noDevicesFound = withTimeoutOrNull(3000) {
-            OptiConnect.bluetoothManager.bleDiscoveredDevicesFlow.firstOrNull()
+            OptiConnect.bluetoothManager.listenToDiscoveredDevices.firstOrNull()
         }
         assertNull("Devices were discovered even after stopping discovery.", noDevicesFound)
 
@@ -60,7 +60,7 @@ class BluetoothConnectivityTest : BaseBluetoothTest() {
         assertTrue("Discovery is not active after calling startDiscovery.", OptiConnect.bluetoothManager.isDiscovering)
 
         val devicesFound = withTimeoutOrNull(20000) {
-            OptiConnect.bluetoothManager.bleDiscoveredDevicesFlow.firstOrNull()
+            OptiConnect.bluetoothManager.listenToDiscoveredDevices.firstOrNull()
         }
         assertNotNull("No devices where discovered after starting discovery.", devicesFound)
     }

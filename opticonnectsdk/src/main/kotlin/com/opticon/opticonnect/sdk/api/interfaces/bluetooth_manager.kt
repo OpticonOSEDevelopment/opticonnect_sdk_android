@@ -1,12 +1,10 @@
 package com.opticon.opticonnect.sdk.api.interfaces
 
-import android.content.Context
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import kotlinx.coroutines.flow.Flow
-import java.io.Closeable
 
 /**
  * Interface for managing Bluetooth operations with Opticon BLE scanners.
@@ -43,7 +41,7 @@ interface BluetoothManager {
      *
      * @return A flow of BLE devices that you have discovered during the discovery process.
      */
-    val bleDiscoveredDevicesFlow: Flow<BleDiscoveredDevice>
+    val listenToDiscoveredDevices: Flow<BleDiscoveredDevice>
 
     /**
      * Connects to a specific Opticon BLE scanner using its [deviceId].

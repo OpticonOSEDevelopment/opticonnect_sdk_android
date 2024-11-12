@@ -99,7 +99,12 @@ internal class BatteryListener(
                     }
                 },
                 { error ->
-                    Timber.e(error, "Error setting up notification for UUID: $uuid on device: $deviceId")
+                    if (error !is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
+                        Timber.e(
+                            error,
+                            "Error setting up notification for UUID: $uuid on device: $deviceId"
+                        )
+                    }
                 }
             )
             .addTo(compositeDisposable)

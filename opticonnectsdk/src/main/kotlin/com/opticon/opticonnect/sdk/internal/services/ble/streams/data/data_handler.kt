@@ -31,11 +31,10 @@ internal class DataHandler @Inject constructor(
 
     override suspend fun writeData(deviceId: String, data: String, dataBytes: ByteArray) {
         try {
-            Timber.d("Writing data to device: $deviceId")
             val dataProcessor = getDataProcessor(deviceId)
             dataProcessor.writeData(dataBytes)
         } catch (e: Exception) {
-            Timber.e(e, "Failed to write data")
+            Timber.e(e, "Failed to write data. The device may not be connected anymore.")
         }
     }
 

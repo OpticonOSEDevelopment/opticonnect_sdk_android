@@ -119,7 +119,11 @@ internal class BleConnectivityHandler @Inject constructor(
                     }
                 },
                 { error ->
-                    Timber.e(error, "Connection failed for device: ${bleDevice.macAddress}")
+                    if (error is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
+                        Timber.d("Device ${bleDevice.macAddress} has disconnected.")
+                    } else {
+                        Timber.e(error, "Unexpected connection failure for device: ${bleDevice.macAddress}")
+                    }
                     scope.launch {
                         connectionStateFlows[bleDevice.macAddress]?.emit(BleDeviceConnectionState.DISCONNECTED)
                     }

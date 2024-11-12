@@ -1,6 +1,5 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
-import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
 import io.reactivex.rxjava3.disposables.CompositeDisposable
@@ -11,7 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.UUID
@@ -34,10 +32,6 @@ internal class DataProcessor(
     // SharedFlows for broadcasting data to multiple subscribers
     private val _commandStream = bleDeviceStreamManager.getOrCreateCommandStream(deviceId) // Command stream
     private val _barcodeDataStream = bleDeviceStreamManager.getOrCreateBarcodeStream(deviceId) // Barcode data stream
-
-    // Exposing the SharedFlows as immutable flows
-    val commandStream: SharedFlow<String> get() = _commandStream
-    val barcodeDataStream: SharedFlow<BarcodeData> get() = _barcodeDataStream
 
     fun writeData(data: ByteArray) {
         connection.writeCharacteristic(writeCharacteristic, data)
@@ -75,7 +69,9 @@ internal class DataProcessor(
                     }
                 },
                 { error ->
-                    Timber.e(error, "Error setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
+                    if (error !is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
+                        Timber.e(error, "Error setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
+                    }
                 }
             ).addTo(compositeDisposable)
 
@@ -86,7 +82,7 @@ internal class DataProcessor(
                     _commandStream.emit(command) // Emit the command data into the DataProcessor's command stream
                     Timber.d("Command received: $command for device: $deviceId")
                 }
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 Timber.d("Command data stream collection cancelled for device: $deviceId")
             } catch (e: Exception) {
                 Timber.e(e, "Error collecting command data stream for device: $deviceId")

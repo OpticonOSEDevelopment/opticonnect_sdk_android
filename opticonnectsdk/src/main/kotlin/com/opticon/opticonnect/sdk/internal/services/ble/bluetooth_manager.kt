@@ -10,6 +10,7 @@ import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -61,7 +62,7 @@ internal class BluetoothManagerImpl @Inject constructor(
     override val isDiscovering: Boolean
         get() = bleDevicesDiscoverer.isDiscovering()
 
-    override val bleDiscoveredDevicesFlow: Flow<BleDiscoveredDevice>
+    override val listenToDiscoveredDevices: Flow<BleDiscoveredDevice>
         get() = bleDevicesDiscoverer.getDeviceDiscoveryFlow()
 
     override suspend fun connect(deviceId: String) {
@@ -83,7 +84,7 @@ internal class BluetoothManagerImpl @Inject constructor(
     }
 
     override fun listenToConnectionState(deviceId: String): Flow<BleDeviceConnectionState> {
-        return bleConnectivityHandler.getConnectionStateFlow(deviceId)
+        return bleConnectivityHandler.getConnectionStateFlow(deviceId).distinctUntilChanged()
     }
 
     override fun listenToBarcodeData(deviceId: String): Flow<BarcodeData> {

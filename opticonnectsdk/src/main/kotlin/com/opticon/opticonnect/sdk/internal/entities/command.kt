@@ -12,7 +12,6 @@ internal open class Command(
     ledFeedback: Boolean? = null,
     buzzerFeedback: Boolean? = null,
     vibrationFeedback: Boolean? = null,
-    receivesResponse: Boolean = true
 ) : BaseCommand(
     code,
     parameters,

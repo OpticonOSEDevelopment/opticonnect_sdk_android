@@ -54,7 +54,6 @@ internal class DevicesInfoManager @Inject constructor(
                         fetchedData = formatMacAddress(fetchedData)
                     }
                     store[deviceId] = fetchedData
-                    Timber.e("Device info fetched: $parameter: $fetchedData")
                 }
             }
         } catch (e: Exception) {
@@ -67,8 +66,6 @@ internal class DevicesInfoManager @Inject constructor(
         if (cleanMacAddress.length % 2 == 1) {
             throw IllegalArgumentException("Invalid MAC address: $cleanMacAddress")
         }
-        Timber.e("Try formatting MAC address: $cleanMacAddress")
-
         return cleanMacAddress.chunked(2).joinToString(":")
     }
 }
