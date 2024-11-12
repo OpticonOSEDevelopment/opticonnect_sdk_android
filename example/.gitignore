@@ -1,83 +1,15 @@
-# Ignore Android Studio and IntelliJ files
 *.iml
-.idea/
-.idea/caches/
-.idea/libraries/
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-
-# Ignore local build-related files
-.gradle/
-local.properties
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
 .DS_Store
-
-# Ignore build output
-/build/
-.cxx/
-.externalNativeBuild/
-captures/
-output.json
-
-# Ignore NDK and CMake intermediate build files (if applicable)
-.cxx/
-.externalNativeBuild/
-*.lock
-*.log
-
-# Ignore generated files from specific plugins or tools
-app/proguard-rules.pro
-**/build/
-*.apk
-*.ap_
-*.dex
-*.class
-*.jar
-*.so
-*.obj
-*.o
-*.lock
-
-# Ignore any temporary files or environment-specific files
+/build
+/captures
+.externalNativeBuild
+.cxx
 local.properties
-/captures/
-.idea/gradle.xml
-.idea/vcs.xml
-/gradlew
-/gradlew.bat
-
-# Ignore OS-specific files
-.DS_Store
-Thumbs.db
-
-# Ignore Test Results
-**/test-results/
-**/outputs/
-
-# Ignore Kotlin specific files
-.idea/kotlin_generated/
-.idea/kotlin_target/
-
-# Ignore Android lint and analysis files
-**/lint/
-**/lint-results.html
-**/lint-results.xml
-.idea/lint/
-
-# Ignore debug keystore (if present)
-**/debug.keystore
-
-# Ignore APKs and app bundles generated for distribution
-*.apk
-*.aab
-
-# Ignore generated JAR files
-**/*.jar
-
-# Ignore Gradle caches and generated files
-.gradle/
-**/.gradle/
-gradle.properties
-gradle/
-gradle/wrapper/

@@ -41,7 +41,13 @@ At least one of the following Opticon BLE barcode scanners is required:
     </tr>
 </table>
 
-### 2. Building the .aar library
+### 2. System Requirements
+- **Android Minimum SDK**: 26
+- **Java Version**: 11
+- **Kotlin Version**: 1.9.25 or higher
+- **Gradle Version**: 8.7.1 or higher    
+
+### 3. Building the .aar library
 
 To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, follow these steps:
 
@@ -50,12 +56,12 @@ To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, fol
 
 The generated `.aar` file will be located in `build/outputs/aar/`.
 
-### 3. Adding the `.aar` library to your project
+### 4. Adding the `.aar` library to your project
 
 1. Download or build the `.aar` file (`opticonnectsdk.aar`) as outlined in the previous section.
 2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk.aar`).
 
-### 4. Updating your `build.gradle(.kts)`
+### 5. Updating your `build.gradle(.kts)`
 
 Add the `.aar` file and required dependencies in your `build.gradle(.kts)` file under `dependencies`:
 
@@ -79,7 +85,7 @@ dependencies {
 }
 ```
 
-### 4. Android Manifest Bluetooth Permissions
+### 6. Android Manifest Bluetooth Permissions
 
 To enable Bluetooth discovery and connection on Android, add the following permissions to your AndroidManifest.xml file located at android/app/src/main/AndroidManifest.xml below the manifest entry:
 
@@ -99,7 +105,7 @@ To enable Bluetooth discovery and connection on Android, add the following permi
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
-### 5. Example
+## Example
 
 This example demonstrates how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000.
 
