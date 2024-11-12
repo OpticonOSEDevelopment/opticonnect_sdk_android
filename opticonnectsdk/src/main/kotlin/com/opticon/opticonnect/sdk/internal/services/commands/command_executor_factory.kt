@@ -1,6 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
-import com.opticon.opticonnect.sdk.internal.helpers.TimeoutManager
+import com.opticon.opticonnect.sdk.internal.utils.TimeoutManager
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.commands.interfaces.CommandBytesProvider

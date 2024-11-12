@@ -74,7 +74,7 @@ abstract class BaseBluetoothTest {
     suspend fun discoverDevice(deviceId: String): BleDiscoveredDevice? {
         val deferredDevice = CompletableDeferred<BleDiscoveredDevice?>()
         val collectionJob = CoroutineScope(Dispatchers.IO).launch {
-            OptiConnect.bluetoothManager.listenToDiscoveredDevices.collect { discoveredDevice ->
+            OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { discoveredDevice ->
                 if (discoveredDevice.deviceId == deviceId) {
                     deferredDevice.complete(discoveredDevice)
                 }

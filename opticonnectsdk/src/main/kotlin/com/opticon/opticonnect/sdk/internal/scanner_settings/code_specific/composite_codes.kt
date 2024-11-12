@@ -5,12 +5,17 @@ import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CompositeCodesOutputMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CompositeCodes
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), CompositeCodes {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val outputModeCommands: Map<CompositeCodesOutputMode, String> = mapOf(
         CompositeCodesOutputMode.ONLY_1D_AND_2D_COMPONENTS_ALLOWED to CodeSpecificCommands.COMPOSITE_OUTPUT_1D_AND_2D_COMPONENT,
@@ -24,6 +29,10 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendCommand(deviceId, command!!)
     }
 
+    override fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setOutputMode(deviceId, outputMode) }
+    }
+
     override suspend fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.COMPOSITE_IGNORE_LINK_FLAG
@@ -32,6 +41,10 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         }
         Timber.d("Setting composite codes link flag for deviceId $deviceId to ${if (enabled) "ignored" else "not ignored"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIgnoreLinkFlag(deviceId, enabled) }
     }
 
     override suspend fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean): CommandResponse {
@@ -44,6 +57,10 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendCommand(deviceId, command)
     }
 
+    override fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCompositeGS1DatabarGS1128(deviceId, enabled) }
+    }
+
     override suspend fun setCompositeEANUPC(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.ENABLE_COMPOSITE_EAN_UPC
@@ -52,5 +69,9 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         }
         Timber.d("Setting composite EAN/UPC for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCompositeEANUPC(deviceId, enabled) }
     }
 }

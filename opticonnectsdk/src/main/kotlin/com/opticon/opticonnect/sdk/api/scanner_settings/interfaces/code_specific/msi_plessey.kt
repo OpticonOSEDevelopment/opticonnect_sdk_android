@@ -22,6 +22,15 @@ interface MSIPlessey {
     suspend fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings): CommandResponse
 
     /**
+     * Callback-based version of [setCheckCD] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param setting The desired check digit validation mode.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: (Result<CommandResponse>) -> Unit)
+
+    /**
      * Sets the check digit transmission mode for MSI Plessey symbology.
      *
      * @param deviceId The identifier of the target device.
@@ -29,4 +38,13 @@ interface MSIPlessey {
      * @return A [CommandResponse] indicating the success or failure of the operation.
      */
     suspend fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings): CommandResponse
+
+    /**
+     * Callback-based version of [setCDTransmission] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param setting The desired check digit transmission mode.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: (Result<CommandResponse>) -> Unit)
 }

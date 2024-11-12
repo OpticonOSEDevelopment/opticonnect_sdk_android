@@ -1,4 +1,4 @@
-package com.opticon.opticonnect.sdk.internal.helpers
+package com.opticon.opticonnect.sdk.internal.utils
 
 import android.os.Handler
 import android.os.Looper

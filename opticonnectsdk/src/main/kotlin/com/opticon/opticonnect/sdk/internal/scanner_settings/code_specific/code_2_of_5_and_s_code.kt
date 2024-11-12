@@ -5,6 +5,9 @@ import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.DataLength
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code2Of5AndSCode
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,6 +21,8 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
         DataLength.FIVE_CHARACTERS to CodeSpecificCommands.TWO_OF_FIVE_AND_S_CODE_MINIMUM_LENGTH_FIVE_CHARS
     )
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override suspend fun setSpaceCheck(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.TWO_OF_FIVE_AND_S_CODE_ENABLE_SPACE_CHECK_INDUSTRIAL_2OF5
@@ -26,6 +31,10 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
         }
         Timber.d("Setting space check for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setSpaceCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSpaceCheck(deviceId, enabled) }
     }
 
     override suspend fun setSCodeTransmissionAsInterleaved(deviceId: String, enabled: Boolean): CommandResponse {
@@ -38,9 +47,25 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command)
     }
 
+    override fun setSCodeTransmissionAsInterleaved(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSCodeTransmissionAsInterleaved(deviceId, enabled) }
+    }
+
     override suspend fun setMinimumDataLength(deviceId: String, dataLength: DataLength): CommandResponse {
         val command = dataLengthCommands[dataLength]
         Timber.d("Setting minimum data length for deviceId $deviceId to $dataLength")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setMinimumDataLength(
+        deviceId: String,
+        dataLength: DataLength,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinimumDataLength(deviceId, dataLength) }
     }
 }

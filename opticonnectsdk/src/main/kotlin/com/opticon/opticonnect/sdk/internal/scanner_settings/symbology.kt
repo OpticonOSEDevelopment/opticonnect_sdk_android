@@ -4,6 +4,10 @@ import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -11,7 +15,6 @@ import javax.inject.Singleton
 @Singleton
 internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
 
-    // Maps each symbology type to its respective enable command.
     private val enableSymbologyCommands: Map<SymbologyType, String> = mapOf(
         SymbologyType.ALL_CODES to SymbologyCommands.ENABLE_ALL_CODES_EXCL_ADDON,
         SymbologyType.ALL_1D_CODES to SymbologyCommands.ENABLE_ALL_1D_CODES_EXCL_ADDON,
@@ -72,7 +75,6 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
         SymbologyType.UK_POSTAL to SymbologyCommands.ENABLE_UK_POSTAL
     )
 
-    // Maps each symbology type to its respective disable command.
     private val disableSymbologyCommands: Map<SymbologyType, String> = mapOf(
         SymbologyType.ALL_CODES to SymbologyCommands.DISABLE_ALL_CODES,
         SymbologyType.ALL_1D_CODES to SymbologyCommands.DISABLE_ALL_1D_CODES,
@@ -133,7 +135,6 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
         SymbologyType.UK_POSTAL to SymbologyCommands.DISABLE_UK_POSTAL
     )
 
-    // Maps each symbology type to its respective enable-only command.
     private val enableOnlySymbologyCommands: Map<SymbologyType, String> = mapOf(
         SymbologyType.ALL_CODES to SymbologyCommands.ENABLE_ALL_CODES_EXCL_ADDON,
         SymbologyType.ALL_1D_CODES to SymbologyCommands.ENABLE_ALL_1D_CODES_EXCL_ADDON_ONLY,
@@ -194,6 +195,8 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
         SymbologyType.UK_POSTAL to SymbologyCommands.ENABLE_UK_POSTAL_ONLY
     )
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override suspend fun enableOnlySymbology(deviceId: String, type: SymbologyType): CommandResponse {
         val command = enableOnlySymbologyCommands[type]
 
@@ -204,6 +207,14 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
             Timber.e(msg)
             CommandResponse.failed(msg)
         }
+    }
+
+    override fun enableOnlySymbology(
+        deviceId: String,
+        type: SymbologyType,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { enableOnlySymbology(deviceId, type) }
     }
 
     override suspend fun setSymbology(deviceId: String, type: SymbologyType, enabled: Boolean): CommandResponse {
@@ -220,5 +231,14 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
             Timber.e(msg)
             CommandResponse.failed(msg)
         }
+    }
+
+    override fun setSymbology(
+        deviceId: String,
+        type: SymbologyType,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSymbology(deviceId, type, enabled) }
     }
 }

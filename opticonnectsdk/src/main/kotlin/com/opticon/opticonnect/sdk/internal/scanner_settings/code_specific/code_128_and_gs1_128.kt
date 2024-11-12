@@ -6,12 +6,17 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.GS1128ConversionMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code128AndGS1128
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code128AndGS1128 {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val modeCommands: Map<Code128AndGS1128Mode, String> = mapOf(
         Code128AndGS1128Mode.DISABLE_GS1_128 to CodeSpecificCommands.CODE_128_DISABLE_GS1_128,
@@ -33,10 +38,18 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command!!)
     }
 
+    override fun setGS1128Mode(deviceId: String, mode: Code128AndGS1128Mode, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGS1128Mode(deviceId, mode) }
+    }
+
     override suspend fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode): CommandResponse {
         val command = conversionCommands[mode]
         Timber.d("Setting GS1-128 conversion mode for deviceId $deviceId to $mode")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGS1128ConversionMode(deviceId, mode) }
     }
 
     override suspend fun setConcatenation(deviceId: String, enabled: Boolean): CommandResponse {
@@ -49,6 +62,10 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command)
     }
 
+    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
+    }
+
     override suspend fun setLeadingC1Output(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.CODE_128_ENABLE_LEADING_C1_OUTPUT
@@ -57,5 +74,9 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         }
         Timber.d("Setting leading C1 output for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setLeadingC1Output(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLeadingC1Output(deviceId, enabled) }
     }
 }

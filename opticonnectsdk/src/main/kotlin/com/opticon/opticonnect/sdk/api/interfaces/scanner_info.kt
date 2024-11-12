@@ -3,8 +3,6 @@ package com.opticon.opticonnect.sdk.api.interfaces
 import com.opticon.opticonnect.sdk.api.entities.DeviceInfo
 
 /**
- * Interface for retrieving information about a connected Opticon BLE scanner.
- *
  * The [ScannerInfo] interface defines a method for you to obtain detailed information
  * about a connected Opticon BLE scanner, such as its MAC address, serial number, local name, and firmware version.
  */

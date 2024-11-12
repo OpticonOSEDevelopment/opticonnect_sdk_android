@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
  * and listening to data streams from your Opticon BLE scanners.
  */
 interface BluetoothManager {
+    // Discovery Methods
+
     /**
      * Starts discovering Opticon BLE scanners nearby.
      *
@@ -41,7 +43,16 @@ interface BluetoothManager {
      *
      * @return A flow of BLE devices that you have discovered during the discovery process.
      */
-    val listenToDiscoveredDevices: Flow<BleDiscoveredDevice>
+    fun listenToDiscoveredDevices(): Flow<BleDiscoveredDevice>
+
+    /**
+     * Callback-based version of [listenToDiscoveredDevices] for Java interoperability.
+     *
+     * @param callback The callback to receive discovered devices or errors.
+     */
+    fun listenToDiscoveredDevices(callback: Callback<BleDiscoveredDevice>)
+
+    // Connection Methods
 
     /**
      * Connects to a specific Opticon BLE scanner using its [deviceId].
@@ -54,6 +65,16 @@ interface BluetoothManager {
     suspend fun connect(deviceId: String)
 
     /**
+     * Callback-based version of [connect] for Java interoperability.
+     *
+     * Use this method to initiate a connection attempt and receive updates on success or failure.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @param callback The callback to receive success or error status.
+     */
+    fun connect(deviceId: String, callback: Callback<Unit>)
+
+    /**
      * Disconnects from a specific Opticon BLE scanner using its [deviceId].
      *
      * Use this method to disconnect from the specified Opticon BLE scanner.
@@ -61,6 +82,8 @@ interface BluetoothManager {
      * @param deviceId The identifier of the target scanner.
      */
     fun disconnect(deviceId: String)
+
+    // Connection State Methods
 
     /**
      * Listens to the connection state of a specific Opticon BLE scanner.
@@ -74,6 +97,16 @@ interface BluetoothManager {
     fun listenToConnectionState(deviceId: String): Flow<BleDeviceConnectionState>
 
     /**
+     * Callback-based version of [listenToConnectionState] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @param callback Callback to receive [BleDeviceConnectionState].
+     */
+    fun listenToConnectionState(deviceId: String, callback: Callback<BleDeviceConnectionState>)
+
+    // Barcode Data Methods
+
+    /**
      * Listens to the barcode data stream from a specific Opticon BLE scanner.
      *
      * Use this method to receive barcode data from the scanner specified by the [deviceId].
@@ -83,6 +116,16 @@ interface BluetoothManager {
      * @return A flow of [BarcodeData] received from the scanner.
      */
     fun listenToBarcodeData(deviceId: String): Flow<BarcodeData>
+
+    /**
+     * Callback-based version of [listenToBarcodeData] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @param callback Callback to receive [BarcodeData].
+     */
+    fun listenToBarcodeData(deviceId: String, callback: Callback<BarcodeData>)
+
+    // Battery Percentage Methods
 
     /**
      * Listens to the battery percentage of a specific Opticon BLE scanner.
@@ -97,6 +140,14 @@ interface BluetoothManager {
     fun listenToBatteryPercentage(deviceId: String): Flow<Int>
 
     /**
+     * Callback-based version of [listenToBatteryPercentage] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @param callback Callback to receive battery percentage as an [Int].
+     */
+    fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>)
+
+    /**
      * Retrieves the latest battery percentage of a specific Opticon BLE scanner.
      *
      * Use this method to obtain the most recent battery percentage of the scanner specified
@@ -106,6 +157,8 @@ interface BluetoothManager {
      * @return An integer representing the latest battery percentage.
      */
     fun getLatestBatteryPercentage(deviceId: String): Int
+
+    // Battery Status Methods
 
     /**
      * Listens to the battery status of a specific Opticon BLE scanner.
@@ -118,6 +171,14 @@ interface BluetoothManager {
      * @return A flow of [BatteryLevelStatus] indicating the current battery status.
      */
     fun listenToBatteryStatus(deviceId: String): Flow<BatteryLevelStatus>
+
+    /**
+     * Callback-based version of [listenToBatteryStatus] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target scanner.
+     * @param callback Callback to receive [BatteryLevelStatus].
+     */
+    fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>)
 
     /**
      * Retrieves the latest battery status of a specific Opticon BLE scanner.

@@ -7,6 +7,11 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Coda
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarStartStopTransmission
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Codabar
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,10 +41,16 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         CodabarMinimumLength.FIVE_CHARACTERS to CodeSpecificCommands.CODABAR_MINIMUM_LENGTH_FIVE_CHARS
     )
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override suspend fun setMode(deviceId: String, mode: CodabarMode): CommandResponse {
         val command = modeCommands[mode]
         Timber.d("Setting Codabar mode for deviceId $deviceId to $mode")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setMode(deviceId: String, mode: CodabarMode, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
     }
 
     override suspend fun setCheckCD(deviceId: String, enabled: Boolean): CommandResponse {
@@ -52,6 +63,10 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
+    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
+    }
+
     override suspend fun setTransmitCD(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.CODABAR_TRANSMIT_CD
@@ -60,6 +75,10 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         }
         Timber.d("Setting Codabar transmit check digit for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 
     override suspend fun setSpaceInsertion(deviceId: String, enabled: Boolean): CommandResponse {
@@ -72,10 +91,18 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
+    override fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSpaceInsertion(deviceId, enabled) }
+    }
+
     override suspend fun setMinimumLength(deviceId: String, length: CodabarMinimumLength): CommandResponse {
         val command = minLengthCommands[length]
         Timber.d("Setting Codabar minimum length for deviceId $deviceId to $length")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinimumLength(deviceId, length) }
     }
 
     override suspend fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean): CommandResponse {
@@ -88,11 +115,19 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
+    override fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIntercharacterGapCheck(deviceId, enabled) }
+    }
+
     override suspend fun setStartStopTransmission(
         deviceId: String, transmission: CodabarStartStopTransmission
     ): CommandResponse {
         val command = startStopTransmissionCommands[transmission]
         Timber.d("Setting Codabar start/stop transmission for deviceId $deviceId to $transmission")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setStartStopTransmission(deviceId: String, transmission: CodabarStartStopTransmission, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setStartStopTransmission(deviceId, transmission) }
     }
 }

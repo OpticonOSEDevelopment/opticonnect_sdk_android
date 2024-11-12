@@ -24,6 +24,15 @@ interface Codabar {
     suspend fun setMode(deviceId: String, mode: CodabarMode): CommandResponse
 
     /**
+     * Callback-based version of [setMode] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param mode The Codabar mode to set.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setMode(deviceId: String, mode: CodabarMode, callback: (Result<CommandResponse>) -> Unit)
+
+    /**
      * Sets the check digit state for Codabar symbology.
      *
      * @param deviceId The identifier of the target device.
@@ -31,6 +40,15 @@ interface Codabar {
      * @return A [CommandResponse] indicating the success or failure of the command.
      */
     suspend fun setCheckCD(deviceId: String, enabled: Boolean): CommandResponse
+
+    /**
+     * Callback-based version of [setCheckCD] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param enabled A boolean indicating whether to enable or disable the check digit.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
 
     /**
      * Sets the transmission state of the check digit for Codabar symbology.
@@ -42,6 +60,15 @@ interface Codabar {
     suspend fun setTransmitCD(deviceId: String, enabled: Boolean): CommandResponse
 
     /**
+     * Callback-based version of [setTransmitCD] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+
+    /**
      * Sets the space insertion mode between characters in Codabar symbology.
      *
      * @param deviceId The identifier of the target device.
@@ -49,6 +76,15 @@ interface Codabar {
      * @return A [CommandResponse] indicating the success or failure of the command.
      */
     suspend fun setSpaceInsertion(deviceId: String, enabled: Boolean): CommandResponse
+
+    /**
+     * Callback-based version of [setSpaceInsertion] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param enabled A boolean indicating whether to enable or disable space insertion.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
 
     /**
      * Sets the minimum data length for Codabar symbology.
@@ -60,6 +96,15 @@ interface Codabar {
     suspend fun setMinimumLength(deviceId: String, length: CodabarMinimumLength): CommandResponse
 
     /**
+     * Callback-based version of [setMinimumLength] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param length The minimum data length to set.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: (Result<CommandResponse>) -> Unit)
+
+    /**
      * Sets the intercharacter gap check mode for Codabar symbology.
      *
      * @param deviceId The identifier of the target device.
@@ -67,6 +112,15 @@ interface Codabar {
      * @return A [CommandResponse] indicating the success or failure of the command.
      */
     suspend fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean): CommandResponse
+
+    /**
+     * Callback-based version of [setIntercharacterGapCheck] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param enabled A boolean indicating whether to enable or disable the intercharacter gap check.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
 
     /**
      * Sets the start and stop character transmission mode for Codabar symbology.
@@ -78,4 +132,15 @@ interface Codabar {
     suspend fun setStartStopTransmission(
         deviceId: String, transmission: CodabarStartStopTransmission
     ): CommandResponse
+
+    /**
+     * Callback-based version of [setStartStopTransmission] for Java interoperability.
+     *
+     * @param deviceId The identifier of the target device.
+     * @param transmission The start and stop character transmission mode.
+     * @param callback Callback to receive [CommandResponse].
+     */
+    fun setStartStopTransmission(
+        deviceId: String, transmission: CodabarStartStopTransmission, callback: (Result<CommandResponse>) -> Unit
+    )
 }

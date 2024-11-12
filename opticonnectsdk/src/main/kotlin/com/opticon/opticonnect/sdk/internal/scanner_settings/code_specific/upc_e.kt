@@ -7,12 +7,17 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCE
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCEConversionMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val upceLeadingZeroAndTransmitCDModeCommands: Map<UPCELeadingZeroAndTransmitCDMode, String> = mapOf(
         UPCELeadingZeroAndTransmitCDMode.NO_LEADING_ZERO_TRANSMIT_CD to CodeSpecificCommands.UPC_E_NO_LEADING_ZERO_TRANSMIT_CD,
@@ -35,6 +40,14 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         return sendCommand(deviceId, command!!)
     }
 
+    override fun setLeadingZeroAndTransmitCDMode(
+        deviceId: String,
+        mode: UPCELeadingZeroAndTransmitCDMode,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLeadingZeroAndTransmitCDMode(deviceId, mode) }
+    }
+
     override suspend fun setConversionMode(
         deviceId: String,
         mode: UPCEConversionMode
@@ -42,6 +55,14 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         val command = upceConversionModeCommands[mode]
         Timber.d("Setting UPCE conversion mode for deviceId $deviceId to $mode")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setConversionMode(
+        deviceId: String,
+        mode: UPCEConversionMode,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConversionMode(deviceId, mode) }
     }
 
     override suspend fun setAddOnPlus2(
@@ -57,6 +78,14 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         return sendCommand(deviceId, command)
     }
 
+    override fun setAddOnPlus2(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus2(deviceId, enabled) }
+    }
+
     override suspend fun setAddOnPlus5(
         deviceId: String,
         enabled: Boolean
@@ -68,5 +97,13 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         }
         Timber.d("Setting UPCE plus 5 add-on for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setAddOnPlus5(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus5(deviceId, enabled) }
     }
 }

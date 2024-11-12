@@ -6,12 +6,17 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39Mode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code39
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val modeCommands: Map<Code39Mode, String> = mapOf(
         Code39Mode.NORMAL to CodeSpecificCommands.NORMAL_CODE_39,
@@ -32,6 +37,10 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command!!)
     }
 
+    override fun setMode(deviceId: String, mode: Code39Mode, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
+    }
+
     override suspend fun setCheckCD(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.CODE_39_CHECK_CD
@@ -40,6 +49,10 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         }
         Timber.d("Setting Code 39 check digit validation for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
     }
 
     override suspend fun setTransmitCD(deviceId: String, enabled: Boolean): CommandResponse {
@@ -52,6 +65,10 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
+    }
+
     override suspend fun setTransmitSTSP(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.CODE_39_TRANSMIT_ST_SP
@@ -60,6 +77,10 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         }
         Timber.d("Setting Code 39 transmit start/stop characters for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
+    }
+
+    override fun setTransmitSTSP(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitSTSP(deviceId, enabled) }
     }
 
     override suspend fun setConcatenation(deviceId: String, enabled: Boolean): CommandResponse {
@@ -72,6 +93,10 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
+    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
+    }
+
     override suspend fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean): CommandResponse {
         val command = if (enabled) {
             CodeSpecificCommands.CODE_39_TRANSMIT_LEADING_A_FOR_IT_PHARM
@@ -82,9 +107,17 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
+    override fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitLdAForItPharm(deviceId, enabled) }
+    }
+
     override suspend fun setMinLength(deviceId: String, length: Code39MinimumLength): CommandResponse {
         val command = minLengthCommands[length]
         Timber.d("Setting Code 39 minimum length for deviceId $deviceId to $length")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinLength(deviceId, length) }
     }
 }

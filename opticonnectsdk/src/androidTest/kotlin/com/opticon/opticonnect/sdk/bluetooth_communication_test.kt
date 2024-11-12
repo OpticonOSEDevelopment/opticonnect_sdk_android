@@ -14,6 +14,8 @@ import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import junit.framework.TestCase.*
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -24,6 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import timber.log.Timber
+import java.util.concurrent.CountDownLatch
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
@@ -183,24 +186,56 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
                 BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
+                val resultLatch = CountDownLatch(1)
                 OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
                 OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
                     TEST_DEVICE_MAC_ADDRESS,
                     CodabarMode.ABC_CODE_ONLY
-                )
-                OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
-                    TEST_DEVICE_MAC_ADDRESS,
-                    CodabarMode.CODABAR_ABC_AND_CX
-                )
-                OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
-                    TEST_DEVICE_MAC_ADDRESS,
-                    CodabarMode.CX_CODE_ONLY
-                )
-                delay(6000)
-                var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
-                assertTrue("Settings compression test failed.", settings.size == 2 &&
-                        settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
-                        settings.any { it.command == CodeSpecificCommands.CODABAR_CX_CODE_ONLY })
+                ) { result ->
+                    result.onSuccess {
+                        OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
+                            TEST_DEVICE_MAC_ADDRESS,
+                            CodabarMode.CODABAR_ABC_AND_CX
+                        ) { result2 ->
+                            result2.onSuccess {
+                                OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
+                                    TEST_DEVICE_MAC_ADDRESS,
+                                    CodabarMode.CX_CODE_ONLY
+                                ) { result3 ->
+                                    result3.onSuccess {
+                                        // Delay to ensure settings have been applied
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            delay(6000)
+
+                                            OptiConnect.scannerSettings.getSettings(
+                                                TEST_DEVICE_MAC_ADDRESS
+                                            ).let { settings ->
+                                                assertTrue(
+                                                    "Settings compression test failed.",
+                                                    settings.size == 2 &&
+                                                            settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
+                                                            settings.any { it.command == CodeSpecificCommands.CODABAR_CX_CODE_ONLY }
+                                                )
+                                                resultLatch.countDown() // Signal completion of async test
+                                            }
+                                        }
+                                    }.onFailure {
+                                        fail("Failed to set Codabar mode CX_CODE_ONLY: ${it.message}")
+                                        resultLatch.countDown()
+                                    }
+                                }
+                            }.onFailure {
+                                fail("Failed to set Codabar mode CODABAR_ABC_AND_CX: ${it.message}")
+                                resultLatch.countDown()
+                            }
+                        }
+                    }.onFailure {
+                        fail("Failed to set Codabar mode ABC_CODE_ONLY: ${it.message}")
+                        resultLatch.countDown()
+                    }
+                }
+
+                resultLatch.await() // Wait for the async test to finish
             } else {
                 fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
             }

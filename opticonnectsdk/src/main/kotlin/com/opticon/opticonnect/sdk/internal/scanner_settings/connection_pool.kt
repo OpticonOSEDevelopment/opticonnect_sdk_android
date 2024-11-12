@@ -4,6 +4,9 @@ import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,6 +16,7 @@ internal class ConnectionPoolImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper
 ) : ConnectionPool, SettingsBase() {
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private val connectionPoolIds = mutableMapOf<String, String>()
     private val reservedHexIds = listOf("0001", "0002", "0003", "30F4", "46F9", "9BE5")
 
@@ -51,8 +55,20 @@ internal class ConnectionPoolImpl @Inject constructor(
         return result
     }
 
+    override fun setId(deviceId: String, poolId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setId(deviceId, poolId) }
+    }
+
     override fun cacheId(deviceId: String, poolId: String) {
         connectionPoolIds[deviceId] = poolId
+    }
+
+    override suspend fun getId(deviceId: String): String {
+        return connectionPoolIds[deviceId] ?: "0000"  // Return "0000" if ID is unknown
+    }
+
+    override fun getId(deviceId: String, callback: (Result<String>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { getId(deviceId) }
     }
 
     override suspend fun resetId(deviceId: String): CommandResponse {
@@ -61,8 +77,8 @@ internal class ConnectionPoolImpl @Inject constructor(
         return sendCommand(deviceId, CommunicationCommands.SET_CONNECTION_POOL_ID, parameters = directInputKeys)
     }
 
-    override suspend fun getId(deviceId: String): String {
-        return connectionPoolIds[deviceId] ?: "0000"  // Return "0000" if ID is unknown
+    override fun resetId(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { resetId(deviceId) }
     }
 
     override fun isValidId(poolId: String): Boolean {

@@ -6,12 +6,17 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.MSIP
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.MSIPlesseyCDTransmissionSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.MSIPlessey
 import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey {
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     private val checkCDCommands: Map<MSIPlesseyCheckCDSettings, String> = mapOf(
         MSIPlesseyCheckCDSettings.DO_NOT_CHECK_CD to CodeSpecificCommands.MSI_PLESSEY_DO_NOT_CHECK_CD,
@@ -34,9 +39,17 @@ internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey
         return sendCommand(deviceId, command!!)
     }
 
+    override fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, setting) }
+    }
+
     override suspend fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings): CommandResponse {
         val command = cdTransmissionCommands[setting]
         Timber.d("Setting MSI Plessey check digit transmission mode for deviceId $deviceId to $setting")
         return sendCommand(deviceId, command!!)
+    }
+
+    override fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCDTransmission(deviceId, setting) }
     }
 }

@@ -6,6 +6,9 @@ import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
 import com.opticon.opticonnect.sdk.api.enums.FormattableSymbology
 import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -132,19 +135,76 @@ internal class FormattingImpl @Inject constructor(
     )
 
     companion object {
-        const val maxPreambleChars = 8
-        const val maxSuffixChars = 4
-        const val maxPrefixChars = 4
-        const val maxPostambleChars = 8
+        const val MAX_PREAMBLE_CHARS = 8
+        const val MAX_SUFFIX_CHARS = 4
+        const val MAX_PREFIX_CHARS = 4
+        const val MAX_POSTAMBLE_CHARS = 8
     }
+
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
+    // -------------------
+    // Preamble Methods
+    // -------------------
+
+    override suspend fun setPreambleFromKeys(deviceId: String, keys: List<DirectInputKey>): CommandResponse {
+        val codes = validateAndConvertKeysToCodes(keys, MAX_PREAMBLE_CHARS)
+        Timber.d("Setting preamble for deviceId $deviceId with keys $keys")
+        return sendCommand(deviceId, FormattingCommands.PREAMBLE, parameters = codes)
+    }
+
+    override fun setPreambleFromKeys(
+        deviceId: String,
+        keys: List<DirectInputKey>,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPreambleFromKeys(deviceId, keys) }
+    }
+
+    override suspend fun setPreambleFromString(deviceId: String, preamble: String): CommandResponse {
+        val codes = validateAndConvertStringToCodes(preamble, MAX_PREAMBLE_CHARS)
+        Timber.d("Setting preamble for deviceId $deviceId with string '$preamble'")
+        return sendCommand(deviceId, FormattingCommands.PREAMBLE, parameters = codes)
+    }
+
+    override fun setPreambleFromString(
+        deviceId: String,
+        preamble: String,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPreambleFromString(deviceId, preamble) }
+    }
+
+    override suspend fun clearPreamble(deviceId: String): CommandResponse {
+        Timber.d("Clearing preamble for deviceId $deviceId")
+        return sendCommand(deviceId, FormattingCommands.PREAMBLE)
+    }
+
+    override fun clearPreamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearPreamble(deviceId) }
+    }
+
+    // -------------------
+    // Prefix Methods
+    // -------------------
 
     override suspend fun setPrefixFromKeys(
         deviceId: String,
         keys: List<DirectInputKey>,
         symbology: FormattableSymbology
     ): CommandResponse {
-        val codes = validateAndConvertKeysToCodes(keys, maxPrefixChars)
+        val codes = validateAndConvertKeysToCodes(keys, MAX_PREFIX_CHARS)
+        Timber.d("Setting prefix for deviceId $deviceId with keys $keys and symbology $symbology")
         return sendCommand(deviceId, prefixSymbologyMap[symbology] ?: "", parameters = codes)
+    }
+
+    override fun setPrefixFromKeys(
+        deviceId: String,
+        keys: List<DirectInputKey>,
+        symbology: FormattableSymbology,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPrefixFromKeys(deviceId, keys, symbology) }
     }
 
     override suspend fun setPrefixFromString(
@@ -152,21 +212,50 @@ internal class FormattingImpl @Inject constructor(
         prefix: String,
         symbology: FormattableSymbology
     ): CommandResponse {
-        val codes = validateAndConvertStringToCodes(prefix, maxPrefixChars)
+        val codes = validateAndConvertStringToCodes(prefix, MAX_PREFIX_CHARS)
+        Timber.d("Setting prefix for deviceId $deviceId with string '$prefix' and symbology $symbology")
         return sendCommand(deviceId, prefixSymbologyMap[symbology] ?: "", parameters = codes)
     }
 
+    override fun setPrefixFromString(
+        deviceId: String,
+        prefix: String,
+        symbology: FormattableSymbology,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPrefixFromString(deviceId, prefix, symbology) }
+    }
+
     override suspend fun clearAllPrefixes(deviceId: String): CommandResponse {
+        Timber.d("Clearing all prefixes for deviceId $deviceId")
         return sendCommand(deviceId, FormattingCommands.CLEAR_PREFIXES)
     }
+
+    override fun clearAllPrefixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearAllPrefixes(deviceId) }
+    }
+
+    // -------------------
+    // Suffix Methods
+    // -------------------
 
     override suspend fun setSuffixFromKeys(
         deviceId: String,
         keys: List<DirectInputKey>,
         symbology: FormattableSymbology
     ): CommandResponse {
-        val codes = validateAndConvertKeysToCodes(keys, maxSuffixChars)
+        val codes = validateAndConvertKeysToCodes(keys, MAX_SUFFIX_CHARS)
+        Timber.d("Setting suffix for deviceId $deviceId with keys $keys and symbology $symbology")
         return sendCommand(deviceId, suffixSymbologyMap[symbology] ?: "", parameters = codes)
+    }
+
+    override fun setSuffixFromKeys(
+        deviceId: String,
+        keys: List<DirectInputKey>,
+        symbology: FormattableSymbology,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSuffixFromKeys(deviceId, keys, symbology) }
     }
 
     override suspend fun setSuffixFromString(
@@ -174,42 +263,81 @@ internal class FormattingImpl @Inject constructor(
         suffix: String,
         symbology: FormattableSymbology
     ): CommandResponse {
-        val codes = validateAndConvertStringToCodes(suffix, maxSuffixChars)
+        val codes = validateAndConvertStringToCodes(suffix, MAX_SUFFIX_CHARS)
+        Timber.d("Setting suffix for deviceId $deviceId with string '$suffix' and symbology $symbology")
         return sendCommand(deviceId, suffixSymbologyMap[symbology] ?: "", parameters = codes)
     }
 
+    override fun setSuffixFromString(
+        deviceId: String,
+        suffix: String,
+        symbology: FormattableSymbology,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSuffixFromString(deviceId, suffix, symbology) }
+    }
+
     override suspend fun clearAllSuffixes(deviceId: String): CommandResponse {
+        Timber.d("Clearing all suffixes for deviceId $deviceId")
         return sendCommand(deviceId, FormattingCommands.CLEAR_SUFFIXES)
     }
 
-    override suspend fun setPreambleFromKeys(deviceId: String, keys: List<DirectInputKey>): CommandResponse {
-        val codes = validateAndConvertKeysToCodes(keys, maxPreambleChars)
-        return sendCommand(deviceId, FormattingCommands.PREAMBLE, parameters = codes)
+    override fun clearAllSuffixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearAllSuffixes(deviceId) }
     }
 
-    override suspend fun setPreambleFromString(deviceId: String, preamble: String): CommandResponse {
-        val codes = validateAndConvertStringToCodes(preamble, maxPreambleChars)
-        return sendCommand(deviceId, FormattingCommands.PREAMBLE, parameters = codes)
-    }
-
-    override suspend fun clearPreamble(deviceId: String): CommandResponse {
-        return sendCommand(deviceId, FormattingCommands.PREAMBLE)
-    }
+    // -------------------
+    // Postamble Methods
+    // -------------------
 
     override suspend fun setPostambleFromKeys(deviceId: String, keys: List<DirectInputKey>): CommandResponse {
-        val codes = validateAndConvertKeysToCodes(keys, maxPostambleChars)
+        val codes = validateAndConvertKeysToCodes(keys, MAX_POSTAMBLE_CHARS)
+        Timber.d("Setting postamble for deviceId $deviceId with keys $keys")
         return sendCommand(deviceId, FormattingCommands.POSTAMBLE, parameters = codes)
+    }
+
+    override fun setPostambleFromKeys(
+        deviceId: String,
+        keys: List<DirectInputKey>,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPostambleFromKeys(deviceId, keys) }
     }
 
     override suspend fun setPostambleFromString(deviceId: String, postamble: String): CommandResponse {
-        val codes = validateAndConvertStringToCodes(postamble, maxPostambleChars)
+        val codes = validateAndConvertStringToCodes(postamble, MAX_POSTAMBLE_CHARS)
+        Timber.d("Setting postamble for deviceId $deviceId with string '$postamble'")
         return sendCommand(deviceId, FormattingCommands.POSTAMBLE, parameters = codes)
     }
 
+    override fun setPostambleFromString(
+        deviceId: String,
+        postamble: String,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPostambleFromString(deviceId, postamble) }
+    }
+
     override suspend fun clearPostamble(deviceId: String): CommandResponse {
+        Timber.d("Clearing postamble for deviceId $deviceId")
         return sendCommand(deviceId, FormattingCommands.POSTAMBLE)
     }
 
+    override fun clearPostamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearPostamble(deviceId) }
+    }
+
+    // -------------------
+    // Helper Methods
+    // -------------------
+
+    /**
+     * Validates and converts a list of [DirectInputKey] to their corresponding codes.
+     *
+     * @param keys The list of [DirectInputKey] to validate and convert.
+     * @param maxChars The maximum number of characters allowed.
+     * @return A list of [String] codes.
+     */
     private fun validateAndConvertKeysToCodes(keys: List<DirectInputKey>, maxChars: Int): List<String> {
         var truncatedKeys = keys
         if (keys.size > maxChars) {
@@ -219,6 +347,13 @@ internal class FormattingImpl @Inject constructor(
         return directInputKeysHelper.convertKeysToCodes(truncatedKeys)
     }
 
+    /**
+     * Validates and converts a string to its corresponding codes.
+     *
+     * @param input The string to validate and convert.
+     * @param maxChars The maximum number of characters allowed.
+     * @return A list of [String] codes.
+     */
     private fun validateAndConvertStringToCodes(input: String, maxChars: Int): List<String> {
         var truncatedInput = input
         if (input.length > maxChars) {

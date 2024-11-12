@@ -4,6 +4,10 @@ import com.opticon.opticonnect.sdk.api.constants.commands.ScanCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.*
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ReadOptions
+import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -11,20 +15,17 @@ import javax.inject.Singleton
 @Singleton
 internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase() {
 
-    // Map Positive and Negative Barcodes Modes to corresponding command strings.
     private val positiveAndNegativeBarcodesModeCommands = mapOf(
         PositiveAndNegativeBarcodesMode.POSITIVE_BARCODES to ScanCommands.POSITIVE_BARCODES,
         PositiveAndNegativeBarcodesMode.NEGATIVE_BARCODES to ScanCommands.NEGATIVE_BARCODES,
         PositiveAndNegativeBarcodesMode.POSITIVE_AND_NEGATIVE_BARCODES to ScanCommands.POSITIVE_AND_NEGATIVE_BARCODES
     )
 
-    // Map Read Modes to corresponding command strings.
     private val readModeCommands = mapOf(
         ReadMode.SINGLE_READ to ScanCommands.SINGLE_READ,
         ReadMode.MULTIPLE_READ to ScanCommands.MULTIPLE_READ
     )
 
-    // Map Read Times to corresponding command strings.
     private val readTimeCommands = mapOf(
         ReadTime.ZERO_SECONDS to ScanCommands.READ_TIME_0_SECONDS,
         ReadTime.ONE_SECOND to ScanCommands.READ_TIME_1_SECOND,
@@ -39,7 +40,6 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
         ReadTime.INDEFINITE to ScanCommands.READ_TIME_INDEFINITELY
     )
 
-    // Map Illumination Modes to corresponding command strings.
     private val illuminationModeCommands = mapOf(
         IlluminationMode.ENABLE_FLOODLIGHT to ScanCommands.ENABLE_FLOODLIGHT,
         IlluminationMode.DISABLE_FLOODLIGHT to ScanCommands.DISABLE_FLOODLIGHT,
@@ -47,38 +47,93 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
         IlluminationMode.PREVENT_SPECULAR_REFLECTION to ScanCommands.PREVENT_SPECULAR_REFLECTION
     )
 
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override suspend fun setPositiveAndNegativeBarcodesMode(deviceId: String, mode: PositiveAndNegativeBarcodesMode): CommandResponse {
-        Timber.d("Setting PositiveAndNegativeBarcodesMode to $mode")
-        return sendCommand(deviceId, positiveAndNegativeBarcodesModeCommands[mode] ?: throw IllegalArgumentException("Invalid mode"))
+        return sendCommand(deviceId, positiveAndNegativeBarcodesModeCommands[mode]
+            ?: throw IllegalArgumentException("Invalid PositiveAndNegativeBarcodesMode"))
+    }
+
+    override fun setPositiveAndNegativeBarcodesMode(
+        deviceId: String,
+        mode: PositiveAndNegativeBarcodesMode,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPositiveAndNegativeBarcodesMode(deviceId, mode) }
     }
 
     override suspend fun setReadMode(deviceId: String, mode: ReadMode): CommandResponse {
-        Timber.d("Setting ReadMode to $mode")
-        return sendCommand(deviceId, readModeCommands[mode] ?: throw IllegalArgumentException("Invalid mode"))
+        return sendCommand(deviceId, readModeCommands[mode]
+            ?: throw IllegalArgumentException("Invalid ReadMode"))
+    }
+
+    override fun setReadMode(
+        deviceId: String,
+        mode: ReadMode,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setReadMode(deviceId, mode) }
     }
 
     override suspend fun setReadTime(deviceId: String, time: ReadTime): CommandResponse {
-        Timber.d("Setting ReadTime to $time")
-        return sendCommand(deviceId, readTimeCommands[time] ?: throw IllegalArgumentException("Invalid time"))
+        return sendCommand(deviceId, readTimeCommands[time]
+            ?: throw IllegalArgumentException("Invalid ReadTime"))
+    }
+
+    override fun setReadTime(
+        deviceId: String,
+        time: ReadTime,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setReadTime(deviceId, time) }
     }
 
     override suspend fun setIlluminationMode(deviceId: String, mode: IlluminationMode): CommandResponse {
-        Timber.d("Setting IlluminationMode to $mode")
-        return sendCommand(deviceId, illuminationModeCommands[mode] ?: throw IllegalArgumentException("Invalid mode"))
+        return sendCommand(deviceId, illuminationModeCommands[mode]
+            ?: throw IllegalArgumentException("Invalid IlluminationMode"))
+    }
+
+    override fun setIlluminationMode(
+        deviceId: String,
+        mode: IlluminationMode,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIlluminationMode(deviceId, mode) }
     }
 
     override suspend fun setAiming(deviceId: String, enabled: Boolean): CommandResponse {
-        Timber.d("Setting Aiming to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, if (enabled) ScanCommands.AIMING_ENABLED else ScanCommands.AIMING_DISABLED)
     }
 
+    override fun setAiming(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAiming(deviceId, enabled) }
+    }
+
     override suspend fun setTriggerRepeat(deviceId: String, enabled: Boolean): CommandResponse {
-        Timber.d("Setting TriggerRepeat to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, if (enabled) ScanCommands.TRIGGER_REPEAT_ENABLED else ScanCommands.TRIGGER_REPEAT_DISABLED)
     }
 
+    override fun setTriggerRepeat(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTriggerRepeat(deviceId, enabled) }
+    }
+
     override suspend fun setDeleteKey(deviceId: String, enabled: Boolean): CommandResponse {
-        Timber.d("Setting DeleteKey to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, if (enabled) ScanCommands.DELETE_KEY_ENABLED else ScanCommands.DELETE_KEY_DISABLED)
+    }
+
+    override fun setDeleteKey(
+        deviceId: String,
+        enabled: Boolean,
+        callback: (Result<CommandResponse>) -> Unit
+    ) {
+        CallbackUtils.wrapWithCallback(coroutineScope, callback) { setDeleteKey(deviceId, enabled) }
     }
 }

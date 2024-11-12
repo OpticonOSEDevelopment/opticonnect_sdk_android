@@ -2,7 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.commands
 
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.entities.Command
-import com.opticon.opticonnect.sdk.internal.helpers.TimeoutManager
+import com.opticon.opticonnect.sdk.internal.utils.TimeoutManager
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ACK
