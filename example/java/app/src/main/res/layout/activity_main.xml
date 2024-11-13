@@ -1,0 +1,50 @@
+<!-- res/layout/activity_main.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/connectionStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Disconnected"
+        android:textColor="@color/disconnected_color"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/barcodeDataText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Barcode Data: None"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/batteryPercentageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battery: N/A"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/chargingStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Charging: Unknown"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/disconnectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disconnect"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/button_color"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>

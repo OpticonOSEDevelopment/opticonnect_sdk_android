@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">#FFFFFF</color> <!-- White background -->
+    <color name="text_primary">#000000</color>     <!-- Black primary text -->
+    <color name="text_secondary">#666666</color>   <!-- Gray secondary text -->
+    <color name="button_color">#6200EE</color>     <!-- Purple button color -->
+    <color name="connecting_color">#FFA500</color> <!-- Orange for "Connecting" -->
+    <color name="connected_color">#00FF00</color>  <!-- Green for "Connected" -->
+    <color name="disconnected_color">#FF0000</color> <!-- Red for "Disconnected" -->
+</resources>

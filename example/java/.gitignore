@@ -1,0 +1,34 @@
+# Ignore IntelliJ IDEA / Android Studio project files
+*.iml
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# Ignore Gradle files
+.gradle/
+build/
+.externalNativeBuild/
+.cxx/
+captures/
+
+# Ignore local properties (contains local system paths)
+local.properties
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore generated files from Android and Gradle builds
+/build/
+.caches/
+outputs/
+
+# Ignore logs and temporary files
+*.log
+
+# Ignore APKs generated during build
+*.apk
+*.ap_
