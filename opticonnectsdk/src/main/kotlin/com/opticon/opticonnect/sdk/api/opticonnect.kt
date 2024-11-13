@@ -19,6 +19,15 @@ object OptiConnect : LifecycleHandler {
 
     private lateinit var appContext: Context
 
+    /**
+    * Initializes the OptiConnect SDK.
+    *
+    * **This method should be called once at the beginning of your application**, ideally in your Application class.
+    * It sets up the necessary resources for the SDK to function correctly, including context-based components
+    * that manage Bluetooth and scanner configurations.
+    *
+    * @param context The application context, which will be retained for the app's lifecycle to avoid memory leaks.
+    */
     override fun initialize(context: Context) {
         // Store application context, which is safe to keep for the app's lifetime
         appContext = context.applicationContext
