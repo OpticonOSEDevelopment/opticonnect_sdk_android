@@ -354,7 +354,7 @@ fun ConnectionStatusScreen(
 
 ### Java Example
 
-This example demonstrates how to integrate the OptiConnect SDK using Java. It is available in It is available in [examples/java](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/java).
+This example demonstrates how to integrate the OptiConnect SDK using Java. It is available in [examples/java](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/java).
 
 *DeviceState.java*
 
