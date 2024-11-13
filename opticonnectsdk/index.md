@@ -43,11 +43,12 @@ At least one of the following Opticon BLE barcode scanners is required:
 
 ### 2. System Requirements
 - **Android Minimum SDK**: 26
-- **Java Version**: 11
-- **Kotlin Version**: 1.9.25 or higher
-- **Gradle Version**: 8.7.1 or higher    
+- **Java Version**: 11 or higher
+- **Kotlin Version**: 1.8.20 or higher
+- **Gradle Version**: 7.4 or higher   
+- **AGP (Android Gradle Plugin)**: 7.2.2 or higher 
 
-### 3. Building the .aar library
+### 3. Building the opticonnect .aar library (optional)
 
 To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, follow these steps:
 
@@ -58,32 +59,50 @@ The generated `.aar` file will be located in `build/outputs/aar/`.
 
 ### 4. Adding the `.aar` library to your project
 
-1. Download or build the `.aar` file (`opticonnectsdk.aar`) as outlined in the previous section.
-2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk.aar`).
+The .aar file (`opticonnectsdk.aar`) is provided at the [following location](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/libs). The library is already included in both the Kotlin and Java examples in their libs directories. To integrate the library into your own project, perform the following steps:
+
+1. Copy `opticonnectsdk.aar` to your project’s libs directory if it’s not already there.
+2. Add the .aar file to your dependencies in build.gradle(.kts) as explained in the following section.
 
 ### 5. Updating your `build.gradle(.kts)`
 
-Add the `.aar` file and required dependencies in your `build.gradle(.kts)` file under `dependencies`:
+Add the `.aar` file and required dependencies to your `build.gradle(.kts)` file under `dependencies`. Below is the recommended setup:
+
+#### Shared Dependencies for Java and Kotlin Projects
 
 ```kotlin
 dependencies {
     // Include the .aar file
     implementation(files("libs/opticonnectsdk.aar"))
 
-    // Core Android and Kotlin dependencies
+    // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // Coroutines dependencies
-    implementation(libs.coroutines)
-    implementation(libs.coroutines.android)
-    implementation(libs.coroutines.rx3)
 
     // RxAndroidBLE and RxKotlin for BLE and reactive programming
     implementation(libs.rxandroidble)
     implementation(libs.rxkotlin)
 }
 ```
+
+#### Additional Kotlin Dependencies
+
+If using Kotlin, add the Coroutines libraries for asynchronous handling:
+
+```kotlin
+dependencies {
+    // Coroutines dependencies
+    implementation(libs.coroutines)
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.rx3)
+}
+```
+
+- Note: Java projects do not require Coroutines as they use callbacks instead of coroutines for asynchronous handling.
+
+#### Important: Kotlin Plugin Requirement for Java Projects
+
+The Kotlin plugin is necessary even for Java-based projects due to the Kotlin-based .aar library. This ensures compatibility with any Kotlin classes or extensions within the SDK.
 
 ### 6. Android Manifest Bluetooth Permissions
 
@@ -105,14 +124,22 @@ To enable Bluetooth discovery and connection on Android, add the following permi
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
-## Example
+## Examples
 
-This example demonstrates how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000.
+These examples demonstrate how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000 in both Kotlin and Java.
 
 #### Main Components in the Example
-- DeviceState: Manages the state of the connected BLE scanner.
-- MainActivity: Handles permissions, device discovery, and manages connection/disconnection events.
-- ConnectionStatusScreen: A simple UI to display connection status and device data.
+- **DeviceState**: A data class managing the state of the connected BLE scanner, including device ID, connection state, barcode data, battery percentage, and charging status.
+- **MainActivity**:  The main activity for setting up the SDK, handling Bluetooth permissions, discovering devices, managing connection and disconnection events, and starting listeners for barcode data and battery updates.
+#### User Interfaces
+- **Kotlin (Compose)**: `ConnectionStatusScreen` displays the connection status, barcode data, battery level, and charging state in a simple Compose layout.
+- **Java (XML Layout)**: `activity_main.xml` provides a similar UI using TextView components to display the connection status, barcode data, battery level, and charging state, along with a "Disconnect" button.
+
+### Kotlin Example
+
+This example demonstrates how to integrate the OptiConnect SDK using Kotlin. It is available in [examples/kotlin](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin).
+
+*MainActivity.kt*
 
 ```Kotlin
 package com.opticon.opticonnect_sdk_example
@@ -274,10 +301,11 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
         OptiConnect.close()
     }
+	
 }
 
 // UI for showing the connection status and device data
-@Composable
+ @Composable
 fun ConnectionStatusScreen(
     connectionState: DeviceState,
     onDisconnect: (String) -> Unit
@@ -287,30 +315,367 @@ fun ConnectionStatusScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize()
         ) {
             when (connectionState.connectionState) {
                 BleDeviceConnectionState.CONNECTING -> {
-                    Text("Connecting to device...", style = MaterialTheme.typography.headlineMedium)
-                    CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
+                    Text(
+                        text = "Connecting to device...",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    CircularProgressIndicator(
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
                 }
                 BleDeviceConnectionState.CONNECTED -> {
-                    Text("Connected to device: ${connectionState.connectedDeviceId}", style = MaterialTheme.typography.headlineMedium)
-                    Text("Barcode Data: ${connectionState.barcodeData ?: "No barcode scanned yet."}")
-                    Text("Battery: ${connectionState.batteryPercentage ?: "N/A"}%")
-                    Text("Charging: ${if (connectionState.isCharging == true) "Yes" else "No"}")
-                    Button(onClick = { onDisconnect(connectionState.connectedDeviceId) }, modifier = Modifier.padding(top = 16.dp)) {
+                    Text(
+                        text = "Connected to device: ${connectionState.connectedDeviceId}",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Text(
+                        text = "Barcode Data: ${connectionState.barcodeData ?: "No barcode scanned yet."}"
+                    )
+                    Text(
+                        text = "Battery: ${connectionState.batteryPercentage ?: "N/A"}%"
+                    )
+                    Text(
+                        text = "Charging: ${if (connectionState.isCharging == true) "Yes" else "No"}"
+                    )
+                    Button(
+                        onClick = { onDisconnect(connectionState.connectedDeviceId) },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
                         Text("Disconnect")
                     }
                 }
                 BleDeviceConnectionState.DISCONNECTED -> {
-                    Text("Searching for devices...", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        text = "Searching for devices...",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                 }
                 BleDeviceConnectionState.DISCONNECTING -> {
-                    Text("Disconnecting from device...", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        text = "Disconnecting from device...",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                 }
             }
         }
     }
 }
+```
+
+### Java Example
+
+This example demonstrates how to integrate the OptiConnect SDK using Java. It is available in It is available in [examples/java](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/java).
+
+*DeviceState.java*
+
+```java
+package com.example.opticonnect_sdk_example_java;
+
+import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
+
+public class DeviceState {
+    private String connectedDeviceId = "";
+    private BleDeviceConnectionState connectionState = BleDeviceConnectionState.DISCONNECTED;
+    private String barcodeData = null;
+    private Integer batteryPercentage = null;
+    private Boolean isCharging = null;
+
+    // Simplified getters and setters
+    public String getConnectedDeviceId() { return connectedDeviceId; }
+    public void setConnectedDeviceId(String id) { this.connectedDeviceId = id; }
+
+    public BleDeviceConnectionState getConnectionState() { return connectionState; }
+    public void setConnectionState(BleDeviceConnectionState state) { this.connectionState = state; }
+
+    public String getBarcodeData() { return barcodeData; }
+    public void setBarcodeData(String data) { this.barcodeData = data; }
+
+    public Integer getBatteryPercentage() { return batteryPercentage; }
+    public void setBatteryPercentage(Integer percentage) { this.batteryPercentage = percentage; }
+
+    public Boolean getIsCharging() { return isCharging; }
+    public void setIsCharging(Boolean isCharging) { this.isCharging = isCharging; }
+}
+```
+
+*MainActivity.java*
+
+```java
+package com.example.opticonnect_sdk_example_java;
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
+import com.opticon.opticonnect.sdk.api.OptiConnect;
+import com.opticon.opticonnect.sdk.api.entities.BarcodeData;
+import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus;
+import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice;
+import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
+import com.opticon.opticonnect.sdk.api.interfaces.Callback;
+
+import kotlin.Unit;
+
+public class MainActivity extends ComponentActivity {
+
+    private DeviceState deviceState = new DeviceState();
+    private TextView connectionStatusText, barcodeDataText, batteryPercentageText, chargingStatusText;
+
+    private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionsResult);
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Bind UI elements
+        connectionStatusText = findViewById(R.id.connectionStatusText);
+        barcodeDataText = findViewById(R.id.barcodeDataText);
+        batteryPercentageText = findViewById(R.id.batteryPercentageText);
+        chargingStatusText = findViewById(R.id.chargingStatusText);
+        Button disconnectButton = findViewById(R.id.disconnectButton);
+
+        disconnectButton.setOnClickListener(view -> disconnectDevice());
+
+        checkBluetoothPermissions();
+    }
+
+    private void checkBluetoothPermissions() {
+        String[] permissions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                ? new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}
+                : new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+
+        boolean permissionsGranted = true;
+        for (String permission : permissions) {
+            permissionsGranted &= ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+        }
+
+        if (permissionsGranted) {
+            initializeOptiConnectAndStartDiscovery();
+        } else {
+            requestPermissionsLauncher.launch(permissions);
+        }
+    }
+
+    private void onPermissionsResult(@NonNull java.util.Map<String, Boolean> permissions) {
+        if (permissions.containsValue(Boolean.FALSE)) {
+            Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show();
+        } else {
+            initializeOptiConnectAndStartDiscovery();
+        }
+    }
+
+    private void initializeOptiConnectAndStartDiscovery() {
+        OptiConnect.INSTANCE.initialize(this);
+        OptiConnect.INSTANCE.getBluetoothManager().startDiscovery();
+
+        OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
+            @Override
+            public void onSuccess(BleDiscoveredDevice device) {
+                if (deviceState.getConnectionState() == BleDeviceConnectionState.DISCONNECTED) {
+                    deviceState.setConnectedDeviceId(device.getDeviceId());
+                    deviceState.setConnectionState(BleDeviceConnectionState.CONNECTING);
+                    updateUI();
+                    connectToDevice(device.getDeviceId());
+                }
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Error discovering devices: " + error.getMessage());
+            }
+        });
+    }
+
+    private void connectToDevice(String deviceId) {
+        OptiConnect.INSTANCE.getBluetoothManager().connect(deviceId, new Callback<>() {
+            @Override
+            public void onSuccess(Unit result) {
+                deviceState.setConnectionState(BleDeviceConnectionState.CONNECTED);
+                updateUI();
+                startListeningToDeviceData(deviceId);
+                listenToConnectionState(deviceId);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Toast.makeText(MainActivity.this, "Failed to connect: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                deviceState = new DeviceState();
+            }
+        });
+    }
+
+    private void startListeningToDeviceData(String deviceId) {
+        OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, new Callback<>() {
+            @Override
+            public void onSuccess(BarcodeData barcode) {
+                deviceState.setBarcodeData(barcode.getData());
+                updateUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Error receiving barcode data: " + error.getMessage());
+            }
+        });
+
+        OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryPercentage(deviceId, new Callback<>() {
+            @Override
+            public void onSuccess(Integer batteryPercentage) {
+                deviceState.setBatteryPercentage(batteryPercentage);
+                updateUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Error receiving battery percentage: " + error.getMessage());
+            }
+        });
+
+        OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryStatus(deviceId, new Callback<>() {
+            @Override
+            public void onSuccess(BatteryLevelStatus status) {
+                deviceState.setIsCharging(status.isCharging());
+                updateUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Error receiving battery status: " + error.getMessage());
+            }
+        });
+    }
+
+    private void listenToConnectionState(String deviceId) {
+        OptiConnect.INSTANCE.getBluetoothManager().listenToConnectionState(deviceId, new Callback<>() {
+            @Override
+            public void onSuccess(BleDeviceConnectionState state) {
+                deviceState.setConnectionState(state);
+                updateUI();
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Error receiving connection state: " + error.getMessage());
+            }
+        });
+    }
+
+    private void disconnectDevice() {
+        // Reset DeviceState and update UI
+        deviceState = new DeviceState();
+        updateUI();
+    }
+
+    private void updateUI() {
+        connectionStatusText.setText("Status: " + deviceState.getConnectionState().name());
+
+        // Set color based on connection state
+        switch (deviceState.getConnectionState()) {
+            case CONNECTING:
+                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.connecting_color));
+                break;
+            case CONNECTED:
+                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.connected_color));
+                break;
+            case DISCONNECTED:
+                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.disconnected_color));
+                break;
+            default:
+                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
+        }
+
+        barcodeDataText.setText("Barcode Data: " + (deviceState.getBarcodeData() != null ? deviceState.getBarcodeData() : "None"));
+        batteryPercentageText.setText("Battery: " + (deviceState.getBatteryPercentage() != null ? deviceState.getBatteryPercentage() + "%" : "N/A"));
+        chargingStatusText.setText("Charging: " + (deviceState.getIsCharging() != null ? (deviceState.getIsCharging() ? "Yes" : "No") : "Unknown"));
+    }
+}
+```
+
+*res/values/colors.xml*
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">#FFFFFF</color> <!-- White background -->
+    <color name="text_primary">#000000</color>     <!-- Black primary text -->
+    <color name="text_secondary">#666666</color>   <!-- Gray secondary text -->
+    <color name="button_color">#6200EE</color>     <!-- Purple button color -->
+    <color name="connecting_color">#FFA500</color> <!-- Orange for "Connecting" -->
+    <color name="connected_color">#00FF00</color>  <!-- Green for "Connected" -->
+    <color name="disconnected_color">#FF0000</color> <!-- Red for "Disconnected" -->
+</resources>
+```
+
+*res/layout/activity_main.xml*
+
+```xml
+<!-- res/layout/activity_main.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/connectionStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status: Disconnected"
+        android:textColor="@color/disconnected_color"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/barcodeDataText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Barcode Data: None"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/batteryPercentageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battery: N/A"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/chargingStatusText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Charging: Unknown"
+        android:textColor="@color/text_secondary"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/disconnectButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Disconnect"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/button_color"
+        android:layout_marginTop="16dp"/>
+</LinearLayout>
 ```
