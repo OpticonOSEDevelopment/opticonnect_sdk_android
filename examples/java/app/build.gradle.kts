@@ -40,10 +40,10 @@ android {
 }
 
 dependencies {
+    implementation(files("libs/opticonnectsdk.aar"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.activity:activity-ktx:1.9.3")
-    implementation(files("libs/opticonnectsdk.aar"))
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.rxkotlin)
     implementation(libs.rxandroidble)
 }

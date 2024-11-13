@@ -2,12 +2,14 @@
 agp = "8.7.2"
 kotlin = "2.0.20"
 coreKtx = "1.15.0"
+activityKtx = "1.9.3"
 lifecycleRuntimeKtx = "2.8.7"
 rxkotlin = "3.0.1"
 rxandroidble = "1.19.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 rxandroidble = { module = "com.polidea.rxandroidble3:rxandroidble", version.ref = "rxandroidble" }
 rxkotlin = { group = "io.reactivex.rxjava3", name = "rxkotlin", version.ref = "rxkotlin" }
@@ -16,4 +18,3 @@ rxkotlin = { group = "io.reactivex.rxjava3", name = "rxkotlin", version.ref = "r
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-
