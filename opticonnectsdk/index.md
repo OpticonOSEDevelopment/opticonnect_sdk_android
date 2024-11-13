@@ -380,25 +380,39 @@ package com.example.opticonnect_sdk_example_java;
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
 
 public class DeviceState {
+
+    // The ID of the currently connected BLE device, initially set to an empty string
     private String connectedDeviceId = "";
+
+    // The current connection state of the BLE device, initially set to DISCONNECTED
     private BleDeviceConnectionState connectionState = BleDeviceConnectionState.DISCONNECTED;
+
+    // Holds the most recent barcode data received from the connected device
     private String barcodeData = null;
+
+    // Stores the current battery percentage of the connected device, if available
     private Integer batteryPercentage = null;
+
+    // Indicates whether the connected device is currently charging, if available
     private Boolean isCharging = null;
 
-    // Simplified getters and setters
+    // Getter and setter for the connected device ID
     public String getConnectedDeviceId() { return connectedDeviceId; }
     public void setConnectedDeviceId(String id) { this.connectedDeviceId = id; }
 
+    // Getter and setter for the device connection state
     public BleDeviceConnectionState getConnectionState() { return connectionState; }
     public void setConnectionState(BleDeviceConnectionState state) { this.connectionState = state; }
 
+    // Getter and setter for barcode data
     public String getBarcodeData() { return barcodeData; }
     public void setBarcodeData(String data) { this.barcodeData = data; }
 
+    // Getter and setter for battery percentage
     public Integer getBatteryPercentage() { return batteryPercentage; }
     public void setBatteryPercentage(Integer percentage) { this.batteryPercentage = percentage; }
 
+    // Getter and setter for the charging status
     public Boolean getIsCharging() { return isCharging; }
     public void setIsCharging(Boolean isCharging) { this.isCharging = isCharging; }
 }
@@ -435,9 +449,13 @@ import kotlin.Unit;
 
 public class MainActivity extends ComponentActivity {
 
+    // Device state to hold the connection, battery, and barcode data information
     private DeviceState deviceState = new DeviceState();
+
+    // UI components to display device status, battery, barcode, and charging info
     private TextView connectionStatusText, barcodeDataText, batteryPercentageText, chargingStatusText;
 
+    // Launcher to request Bluetooth permissions as needed
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionsResult);
 
@@ -453,11 +471,18 @@ public class MainActivity extends ComponentActivity {
         chargingStatusText = findViewById(R.id.chargingStatusText);
         Button disconnectButton = findViewById(R.id.disconnectButton);
 
+        // Handle disconnect button click
         disconnectButton.setOnClickListener(view -> disconnectDevice());
 
+        // Check Bluetooth permissions before initializing SDK
         checkBluetoothPermissions();
     }
 
+    /**
+     * Checks if Bluetooth permissions are granted and requests them if necessary.
+     * For Android 12+ (API level 31), BLUETOOTH_SCAN and BLUETOOTH_CONNECT are required.
+     * For older versions, ACCESS_FINE_LOCATION is sufficient.
+     */
     private void checkBluetoothPermissions() {
         String[] permissions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 ? new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}
@@ -471,10 +496,15 @@ public class MainActivity extends ComponentActivity {
         if (permissionsGranted) {
             initializeOptiConnectAndStartDiscovery();
         } else {
+            // Launch permission request if not all permissions are granted
             requestPermissionsLauncher.launch(permissions);
         }
     }
 
+    /**
+     * Callback for the result of the permission request.
+     * Initializes SDK and starts Bluetooth discovery if permissions are granted.
+     */
     private void onPermissionsResult(@NonNull java.util.Map<String, Boolean> permissions) {
         if (permissions.containsValue(Boolean.FALSE)) {
             Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show();
@@ -483,10 +513,18 @@ public class MainActivity extends ComponentActivity {
         }
     }
 
+    /**
+     * Initializes the OptiConnect SDK and starts device discovery.
+     * Sets up a listener for discovered devices to initiate connection upon detection.
+     */
     private void initializeOptiConnectAndStartDiscovery() {
+        // Initialize SDK
         OptiConnect.INSTANCE.initialize(this);
+
+        // Start device discovery
         OptiConnect.INSTANCE.getBluetoothManager().startDiscovery();
 
+        // Listen for discovered devices
         OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
             @Override
             public void onSuccess(BleDiscoveredDevice device) {
@@ -505,6 +543,9 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    /**
+     * Initiates connection to a BLE device by device ID and sets up data listeners.
+     */
     private void connectToDevice(String deviceId) {
         OptiConnect.INSTANCE.getBluetoothManager().connect(deviceId, new Callback<>() {
             @Override
@@ -523,6 +564,9 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    /**
+     * Starts listening to device data streams (barcode, battery, and charging status).
+     */
     private void startListeningToDeviceData(String deviceId) {
         OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, new Callback<>() {
             @Override
@@ -564,6 +608,9 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    /**
+     * Listens to the device's connection state and updates the UI accordingly.
+     */
     private void listenToConnectionState(String deviceId) {
         OptiConnect.INSTANCE.getBluetoothManager().listenToConnectionState(deviceId, new Callback<>() {
             @Override
@@ -579,12 +626,18 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    /**
+     * Disconnects the device and resets the device state.
+     */
     private void disconnectDevice() {
         // Reset DeviceState and update UI
         deviceState = new DeviceState();
         updateUI();
     }
 
+    /**
+     * Updates the UI based on the current device state, including connection status, battery, and barcode data.
+     */
     private void updateUI() {
         connectionStatusText.setText("Status: " + deviceState.getConnectionState().name());
 
@@ -603,6 +656,7 @@ public class MainActivity extends ComponentActivity {
                 connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
         }
 
+        // Display barcode, battery percentage, and charging status
         barcodeDataText.setText("Barcode Data: " + (deviceState.getBarcodeData() != null ? deviceState.getBarcodeData() : "None"));
         batteryPercentageText.setText("Battery: " + (deviceState.getBatteryPercentage() != null ? deviceState.getBatteryPercentage() + "%" : "N/A"));
         chargingStatusText.setText("Charging: " + (deviceState.getIsCharging() != null ? (deviceState.getIsCharging() ? "Yes" : "No") : "Unknown"));
