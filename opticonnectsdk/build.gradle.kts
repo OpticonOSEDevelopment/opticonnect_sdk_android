@@ -45,8 +45,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     }
 }
 
-
-
 dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)

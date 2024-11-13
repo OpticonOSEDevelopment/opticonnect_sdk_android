@@ -23,11 +23,12 @@ At least one of the following Opticon BLE barcode scanners is required:
 
 ### 2. System Requirements
 - **Android Minimum SDK**: 26
-- **Java Version**: 11
-- **Kotlin Version**: 1.9.25 or higher
-- **Gradle Version**: 8.7.1 or higher    
+- **Java Version**: 11 or higher
+- **Kotlin Version**: 1.8.20 or higher
+- **Gradle Version**: 7.4 or higher   
+- **AGP (Android Gradle Plugin)**: 7.2.2 or higher 
 
-### 3. Building the .aar library
+### 3. Building the .aar library (optional)
 
 To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, follow these steps:
 
@@ -38,32 +39,55 @@ The generated `.aar` file will be located in `build/outputs/aar/`.
 
 ### 4. Adding the `.aar` library to your project
 
-1. Download or build the `.aar` file (`opticonnectsdk.aar`) as outlined in the previous section.
-2. Place the `.aar` file in your project’s `libs` directory (e.g., `app/libs/opticonnectsdk.aar`).
+The .aar file (`opticonnectsdk.aar`) is already provided in the following locations within the repository:
+
+The root libs directory
+Each example project’s libs directory
+You can simply link to any of these copies of `opticonnectsdk.aar` without needing to build it yourself. Follow these steps to integrate it into your project:
+
+You can simply link to any of these copies of `opticonnectsdk.aar` without needing to build it yourself. Follow these steps to integrate it into your project:
+
+1. Copy `opticonnectsdk.aar` to your project’s libs directory if it’s not already there.
+2. Add the .aar file to your dependencies in build.gradle(.kts) as explained in the following section.
 
 ### 5. Updating your `build.gradle(.kts)`
 
-Add the `.aar` file and required dependencies in your `build.gradle(.kts)` file under `dependencies`:
+Add the `.aar` file and required dependencies to your `build.gradle(.kts)` file under `dependencies`. Below is the recommended setup:
+
+#### Shared Dependencies for Java and Kotlin Projects
 
 ```kotlin
 dependencies {
     // Include the .aar file
     implementation(files("libs/opticonnectsdk.aar"))
 
-    // Core Android and Kotlin dependencies
+    // Core Android dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // Coroutines dependencies
-    implementation(libs.coroutines)
-    implementation(libs.coroutines.android)
-    implementation(libs.coroutines.rx3)
 
     // RxAndroidBLE and RxKotlin for BLE and reactive programming
     implementation(libs.rxandroidble)
     implementation(libs.rxkotlin)
 }
+
+#### Additional Kotlin Dependencies
+
+If using Kotlin, add the Coroutines libraries for asynchronous handling:
+
+```kotlin
+dependencies {
+    // Coroutines dependencies
+    implementation(libs.coroutines)
+    implementation(libs.coroutines.android)
+    implementation(libs.coroutines.rx3)
+}
 ```
+
+- Note: Java projects do not require Coroutines as they use callbacks instead of coroutines for asynchronous handling.
+
+#### Important: Kotlin Plugin Requirement for Java Projects
+
+The Kotlin plugin is necessary even for Java-based projects due to the Kotlin-based .aar library. This ensures compatibility with any Kotlin classes or extensions within the SDK.
 
 ### 6. Android Manifest Bluetooth Permissions
 
