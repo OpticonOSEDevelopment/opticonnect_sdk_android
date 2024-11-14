@@ -1,9 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.di
 
 import android.content.Context
-import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
-import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleConnectivityHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.BleDevicesDiscoverer
 import com.opticon.opticonnect.sdk.internal.services.ble.BlePermissionsChecker
@@ -12,7 +10,7 @@ import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
-import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
@@ -64,7 +62,6 @@ import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UKPle
 import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCAImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCE1Impl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific.UPCEImpl
-import com.opticon.opticonnect.sdk.internal.services.ble.BluetoothManagerImpl
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler

@@ -6,7 +6,7 @@ import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
-import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent

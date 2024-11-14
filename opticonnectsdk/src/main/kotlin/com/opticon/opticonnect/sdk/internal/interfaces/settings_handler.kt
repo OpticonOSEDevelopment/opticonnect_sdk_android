@@ -1,11 +1,11 @@
-package com.opticon.opticonnect.sdk.api.interfaces
+package com.opticon.opticonnect.sdk.internal.interfaces
 
 import android.content.Context
 
 /**
  * Interface that defines methods for handling scanner settings.
  */
-interface SettingsHandler {
+internal interface SettingsHandler {
 
     /**
      * Initializes the scanner settings handler.

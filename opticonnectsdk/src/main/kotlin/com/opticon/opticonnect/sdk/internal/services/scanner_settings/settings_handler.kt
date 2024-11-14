@@ -2,7 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
 import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.opticon.opticonnect.sdk.api.interfaces.SettingsHandler
+import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseTablesHelper
