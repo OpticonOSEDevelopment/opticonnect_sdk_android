@@ -1,12 +1,11 @@
 package com.opticon.opticonnect.sdk.internal.services.ble
 
 import android.content.Context
-import android.os.ParcelUuid
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ConnectionPool
+import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants.OPC_SERVICE_UUID
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants.SCANNER_SERVICE_UUID
 import com.polidea.rxandroidble3.RxBleClient
-import com.polidea.rxandroidble3.scan.ScanFilter
 import com.polidea.rxandroidble3.scan.ScanResult
 import com.polidea.rxandroidble3.scan.ScanSettings
 import io.reactivex.rxjava3.disposables.Disposable
@@ -21,6 +20,7 @@ import java.io.Closeable
 import java.util.Date
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.util.UUID
 
 @Singleton
 internal class BleDevicesDiscoverer @Inject constructor(
@@ -43,15 +43,11 @@ internal class BleDevicesDiscoverer @Inject constructor(
                 bleClient = RxBleClient.create(context)
             }
 
-            val scanFilter = ScanFilter.Builder()
-                .setServiceUuid(ParcelUuid(SCANNER_SERVICE_UUID)) // Add the OPC Service UUID to the filter supported scanners
-                .build()
             // Start BLE scan using RxAndroidBle's scanning mechanism
             scanDisposable = bleClient?.scanBleDevices(
                 ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)  // Battery efficient scanning mode
-                    .build(),
-                scanFilter
+                    .build()
             )?.doOnError { throwable ->
                 // Handle or log the specific error gracefully
                 if (throwable is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
@@ -63,7 +59,9 @@ internal class BleDevicesDiscoverer @Inject constructor(
             }?.subscribe(
                 { result ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        onScanResult(result)
+                        if (hasRequiredServiceUUID(result, SCANNER_SERVICE_UUID, OPC_SERVICE_UUID)) {
+                            onScanResult(result)
+                        }
                     }
                 },  // Handle successful scan result
                 { throwable ->
@@ -75,6 +73,11 @@ internal class BleDevicesDiscoverer @Inject constructor(
             isScanning = true
             Timber.i("Started BLE device discovery.")
         }
+    }
+
+    private fun hasRequiredServiceUUID(result: ScanResult, vararg uuids: UUID): Boolean {
+        val serviceUuids = result.scanRecord?.serviceUuids ?: return false
+        return serviceUuids.any { parcelUuid -> uuids.contains(parcelUuid.uuid) }
     }
 
     private suspend fun onScanResult(result: ScanResult) {
