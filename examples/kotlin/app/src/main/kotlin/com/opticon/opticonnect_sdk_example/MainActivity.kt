@@ -81,7 +81,7 @@ class MainActivity : ComponentActivity() {
             OptiConnect.bluetoothManager.startDiscovery()
             lifecycleScope.launch {
                 // Collects discovered devices and connects if disconnected
-                OptiConnect.bluetoothManager.listenToDiscoveredDevices.collect { device ->
+                OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { device ->
                     if (deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
                         deviceState = deviceState.copy(
                             connectedDeviceId = device.deviceId,
