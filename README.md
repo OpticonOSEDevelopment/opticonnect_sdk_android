@@ -112,6 +112,16 @@ The host app must request runtime permissions before discovery or connection:
 
 ## Common Usage
 
+### Listen To Barcode Data
+
+```kotlin
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.listenToBarcodeData(deviceId).collect { barcode ->
+        Log.d("OptiConnect", barcode.data)
+    }
+}
+```
+
 ### Listen To Connection State
 
 ```kotlin
