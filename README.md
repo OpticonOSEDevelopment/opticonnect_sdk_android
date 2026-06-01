@@ -2,9 +2,9 @@
 
 OptiConnect SDK enables seamless integration with [Opticon](https://opticon.com/)'s BLE [OPN-2500](https://opticon.com/product/opn-2500/) and [OPN-6000](https://opticon.com/product/opn-6000/) barcode scanners. This SDK allows you to manage Bluetooth Low Energy (BLE) connections, handle scanner data streams, and programmatically control scanner settings via commands.
 
-## Documentation
+## [OptiConnect SDK Documentation](https://opticonosedevelopment.github.io/opticonnect_sdk_android/)
 
-For comprehensive information on the SDK setup, usage, and API reference, please visit the [OptiConnect SDK Documentation](https://opticonosedevelopment.github.io/opticonnect_sdk_android/).
+For full setup details, usage notes, and API reference, visit the [OptiConnect SDK Documentation](https://opticonosedevelopment.github.io/opticonnect_sdk_android/).
 
 ## Features
 
@@ -14,713 +14,169 @@ For comprehensive information on the SDK setup, usage, and API reference, please
 - Exclusive connection management: Ensure stable device pairing in multi-device environments by assigning unique connection pool IDs, preventing previously paired devices from hijacking active connections.
 - Command management and customization for BLE services and scanner configurations.
 
-## Getting Started
+## Quick Start
 
-### 1. Prerequisites
+This is the shortest path from adding the SDK to receiving barcode data:
 
-At least one of the following Opticon BLE barcode scanners is required:
+1. Add the AAR.
+2. Add the required dependencies.
+3. Add Bluetooth permissions.
+4. Request runtime permissions in your app.
+5. Initialize `OptiConnect`.
+6. Start discovery.
+7. Connect to a scanner.
+8. Listen for barcode data.
 
-| OPN-2500                                                                                       | OPN-6000                                                                                       |
-|------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------|
-| [![OPN-2500](opticonnectsdk/build/dokka/html/images/OPN-2500.png)](https://opticon.com/product/opn-2500/) | [![OPN-6000](opticonnectsdk/build/dokka/html/images/OPN-6000.png)](https://opticon.com/product/opn-6000/) |
-| [OPN-2500](https://opticon.com/product/opn-2500/)                                              | [OPN-6000](https://opticon.com/product/opn-6000/)                                              |
+```kotlin
+import kotlinx.coroutines.flow.first
 
-### 2. System Requirements
-- **Android Minimum SDK**: 26
-- **Compile SDK**: 36
-- **Android Build Tools**: 36.0.0
-- **JDK Version for building**: 17
-- **Gradle Wrapper**: 8.13
-- **Kotlin/AGP**: use the versions pinned in `gradle/libs.versions.toml`
-- **Runtime target**: apps can support Android 8.0+ as long as `minSdk` stays at 26 or lower APIs are explicitly tested
+OptiConnect.initialize(context)
+OptiConnect.bluetoothManager.startDiscovery()
 
-### 3. Building the opticonnect .aar library (optional)
+lifecycleScope.launch {
+    val device = OptiConnect.bluetoothManager.listenToDiscoveredDevices.first()
 
-To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, run:
+    OptiConnect.bluetoothManager.connect(device.deviceId)
 
-```bash
-./gradlew :opticonnectsdk:bundleShadowedReleaseAar
+    OptiConnect.bluetoothManager.listenToBarcodeData(device.deviceId).collect { barcode ->
+        Log.d("OptiConnect", barcode.data)
+    }
+}
 ```
 
-On Windows, run the same task with:
+For production code, handle runtime permissions, connection state, disconnects, and coroutine lifecycle cancellation. See the complete examples below.
 
-```powershell
-.\gradlew.bat :opticonnectsdk:bundleShadowedReleaseAar
-```
+## Installation
 
-This task builds the SDK, creates the relocated `classes.jar`, and packages the final AAR.
-The generated file will be located at `opticonnectsdk/build/outputs/aar/opticonnectsdk.aar`.
+### 1. Requirements
 
-The shaded AAR intentionally relocates SDK-internal dependencies such as Room, Dagger, SQLite, and Timber to reduce conflicts with the host app. External runtime/API dependencies such as Kotlin, coroutines, RxAndroidBLE, and RxKotlin should remain normal app dependencies so the host app can control those versions.
+- One supported scanner: [OPN-2500](https://opticon.com/product/opn-2500/) or [OPN-6000](https://opticon.com/product/opn-6000/)
+- Android minimum SDK: 26
+- Compile SDK: 36
+- Android Build Tools: 36.0.0
+- JDK for building: 17
+- Gradle Wrapper: 8.13
+- Kotlin/AGP: use the versions pinned in `gradle/libs.versions.toml`
 
-### 4. Adding the `.aar` library to your project
+### 2. Add the AAR
 
-The .aar file (`opticonnectsdk.aar`) is provided at the [following location](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/libs). The library is already included in both the Kotlin and Java examples in their libs directories. To integrate the library into your own project, perform the following steps:
+Copy [`libs/opticonnectsdk.aar`](libs/opticonnectsdk.aar) into your app module's `libs` directory.
 
-1. Copy `opticonnectsdk.aar` to your project’s libs directory if it’s not already there.
-2. Add the .aar file to your dependencies in build.gradle(.kts) as explained in the following section.
+The Kotlin and Java sample apps already include the AAR:
 
-### 5. Updating your `build.gradle(.kts)`
+- [`examples/kotlin/app/libs/opticonnectsdk.aar`](examples/kotlin/app/libs/opticonnectsdk.aar)
+- [`examples/java/app/libs/opticonnectsdk.aar`](examples/java/app/libs/opticonnectsdk.aar)
 
-Add the `.aar` file and required dependencies to your `build.gradle(.kts)` file under `dependencies`. Below is the recommended setup:
+### 3. Add Dependencies
 
-#### Shared Dependencies for Java and Kotlin Projects
+Add the AAR and required external dependencies to your app module `build.gradle(.kts)`:
 
 ```kotlin
 dependencies {
-    // Include the .aar file
     implementation(files("libs/opticonnectsdk.aar"))
 
-    // Required external dependencies not bundled into the shaded AAR
     implementation("androidx.core:core:1.17.0")
     implementation("com.polidea.rxandroidble3:rxandroidble:1.19.1")
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
 
-    // Required by the SDK runtime and Kotlin Flow-based APIs
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.11.0")
 }
 ```
 
-Java projects can use the callback APIs, but the app should still include the coroutine dependencies because the SDK runtime and public API use coroutines internally.
+Java projects can use the callback APIs, but still need the Kotlin plugin and coroutine dependencies because the SDK is Kotlin-based internally.
 
-#### Important: Kotlin Plugin Requirement for Java Projects
+### 4. Add Bluetooth Permissions
 
-The Kotlin plugin is necessary even for Java-based projects due to the Kotlin-based .aar library. This ensures compatibility with any Kotlin classes or extensions within the SDK.
-
-### 6. Android Manifest Bluetooth Permissions
-
-To enable Bluetooth discovery and connection on Android, add the following permissions to your AndroidManifest.xml file located at android/app/src/main/AndroidManifest.xml below the manifest entry:
+Add these permissions to `AndroidManifest.xml`:
 
 ```xml
 <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
-<!-- Android 12+ Bluetooth permissions. Use neverForLocation only if scan results are not used to derive physical location. -->
 <uses-permission
     android:name="android.permission.BLUETOOTH_SCAN"
     android:usesPermissionFlags="neverForLocation" />
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-<!-- Legacy permissions for Android 11 or lower -->
 <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
 <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
-
-<!-- Legacy permission for Android 9 or lower -->
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
-The host app is responsible for requesting the required runtime permissions before starting discovery or connecting to a scanner. The SDK handles the scanner protocol and BLE connection flow, but it does not show permission prompts on behalf of the app.
+The host app must request runtime permissions before discovery or connection:
 
-At runtime, request `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT` on Android 12+ (API 31+). On Android 11 and lower, request `ACCESS_FINE_LOCATION` before scanning.
+- Android 12+ / API 31+: `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT`
+- Android 11 and lower: `ACCESS_FINE_LOCATION`
+
+## Common Usage
+
+### Listen To Connection State
+
+```kotlin
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.listenToConnectionState(deviceId).collect { state ->
+        Log.d("OptiConnect", "Device $deviceId state: $state")
+    }
+}
+```
+
+### Listen To Battery Data
+
+```kotlin
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.listenToBatteryPercentage(deviceId).collect { battery ->
+        Log.d("OptiConnect", "Battery: $battery%")
+    }
+}
+
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.listenToBatteryStatus(deviceId).collect { status ->
+        Log.d("OptiConnect", "Charging: ${status.isCharging}")
+    }
+}
+```
+
+### Disconnect And Close
+
+```kotlin
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.disconnect(deviceId)
+}
+
+override fun onDestroy() {
+    super.onDestroy()
+    OptiConnect.close()
+}
+```
 
 ## Examples
 
-These examples demonstrate how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000 in both Kotlin and Java.
+Complete working apps are available in:
 
-#### Main Components in the Example
-- **DeviceState**: A data class managing the state of the connected BLE scanner, including device ID, connection state, barcode data, battery percentage, and charging status.
-- **MainActivity**:  The main activity for setting up the SDK, handling Bluetooth permissions, discovering devices, managing connection and disconnection events, and starting listeners for barcode data and battery updates.
-#### User Interfaces
-- **Kotlin (Compose)**: `ConnectionStatusScreen` displays the connection status, barcode data, battery level, and charging state in a simple Compose layout.
-- **Java (XML Layout)**: `activity_main.xml` provides a similar UI using TextView components to display the connection status, barcode data, battery level, and charging state, along with a "Disconnect" button.
+- [Kotlin example app](examples/kotlin)
+- [Java example app](examples/java)
+- [Kotlin MainActivity.kt](examples/kotlin/app/src/main/kotlin/com/opticon/opticonnect_sdk_example/MainActivity.kt)
+- [Java MainActivity.java](examples/java/app/src/main/java/com/example/opticonnect_sdk_example_java/MainActivity.java)
+- [Java activity_main.xml](examples/java/app/src/main/res/layout/activity_main.xml)
 
-### Kotlin Example
+The examples show Bluetooth permission handling, discovery, connection and disconnection, barcode data, battery percentage, charging status, and UI updates.
 
-This example demonstrates how to integrate the OptiConnect SDK using Kotlin. It is available in [examples/kotlin](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin).
+## Build The SDK AAR
 
-*MainActivity.kt*
+This step is only needed when building the SDK from source.
 
-```kt
-package com.opticon.opticonnect_sdk_example
-
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import com.opticon.opticonnect.sdk.api.OptiConnect
-import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
-import com.opticon.opticonnect_sdk_example.ui.theme.Opticonnect_SDK_ExampleTheme
-import kotlinx.coroutines.launch
-
-// Holds device-specific connection and data state
-data class DeviceState(
-    val connectedDeviceId: String = "",
-    val connectionState: BleDeviceConnectionState = BleDeviceConnectionState.DISCONNECTED,
-    val barcodeData: String? = null,
-    val batteryPercentage: Int? = null,
-    val isCharging: Boolean? = null
-)
-
-class MainActivity : ComponentActivity() {
-    private var deviceState by mutableStateOf(DeviceState())
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent { MainScreen() }
-        checkBluetoothPermissions()
-    }
-
-    // Sets up the main UI screen
-    @Composable
-    private fun MainScreen() {
-        Opticonnect_SDK_ExampleTheme {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                ConnectionStatusScreen(deviceState) { disconnectDevice(it) }
-            }
-        }
-    }
-
-    // Checks for required Bluetooth permissions and requests them if not granted
-    private fun checkBluetoothPermissions() {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            listOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
-        } else listOf(Manifest.permission.ACCESS_FINE_LOCATION)
-
-        val toRequest = permissions.filter {
-            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-        }
-
-        if (toRequest.isNotEmpty()) {
-            requestPermissionsLauncher.launch(toRequest.toTypedArray())
-        } else initializeOptiConnectAndStartDiscovery()
-    }
-
-    // Launcher for permission requests
-    private val requestPermissionsLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        if (permissions.all { it.value }) initializeOptiConnectAndStartDiscovery()
-        else Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show()
-    }
-
-    // Initializes OptiConnect SDK and starts device discovery
-    private fun initializeOptiConnectAndStartDiscovery() {
-        OptiConnect.initialize(this).apply {
-            OptiConnect.bluetoothManager.startDiscovery()
-            lifecycleScope.launch {
-                // Collects discovered devices and connects if disconnected
-                OptiConnect.bluetoothManager.listenToDiscoveredDevices.collect { device ->
-                    if (deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
-                        deviceState = deviceState.copy(
-                            connectedDeviceId = device.deviceId,
-                            connectionState = BleDeviceConnectionState.CONNECTING
-                        )
-                        connectToDevice(device.deviceId)
-                    }
-                }
-            }
-        }
-    }
-
-    // Connects to the discovered device
-    private fun connectToDevice(deviceId: String) {
-        lifecycleScope.launch {
-            OptiConnect.bluetoothManager.apply {
-                try {
-                    // Initiates the connection and listens to connection state
-                    connect(deviceId)
-                    startListeningToDeviceData(deviceId)
-
-                    listenToConnectionState(deviceId).collect { state ->
-                        deviceState = deviceState.copy(
-                            connectionState = state,
-                            connectedDeviceId = if (state == BleDeviceConnectionState.CONNECTED) deviceId else ""
-                        )
-
-                        Log.d("OptiConnect", "Device $deviceId state changed to: $state")
-
-                        if (state == BleDeviceConnectionState.DISCONNECTED) {
-                            deviceState = DeviceState() // Reset state on disconnect
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Handle connection failure and reset device state
-                    Toast.makeText(this@MainActivity, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
-                    deviceState = DeviceState()
-                }
-            }
-        }
-    }
-
-    // Listens to data from the connected device (barcode, battery, charging status)
-    private fun startListeningToDeviceData(deviceId: String) {
-        lifecycleScope.launch {
-            OptiConnect.bluetoothManager.listenToBarcodeData(deviceId).collect { barcode ->
-                deviceState = deviceState.copy(barcodeData = barcode.data)
-            }
-        }
-
-        lifecycleScope.launch {
-            OptiConnect.bluetoothManager.listenToBatteryPercentage(deviceId).collect { battery ->
-                deviceState = deviceState.copy(batteryPercentage = battery)
-            }
-        }
-
-        lifecycleScope.launch {
-            OptiConnect.bluetoothManager.listenToBatteryStatus(deviceId).collect { status ->
-                deviceState = deviceState.copy(isCharging = status.isCharging)
-            }
-        }
-    }
-
-    // Disconnects from the device and resets the state
-    private fun disconnectDevice(deviceId: String) {
-        lifecycleScope.launch {
-            OptiConnect.bluetoothManager.disconnect(deviceId)
-            deviceState = DeviceState()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        OptiConnect.close()
-    }
-	
-}
-
-// UI for showing the connection status and device data
- @Composable
-fun ConnectionStatusScreen(
-    connectionState: DeviceState,
-    onDisconnect: (String) -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize()
-        ) {
-            when (connectionState.connectionState) {
-                BleDeviceConnectionState.CONNECTING -> {
-                    Text(
-                        text = "Connecting to device...",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(top = 16.dp)
-                    )
-                }
-                BleDeviceConnectionState.CONNECTED -> {
-                    Text(
-                        text = "Connected to device: ${connectionState.connectedDeviceId}",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    Text(
-                        text = "Barcode Data: ${connectionState.barcodeData ?: "No barcode scanned yet."}"
-                    )
-                    Text(
-                        text = "Battery: ${connectionState.batteryPercentage ?: "N/A"}%"
-                    )
-                    Text(
-                        text = "Charging: ${if (connectionState.isCharging == true) "Yes" else "No"}"
-                    )
-                    Button(
-                        onClick = { onDisconnect(connectionState.connectedDeviceId) },
-                        modifier = Modifier.padding(top = 16.dp)
-                    ) {
-                        Text("Disconnect")
-                    }
-                }
-                BleDeviceConnectionState.DISCONNECTED -> {
-                    Text(
-                        text = "Searching for devices...",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-                BleDeviceConnectionState.DISCONNECTING -> {
-                    Text(
-                        text = "Disconnecting from device...",
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                }
-            }
-        }
-    }
-}
+```bash
+./gradlew :opticonnectsdk:bundleShadowedReleaseAar
 ```
 
-### Java Example
+On Windows:
 
-This example demonstrates how to integrate the OptiConnect SDK using Java. It is available in [examples/java](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/java).
-
-*DeviceState.java*
-
-```java
-package com.example.opticonnect_sdk_example_java;
-
-import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
-
-public class DeviceState {
-
-    // The ID of the currently connected BLE device, initially set to an empty string
-    private String connectedDeviceId = "";
-
-    // The current connection state of the BLE device, initially set to DISCONNECTED
-    private BleDeviceConnectionState connectionState = BleDeviceConnectionState.DISCONNECTED;
-
-    // Holds the most recent barcode data received from the connected device
-    private String barcodeData = null;
-
-    // Stores the current battery percentage of the connected device, if available
-    private Integer batteryPercentage = null;
-
-    // Indicates whether the connected device is currently charging, if available
-    private Boolean isCharging = null;
-
-    // Getter and setter for the connected device ID
-    public String getConnectedDeviceId() { return connectedDeviceId; }
-    public void setConnectedDeviceId(String id) { this.connectedDeviceId = id; }
-
-    // Getter and setter for the device connection state
-    public BleDeviceConnectionState getConnectionState() { return connectionState; }
-    public void setConnectionState(BleDeviceConnectionState state) { this.connectionState = state; }
-
-    // Getter and setter for barcode data
-    public String getBarcodeData() { return barcodeData; }
-    public void setBarcodeData(String data) { this.barcodeData = data; }
-
-    // Getter and setter for battery percentage
-    public Integer getBatteryPercentage() { return batteryPercentage; }
-    public void setBatteryPercentage(Integer percentage) { this.batteryPercentage = percentage; }
-
-    // Getter and setter for the charging status
-    public Boolean getIsCharging() { return isCharging; }
-    public void setIsCharging(Boolean isCharging) { this.isCharging = isCharging; }
-}
+```powershell
+.\gradlew.bat :opticonnectsdk:bundleShadowedReleaseAar
 ```
 
-*MainActivity.java*
+The generated AAR is written to `opticonnectsdk/build/outputs/aar/opticonnectsdk.aar`.
 
-```java
-package com.example.opticonnect_sdk_example_java;
-
-import android.Manifest;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.activity.ComponentActivity;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
-import com.opticon.opticonnect.sdk.api.OptiConnect;
-import com.opticon.opticonnect.sdk.api.entities.BarcodeData;
-import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus;
-import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice;
-import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
-import com.opticon.opticonnect.sdk.api.interfaces.Callback;
-
-import kotlin.Unit;
-
-public class MainActivity extends ComponentActivity {
-
-    // Device state to hold the connection, battery, and barcode data information
-    private DeviceState deviceState = new DeviceState();
-
-    // UI components to display device status, battery, barcode, and charging info
-    private TextView connectionStatusText, barcodeDataText, batteryPercentageText, chargingStatusText;
-
-    // Launcher to request Bluetooth permissions as needed
-    private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionsResult);
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Bind UI elements
-        connectionStatusText = findViewById(R.id.connectionStatusText);
-        barcodeDataText = findViewById(R.id.barcodeDataText);
-        batteryPercentageText = findViewById(R.id.batteryPercentageText);
-        chargingStatusText = findViewById(R.id.chargingStatusText);
-        Button disconnectButton = findViewById(R.id.disconnectButton);
-
-        // Handle disconnect button click
-        disconnectButton.setOnClickListener(view -> disconnectDevice());
-
-        // Check Bluetooth permissions before initializing SDK
-        checkBluetoothPermissions();
-    }
-
-    /**
-     * Checks if Bluetooth permissions are granted and requests them if necessary.
-     * For Android 12+ (API level 31), BLUETOOTH_SCAN and BLUETOOTH_CONNECT are required.
-     * For older versions, ACCESS_FINE_LOCATION is sufficient.
-     */
-    private void checkBluetoothPermissions() {
-        String[] permissions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-                ? new String[]{Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT}
-                : new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
-
-        boolean permissionsGranted = true;
-        for (String permission : permissions) {
-            permissionsGranted &= ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
-        }
-
-        if (permissionsGranted) {
-            initializeOptiConnectAndStartDiscovery();
-        } else {
-            // Launch permission request if not all permissions are granted
-            requestPermissionsLauncher.launch(permissions);
-        }
-    }
-
-    /**
-     * Callback for the result of the permission request.
-     * Initializes SDK and starts Bluetooth discovery if permissions are granted.
-     */
-    private void onPermissionsResult(@NonNull java.util.Map<String, Boolean> permissions) {
-        if (permissions.containsValue(Boolean.FALSE)) {
-            Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show();
-        } else {
-            initializeOptiConnectAndStartDiscovery();
-        }
-    }
-
-    /**
-     * Initializes the OptiConnect SDK and starts device discovery.
-     * Sets up a listener for discovered devices to initiate connection upon detection.
-     */
-    private void initializeOptiConnectAndStartDiscovery() {
-        // Initialize SDK
-        OptiConnect.INSTANCE.initialize(this);
-
-        // Start device discovery
-        OptiConnect.INSTANCE.getBluetoothManager().startDiscovery();
-
-        // Listen for discovered devices
-        OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
-            @Override
-            public void onSuccess(BleDiscoveredDevice device) {
-                if (deviceState.getConnectionState() == BleDeviceConnectionState.DISCONNECTED) {
-                    deviceState.setConnectedDeviceId(device.getDeviceId());
-                    deviceState.setConnectionState(BleDeviceConnectionState.CONNECTING);
-                    updateUI();
-                    connectToDevice(device.getDeviceId());
-                }
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Log.e("OptiConnect", "Error discovering devices: " + error.getMessage());
-            }
-        });
-    }
-
-    /**
-     * Initiates connection to a BLE device by device ID and sets up data listeners.
-     */
-    private void connectToDevice(String deviceId) {
-        OptiConnect.INSTANCE.getBluetoothManager().connect(deviceId, new Callback<>() {
-            @Override
-            public void onSuccess(Unit result) {
-                deviceState.setConnectionState(BleDeviceConnectionState.CONNECTED);
-                updateUI();
-                startListeningToDeviceData(deviceId);
-                listenToConnectionState(deviceId);
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Toast.makeText(MainActivity.this, "Failed to connect: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                deviceState = new DeviceState();
-            }
-        });
-    }
-
-    /**
-     * Starts listening to device data streams (barcode, battery, and charging status).
-     */
-    private void startListeningToDeviceData(String deviceId) {
-        OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, new Callback<>() {
-            @Override
-            public void onSuccess(BarcodeData barcode) {
-                deviceState.setBarcodeData(barcode.getData());
-                updateUI();
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Log.e("OptiConnect", "Error receiving barcode data: " + error.getMessage());
-            }
-        });
-
-        OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryPercentage(deviceId, new Callback<>() {
-            @Override
-            public void onSuccess(Integer batteryPercentage) {
-                deviceState.setBatteryPercentage(batteryPercentage);
-                updateUI();
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Log.e("OptiConnect", "Error receiving battery percentage: " + error.getMessage());
-            }
-        });
-
-        OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryStatus(deviceId, new Callback<>() {
-            @Override
-            public void onSuccess(BatteryLevelStatus status) {
-                deviceState.setIsCharging(status.isCharging());
-                updateUI();
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Log.e("OptiConnect", "Error receiving battery status: " + error.getMessage());
-            }
-        });
-    }
-
-    /**
-     * Listens to the device's connection state and updates the UI accordingly.
-     */
-    private void listenToConnectionState(String deviceId) {
-        OptiConnect.INSTANCE.getBluetoothManager().listenToConnectionState(deviceId, new Callback<>() {
-            @Override
-            public void onSuccess(BleDeviceConnectionState state) {
-                deviceState.setConnectionState(state);
-                updateUI();
-            }
-
-            @Override
-            public void onError(@NonNull Throwable error) {
-                Log.e("OptiConnect", "Error receiving connection state: " + error.getMessage());
-            }
-        });
-    }
-
-    /**
-     * Disconnects the device and resets the device state.
-     */
-    private void disconnectDevice() {
-        // Reset DeviceState and update UI
-        deviceState = new DeviceState();
-        updateUI();
-    }
-
-    /**
-     * Updates the UI based on the current device state, including connection status, battery, and barcode data.
-     */
-    private void updateUI() {
-        connectionStatusText.setText("Status: " + deviceState.getConnectionState().name());
-
-        // Set color based on connection state
-        switch (deviceState.getConnectionState()) {
-            case CONNECTING:
-                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.connecting_color));
-                break;
-            case CONNECTED:
-                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.connected_color));
-                break;
-            case DISCONNECTED:
-                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.disconnected_color));
-                break;
-            default:
-                connectionStatusText.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
-        }
-
-        // Display barcode, battery percentage, and charging status
-        barcodeDataText.setText("Barcode Data: " + (deviceState.getBarcodeData() != null ? deviceState.getBarcodeData() : "None"));
-        batteryPercentageText.setText("Battery: " + (deviceState.getBatteryPercentage() != null ? deviceState.getBatteryPercentage() + "%" : "N/A"));
-        chargingStatusText.setText("Charging: " + (deviceState.getIsCharging() != null ? (deviceState.getIsCharging() ? "Yes" : "No") : "Unknown"));
-    }
-}
-```
-
-*res/values/colors.xml*
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <color name="background_color">#FFFFFF</color> <!-- White background -->
-    <color name="text_primary">#000000</color>     <!-- Black primary text -->
-    <color name="text_secondary">#666666</color>   <!-- Gray secondary text -->
-    <color name="button_color">#6200EE</color>     <!-- Purple button color -->
-    <color name="connecting_color">#FFA500</color> <!-- Orange for "Connecting" -->
-    <color name="connected_color">#00FF00</color>  <!-- Green for "Connected" -->
-    <color name="disconnected_color">#FF0000</color> <!-- Red for "Disconnected" -->
-</resources>
-```
-
-*res/layout/activity_main.xml*
-
-```xml
-<!-- res/layout/activity_main.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_color"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/connectionStatusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Status: Disconnected"
-        android:textColor="@color/disconnected_color"
-        android:textSize="18sp"/>
-
-    <TextView
-        android:id="@+id/barcodeDataText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Barcode Data: None"
-        android:textColor="@color/text_primary"
-        android:textSize="16sp"/>
-
-    <TextView
-        android:id="@+id/batteryPercentageText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Battery: N/A"
-        android:textColor="@color/text_secondary"
-        android:textSize="16sp"/>
-
-    <TextView
-        android:id="@+id/chargingStatusText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Charging: Unknown"
-        android:textColor="@color/text_secondary"
-        android:textSize="16sp"/>
-
-    <Button
-        android:id="@+id/disconnectButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Disconnect"
-        android:textColor="@android:color/white"
-        android:backgroundTint="@color/button_color"
-        android:layout_marginTop="16dp"/>
-</LinearLayout>
-```
+The shaded AAR relocates SDK-internal dependencies such as Room, Dagger, SQLite, and Timber to reduce conflicts with the host app. External runtime/API dependencies such as Kotlin, coroutines, RxAndroidBLE, and RxKotlin remain normal app dependencies so the host app can control those versions.
