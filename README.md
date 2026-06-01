@@ -96,20 +96,24 @@ To enable Bluetooth discovery and connection on Android, add the following permi
 ```xml
 <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />
 
-<!-- New Bluetooth permissions for Android 12 or higher -->
-<uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+<!-- Android 12+ Bluetooth permissions. Use neverForLocation only if scan results are not used to derive physical location. -->
+<uses-permission
+    android:name="android.permission.BLUETOOTH_SCAN"
+    android:usesPermissionFlags="neverForLocation" />
 <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
 <!-- Legacy permissions for Android 11 or lower -->
 <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
 
 <!-- Legacy permission for Android 9 or lower -->
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
 The host app is responsible for requesting the required runtime permissions before starting discovery or connecting to a scanner. The SDK handles the scanner protocol and BLE connection flow, but it does not show permission prompts on behalf of the app.
+
+At runtime, request `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT` on Android 12+ (API 31+). On Android 11 and lower, request `ACCESS_FINE_LOCATION` before scanning.
 
 ## Examples
 
@@ -128,7 +132,7 @@ This example demonstrates how to integrate the OptiConnect SDK using Kotlin. It 
 
 *MainActivity.kt*
 
-```text
+```kt
 package com.opticon.opticonnect_sdk_example
 
 import android.Manifest

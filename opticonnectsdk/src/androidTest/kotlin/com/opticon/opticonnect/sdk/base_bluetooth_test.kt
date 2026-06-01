@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk
 
 import android.Manifest
+import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import com.opticon.opticonnect.sdk.api.OptiConnect
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
@@ -31,15 +32,18 @@ abstract class BaseBluetoothTest {
         @JvmStatic
         fun globalSetup() {
             val instrumentation = InstrumentationRegistry.getInstrumentation()
-            instrumentation.uiAutomation.executeShellCommand(
-                "pm grant ${instrumentation.targetContext.packageName} ${Manifest.permission.BLUETOOTH_SCAN}"
-            ).close()
-            instrumentation.uiAutomation.executeShellCommand(
-                "pm grant ${instrumentation.targetContext.packageName} ${Manifest.permission.BLUETOOTH_CONNECT}"
-            ).close()
-            instrumentation.uiAutomation.executeShellCommand(
-                "pm grant ${instrumentation.targetContext.packageName} ${Manifest.permission.ACCESS_FINE_LOCATION}"
-            ).close()
+            val packageName = instrumentation.targetContext.packageName
+            val runtimePermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                listOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
+            } else {
+                listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
+
+            runtimePermissions.forEach { permission ->
+                instrumentation.uiAutomation.executeShellCommand(
+                    "pm grant $packageName $permission"
+                ).close()
+            }
 
             context = instrumentation.targetContext
             OptiConnect.initialize(context)
