@@ -27,6 +27,9 @@ signing/
 !gradle/wrapper/
 !gradle/wrapper/gradle-wrapper.properties
 !gradle/wrapper/gradle-wrapper.jar
+!**/gradle/wrapper/
+!**/gradle/wrapper/gradle-wrapper.properties
+!**/gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ IDEA
 *.iml

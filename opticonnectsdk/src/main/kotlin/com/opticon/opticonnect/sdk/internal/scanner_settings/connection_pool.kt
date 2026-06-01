@@ -8,6 +8,7 @@ import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,7 +18,7 @@ internal class ConnectionPoolImpl @Inject constructor(
 ) : ConnectionPool, SettingsBase() {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private val connectionPoolIds = mutableMapOf<String, String>()
+    private val connectionPoolIds = ConcurrentHashMap<String, String>()
     private val reservedHexIds = listOf("0001", "0002", "0003", "30F4", "46F9", "9BE5")
 
     private fun validateId(id: String): CommandResponse {

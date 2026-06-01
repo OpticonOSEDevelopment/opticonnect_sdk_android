@@ -180,16 +180,35 @@ internal class BatteryListener(
     }
 
     private fun parseBatteryLevelStatus(data: ByteArray): BatteryLevelStatus {
-        val powerState = (data[1].toInt() shl 8) or data[2].toInt()
+        if (data.size < 3) {
+            Timber.w("Battery level status too short for device: $deviceId, data: ${data.joinToString(",")}")
+            return latestBatteryStatus
+        }
 
-        return BatteryLevelStatus(
+        val flags = data[0].toInt() and 0xFF
+        val powerState = (data[1].toInt() and 0xFF) or ((data[2].toInt() and 0xFF) shl 8)
+
+        val status = BatteryLevelStatus(
             isBatteryPresent = (powerState and BatteryLevelStatusFlags.BLE_BAS_BATTERY_PRESENT_FLAG) != 0,
             isWirelessCharging = (powerState and BatteryLevelStatusFlags.BLE_BAS_WIRELESS_CHARGING_FLAG) != 0,
             isWiredCharging = (powerState and BatteryLevelStatusFlags.BLE_BAS_WIRED_CHARGING_FLAG) != 0,
             isCharging = (powerState and BatteryLevelStatusFlags.BLE_BAS_IS_CHARGING_FLAG) != 0,
             isBatteryFaulty = (powerState and BatteryLevelStatusFlags.BLE_BAS_BATTERY_FAULT_FLAG) != 0,
-            percentage = if ((data[0].toInt() and BatteryLevelStatusFlags.BLE_BAS_BATTERY_LEVEL_FLAG) != 0) data[3].toInt() else -1
+            percentage = if ((flags and BatteryLevelStatusFlags.BLE_BAS_BATTERY_LEVEL_FLAG) != 0 && data.size > 3) {
+                data[3].toInt() and 0xFF
+            } else {
+                -1
+            }
         )
+
+        Timber.d(
+            "Battery level status for device %s: flags=0x%02X powerState=0x%04X status=%s",
+            deviceId,
+            flags,
+            powerState,
+            status
+        )
+        return status
     }
 
     override fun close() {

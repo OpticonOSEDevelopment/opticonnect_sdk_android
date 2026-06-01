@@ -15,6 +15,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import javax.inject.Inject
 import kotlinx.coroutines.flow.onEach
@@ -33,11 +37,13 @@ internal class CommandExecutor @Inject constructor(
 ) : CommandSender, Closeable {
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val commandMutex = Mutex()
     private val pendingCommandsQueue = LinkedList<Command>()
     private val responseData = StringBuilder()
 
     private var saveSettingsJob: Job? = null
-    private var saveSettingsCode: String = "Z2";
+    private val saveSettingsCode: String = "Z2"
+    private var closed = false
 
     init {
         coroutineScope.launch { initializeResponseListener() }
@@ -53,19 +59,25 @@ internal class CommandExecutor @Inject constructor(
     override fun sendCommand(command: Command) {
         Timber.d("Sending command to queue: ${command.code}")
         coroutineScope.launch {
-            enqueueCommand(command)
+            commandMutex.withLock {
+                if (closed) {
+                    command.completer.complete(CommandResponse.failed("Command executor closed."))
+                    return@withLock
+                }
+                enqueueCommandLocked(command)
+            }
         }
     }
 
-    private fun enqueueCommand(command: Command) {
+    private fun enqueueCommandLocked(command: Command) {
+        val shouldExecute = pendingCommandsQueue.isEmpty()
         pendingCommandsQueue.addLast(command)
-        if (pendingCommandsQueue.size == 1) {
-            executeCommand(command)
+        if (shouldExecute) {
+            executeCommandLocked(command)
         }
-
     }
 
-    private fun executeCommand(command: Command) {
+    private fun executeCommandLocked(command: Command) {
         Timber.d("Executing command from queue: ${command.code}")
         responseData.clear()
         startCommandTimeout(command)
@@ -77,10 +89,8 @@ internal class CommandExecutor @Inject constructor(
             }
         } catch (e: Exception) {
             Timber.e("Error sending command: ${command.code}, Error: $e")
-            coroutineScope.launch {
-                command.completer.complete(CommandResponse("", false))
-                finalizeCommandAndProcessNext(false)
-            }
+            command.completer.complete(CommandResponse("", false))
+            finalizeCommandAndProcessNextLocked(false)
         }
     }
 
@@ -93,33 +103,46 @@ internal class CommandExecutor @Inject constructor(
     }
 
     private suspend fun onCommandTimeout(command: Command) {
-        Timber.w("Command timeout occurred for: ${command.code}")
-        if (command.retried || pendingCommandsQueue.isEmpty()) {
-            command.completer.complete(CommandResponse("", false))
-            finalizeCommandAndProcessNext(false)
-        } else {
-            retryCommand(command)
+        commandMutex.withLock {
+            if (pendingCommandsQueue.firstOrNull() != command) return@withLock
+
+            Timber.w("Command timeout occurred for: ${command.code}")
+            if (command.retried || pendingCommandsQueue.isEmpty()) {
+                if (!command.completer.isCompleted) {
+                    command.completer.complete(CommandResponse("", false))
+                }
+                finalizeCommandAndProcessNextLocked(false)
+            } else {
+                retryCommandLocked(command)
+            }
         }
     }
 
-    private suspend fun retryCommand(command: Command) {
+    private suspend fun retryCommandLocked(command: Command) {
         try {
             Timber.w("Retrying command: ${command.code}")
             delay(200L)
+            if (pendingCommandsQueue.firstOrNull() != command) return
             command.retried = true
             pendingCommandsQueue.removeFirstOrNull()
             pendingCommandsQueue.addFirst(command)
-            executeCommand(command)
+            executeCommandLocked(command)
         } catch (e: Exception) {
             Timber.e("Failed to retry command: ${command.code}, Error: $e")
             if (!command.completer.isCompleted) {
                 command.completer.complete(CommandResponse.failed("Retry failed due to: $e"))
-                finalizeCommandAndProcessNext(false)
+                finalizeCommandAndProcessNextLocked(false)
             }
         }
     }
 
     private suspend fun commandResponseReceivedEvent(data: String) {
+        commandMutex.withLock {
+            commandResponseReceivedEventLocked(data)
+        }
+    }
+
+    private suspend fun commandResponseReceivedEventLocked(data: String) {
         if (pendingCommandsQueue.isEmpty()) return
 
         val command = pendingCommandsQueue.first()
@@ -128,43 +151,46 @@ internal class CommandExecutor @Inject constructor(
         when (data) {
             NAK.toString() -> {
                 if (!command.retried) {
-                    retryCommand(command)
+                    retryCommandLocked(command)
                 } else {
-                    command.completer.complete(CommandResponse.failed(responseData.toString()))
-                    finalizeCommandAndProcessNext(false)
+                    if (!command.completer.isCompleted) {
+                        command.completer.complete(CommandResponse.failed(responseData.toString()))
+                    }
+                    finalizeCommandAndProcessNextLocked(false)
                 }
             }
             ACK.toString() -> {
-                command.completer.complete(CommandResponse(responseData.toString(), true))
-                finalizeCommandAndProcessNext(true)
+                if (!command.completer.isCompleted) {
+                    command.completer.complete(CommandResponse(responseData.toString(), true))
+                }
+                finalizeCommandAndProcessNextLocked(true)
             }
             else -> responseData.append(data)
         }
     }
 
-    private fun finalizeCommandAndProcessNext(succeeded: Boolean = false) {
+    private fun finalizeCommandAndProcessNextLocked(succeeded: Boolean = false) {
         timeoutManager.cancelTimeout()
 
         val command = pendingCommandsQueue.firstOrNull()
         if (command != null) {
             // Trigger settings persistence if needed
             if (command.code != saveSettingsCode) {
-                persistSettings()
+                persistSettingsLocked()
             }
 
             val feedbackCommands = commandFeedbackService.generateFeedbackCommands(succeeded, !succeeded, command)
 
             pendingCommandsQueue.removeFirstOrNull()
-
-            feedbackCommands.forEach { enqueueCommand(it) }
+            feedbackCommands.forEach { pendingCommandsQueue.addLast(it) }
 
             if (pendingCommandsQueue.isNotEmpty()) {
-                executeCommand(pendingCommandsQueue.first())
+                executeCommandLocked(pendingCommandsQueue.first())
             }
         }
     }
 
-    private fun persistSettings() {
+    private fun persistSettingsLocked() {
         // Cancel any previous save settings job
         saveSettingsJob?.cancel()
 
@@ -176,8 +202,19 @@ internal class CommandExecutor @Inject constructor(
     }
 
     override fun close() {
-        pendingCommandsQueue.clear()
-        timeoutManager.close()
-        saveSettingsJob?.cancel()
+        runBlocking {
+            commandMutex.withLock {
+                closed = true
+                pendingCommandsQueue.forEach { command ->
+                    if (!command.completer.isCompleted) {
+                        command.completer.complete(CommandResponse.failed("Command executor closed."))
+                    }
+                }
+                pendingCommandsQueue.clear()
+                timeoutManager.close()
+                saveSettingsJob?.cancel()
+            }
+        }
+        coroutineScope.cancel()
     }
 }

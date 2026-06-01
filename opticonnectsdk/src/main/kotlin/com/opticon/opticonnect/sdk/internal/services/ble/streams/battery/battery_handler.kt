@@ -7,6 +7,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.io.Closeable
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,7 +16,7 @@ internal class BatteryHandler @Inject constructor(
     private val bleDevicesStreamsHandler: BleDevicesStreamsHandler
 ) : Closeable {
 
-    private val batteryListeners = mutableMapOf<String, BatteryListener>()
+    private val batteryListeners = ConcurrentHashMap<String, BatteryListener>()
     private val mutex = Mutex()
 
     suspend fun addBatteryListener(deviceId: String, connection: RxBleConnection): BatteryListener {
@@ -31,8 +32,7 @@ internal class BatteryHandler @Inject constructor(
                 )
 
                 batteryListener.initialize()
-
-                batteryListeners[deviceId] = batteryListener
+                batteryListeners.put(deviceId, batteryListener)?.close()
                 return batteryListener
             } catch (e: Exception) {
                 val msg = "Failed to initialize battery listener for device $deviceId: $e"
@@ -49,8 +49,7 @@ internal class BatteryHandler @Inject constructor(
     }
 
     fun close(deviceId: String) {
-        batteryListeners[deviceId]?.close()
-        batteryListeners.remove(deviceId)
+        batteryListeners.remove(deviceId)?.close()
         Timber.d("Disposed and removed battery listener for device: $deviceId")
     }
 }

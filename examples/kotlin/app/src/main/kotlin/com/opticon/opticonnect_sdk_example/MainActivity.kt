@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.opticon.opticonnect.sdk.api.OptiConnect
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect_sdk_example.ui.theme.Opticonnect_SDK_ExampleTheme
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 // Holds device-specific connection and data state
@@ -32,6 +33,8 @@ data class DeviceState(
 
 class MainActivity : ComponentActivity() {
     private var deviceState by mutableStateOf(DeviceState())
+    private var userRequestedDisconnect by mutableStateOf(false)
+    private var discoveryJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,11 +81,13 @@ class MainActivity : ComponentActivity() {
     // Initializes OptiConnect SDK and starts device discovery
     private fun initializeOptiConnectAndStartDiscovery() {
         OptiConnect.initialize(this).apply {
+            userRequestedDisconnect = false
             OptiConnect.bluetoothManager.startDiscovery()
-            lifecycleScope.launch {
+            discoveryJob?.cancel()
+            discoveryJob = lifecycleScope.launch {
                 // Collects discovered devices and connects if disconnected
                 OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { device ->
-                    if (deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
+                    if (!userRequestedDisconnect && deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
                         deviceState = deviceState.copy(
                             connectedDeviceId = device.deviceId,
                             connectionState = BleDeviceConnectionState.CONNECTING
@@ -140,7 +145,9 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             OptiConnect.bluetoothManager.listenToBatteryStatus(deviceId).collect { status ->
-                deviceState = deviceState.copy(isCharging = status.isCharging)
+                val isPoweredOrCharging = status.isCharging || status.isWiredCharging || status.isWirelessCharging
+                Log.d("OptiConnect", "Battery status: $status")
+                deviceState = deviceState.copy(isCharging = isPoweredOrCharging)
             }
         }
     }
@@ -148,6 +155,9 @@ class MainActivity : ComponentActivity() {
     // Disconnects from the device and resets the state
     private fun disconnectDevice(deviceId: String) {
         lifecycleScope.launch {
+            userRequestedDisconnect = true
+            discoveryJob?.cancel()
+            OptiConnect.bluetoothManager.stopDiscovery()
             OptiConnect.bluetoothManager.disconnect(deviceId)
             deviceState = DeviceState()
         }
@@ -181,7 +191,7 @@ fun ConnectionStatusScreen(
                     Text("Connected to device: ${connectionState.connectedDeviceId}", style = MaterialTheme.typography.headlineMedium)
                     Text("Barcode Data: ${connectionState.barcodeData ?: "No barcode scanned yet."}")
                     Text("Battery: ${connectionState.batteryPercentage ?: "N/A"}%")
-                    Text("Charging: ${if (connectionState.isCharging == true) "Yes" else "No"}")
+                    Text("Charging/USB power: ${if (connectionState.isCharging == true) "Yes" else "No"}")
                     Button(onClick = { onDisconnect(connectionState.connectedDeviceId) }, modifier = Modifier.padding(top = 16.dp)) {
                         Text("Disconnect")
                     }

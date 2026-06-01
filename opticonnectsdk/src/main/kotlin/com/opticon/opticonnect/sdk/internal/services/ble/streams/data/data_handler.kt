@@ -3,18 +3,16 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
-import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import com.polidea.rxandroidble3.RxBleConnection
-import com.polidea.rxandroidble3.RxBleDeviceServices
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.io.Closeable
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.rx3.await
 
 @Singleton
 internal class DataHandler @Inject constructor(
@@ -22,7 +20,7 @@ internal class DataHandler @Inject constructor(
     private val opcDataHandlerFactory: OpcDataHandlerFactory
 ) : BleDataWriter, BleCommandResponseReader, Closeable {
 
-    private val dataProcessors = mutableMapOf<String, DataProcessor>()
+    private val dataProcessors = ConcurrentHashMap<String, DataProcessor>()
     private val mutex = Mutex()
 
     override suspend fun getCommandResponseStream(deviceId: String): Flow<String> {
@@ -53,9 +51,8 @@ internal class DataHandler @Inject constructor(
                 bleDeviceStreamManager = bleDevicesStreamsHandler
             )
 
-            dataProcessors[deviceId] = dataProcessor
-
             dataProcessor.initializeStreams()
+            dataProcessors.put(deviceId, dataProcessor)?.close()
 
             return dataProcessor
         }
@@ -69,8 +66,7 @@ internal class DataHandler @Inject constructor(
     }
 
     fun close(deviceId: String) {
-        dataProcessors[deviceId]?.close() // Close the processor for the specific device
-        dataProcessors.remove(deviceId)
+        dataProcessors.remove(deviceId)?.close()
         Timber.d("Closed and removed data processor for device: $deviceId")
     }
 }

@@ -7,6 +7,7 @@ import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import timber.log.Timber
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -14,10 +15,10 @@ import javax.inject.Singleton
 internal class DevicesInfoManager @Inject constructor(
     private val commandExecutorsManager: CommandExecutorsManager
 ) : ScannerInfo {
-    private val macAddresses = mutableMapOf<String, String>()
-    private val serialNumbers = mutableMapOf<String, String>()
-    private val localNames = mutableMapOf<String, String>()
-    private val firmwareVersions = mutableMapOf<String, String>()
+    private val macAddresses = ConcurrentHashMap<String, String>()
+    private val serialNumbers = ConcurrentHashMap<String, String>()
+    private val localNames = ConcurrentHashMap<String, String>()
+    private val firmwareVersions = ConcurrentHashMap<String, String>()
 
     override fun getInfo(deviceId: String): DeviceInfo {
         return DeviceInfo(

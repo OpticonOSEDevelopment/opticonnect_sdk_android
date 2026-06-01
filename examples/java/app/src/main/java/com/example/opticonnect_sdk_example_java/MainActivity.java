@@ -28,6 +28,7 @@ public class MainActivity extends ComponentActivity {
 
     private DeviceState deviceState = new DeviceState();
     private TextView connectionStatusText, barcodeDataText, batteryPercentageText, chargingStatusText;
+    private boolean userRequestedDisconnect = false;
 
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionsResult);
@@ -75,13 +76,14 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void initializeOptiConnectAndStartDiscovery() {
+        userRequestedDisconnect = false;
         OptiConnect.INSTANCE.initialize(this);
         OptiConnect.INSTANCE.getBluetoothManager().startDiscovery();
 
         OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
             @Override
             public void onSuccess(BleDiscoveredDevice device) {
-                if (deviceState.getConnectionState() == BleDeviceConnectionState.DISCONNECTED) {
+                if (!userRequestedDisconnect && deviceState.getConnectionState() == BleDeviceConnectionState.DISCONNECTED) {
                     deviceState.setConnectedDeviceId(device.getDeviceId());
                     deviceState.setConnectionState(BleDeviceConnectionState.CONNECTING);
                     updateUI();
@@ -144,7 +146,9 @@ public class MainActivity extends ComponentActivity {
         OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryStatus(deviceId, new Callback<>() {
             @Override
             public void onSuccess(BatteryLevelStatus status) {
-                deviceState.setIsCharging(status.isCharging());
+                boolean isPoweredOrCharging = status.isCharging() || status.isWiredCharging() || status.isWirelessCharging();
+                Log.d("OptiConnect", "Battery status: " + status);
+                deviceState.setIsCharging(isPoweredOrCharging);
                 updateUI();
             }
 
@@ -171,7 +175,12 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void disconnectDevice() {
-        // Reset DeviceState and update UI
+        String deviceId = deviceState.getConnectedDeviceId();
+        userRequestedDisconnect = true;
+        OptiConnect.INSTANCE.getBluetoothManager().stopDiscovery();
+        if (deviceId != null && !deviceId.isEmpty()) {
+            OptiConnect.INSTANCE.getBluetoothManager().disconnect(deviceId);
+        }
         deviceState = new DeviceState();
         updateUI();
     }
@@ -196,6 +205,6 @@ public class MainActivity extends ComponentActivity {
 
         barcodeDataText.setText("Barcode Data: " + (deviceState.getBarcodeData() != null ? deviceState.getBarcodeData() : "None"));
         batteryPercentageText.setText("Battery: " + (deviceState.getBatteryPercentage() != null ? deviceState.getBatteryPercentage() + "%" : "N/A"));
-        chargingStatusText.setText("Charging: " + (deviceState.getIsCharging() != null ? (deviceState.getIsCharging() ? "Yes" : "No") : "Unknown"));
+        chargingStatusText.setText("Charging/USB power: " + (deviceState.getIsCharging() != null ? (deviceState.getIsCharging() ? "Yes" : "No") : "Unknown"));
     }
 }

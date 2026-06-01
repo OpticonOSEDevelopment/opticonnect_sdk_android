@@ -5,6 +5,7 @@ import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import timber.log.Timber
 import java.io.Closeable
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,16 +16,13 @@ internal class CommandExecutorsManager @Inject constructor(
     private val settingsCompressor: SettingsCompressor // Inject SettingsCompressor
 ) : Closeable {
 
-    private val commandExecutors: MutableMap<String, CommandExecutor> = mutableMapOf()
-    private val compressionManagers: MutableMap<String, CompressionManager> = mutableMapOf()
+    private val commandExecutors = ConcurrentHashMap<String, CommandExecutor>()
+    private val compressionManagers = ConcurrentHashMap<String, CompressionManager>()
 
     fun createCommandExecutor(deviceId: String) {
-        // Dispose of the old instance if it exists
-        commandExecutors[deviceId]?.close()
-
         // Use the factory to create a new instance of CommandExecutor
         val commandExecutor = commandExecutorFactory.create(deviceId)
-        commandExecutors[deviceId] = commandExecutor
+        commandExecutors.put(deviceId, commandExecutor)?.close()
 
         // Create and store the CompressionManager for the device
         val compressionManager = CompressionManager(
@@ -61,8 +59,7 @@ internal class CommandExecutorsManager @Inject constructor(
 
     fun close(deviceId: String) {
         Timber.d("Closing CommandExecutor for device $deviceId")
-        commandExecutors[deviceId]?.close()
-        commandExecutors.remove(deviceId)
+        commandExecutors.remove(deviceId)?.close()
         compressionManagers.remove(deviceId)
     }
 
