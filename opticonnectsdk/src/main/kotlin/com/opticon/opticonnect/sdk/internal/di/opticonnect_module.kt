@@ -104,13 +104,23 @@ internal object OptiConnectModule {
     @Provides
     @Singleton
     fun provideBleConnectivityHandler(
+        context: Context,
         bleClient: RxBleClient,
         dataHandler: DataHandler,
         batteryHandler: BatteryHandler,
         commandExecutorsManager: CommandExecutorsManager,
-        devicesInfoManager: DevicesInfoManager
+        devicesInfoManager: DevicesInfoManager,
+        settingsHandler: SettingsHandler
     ): BleConnectivityHandler {
-        return BleConnectivityHandler(bleClient, dataHandler, batteryHandler, commandExecutorsManager, devicesInfoManager)
+        return BleConnectivityHandler(
+            bleClient,
+            dataHandler,
+            batteryHandler,
+            commandExecutorsManager,
+            devicesInfoManager,
+            settingsHandler,
+            context.applicationContext
+        )
     }
 
     @Provides

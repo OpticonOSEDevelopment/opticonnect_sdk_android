@@ -75,8 +75,6 @@ object OptiConnect : LifecycleHandler {
      * lifecycle is managed properly.
      */
     val bluetoothManager: BluetoothManager by lazy {
-        val settingsHandler = getComponentFromContext().settingsHandler()
-        ensureSettingsHandlerInitialized(settingsHandler)
         val manager = getComponentFromContext().bluetoothManager()
         bluetoothLifeCycleManager.initialize(appContext)
         manager

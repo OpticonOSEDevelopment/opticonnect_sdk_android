@@ -23,9 +23,10 @@ signing/
 *.keystore
 *.properties
 
-# Gradle Wrapper files
-gradle/wrapper/gradle-wrapper.properties
-gradle/wrapper/gradle-wrapper.jar
+# Gradle Wrapper files should be committed for reproducible builds.
+!gradle/wrapper/
+!gradle/wrapper/gradle-wrapper.properties
+!gradle/wrapper/gradle-wrapper.jar
 
 # IntelliJ IDEA
 *.iml

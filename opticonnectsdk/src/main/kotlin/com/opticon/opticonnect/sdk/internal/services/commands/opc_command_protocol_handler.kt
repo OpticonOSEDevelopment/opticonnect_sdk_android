@@ -40,7 +40,7 @@ internal class OpcCommandProtocolHandler @Inject constructor(
 
             // Finalize and return the command bytes
             val bytes = finalizeCommandBytes(commandBytes)
-            return bytes.map { it.toByte() }.toByteArray()
+            bytes.map { it.toByte() }.toByteArray()
         } catch (e: Exception) {
             Timber.e(e, "Error generating command bytes: ${e.message}")
             throw e
@@ -59,8 +59,8 @@ internal class OpcCommandProtocolHandler @Inject constructor(
     }
 
     private fun addCommandStartBytes(commandBytes: MutableList<UByte>, type: UByte, seqNr: Int) {
-        commandBytes.add(DLE_V.toUByte())
-        commandBytes.add(STX_V.toUByte())
+        commandBytes.add(DLE_V)
+        commandBytes.add(STX_V)
         commandBytes.add(type)
 
         // Add sequence number bytes with escape handling
@@ -69,8 +69,8 @@ internal class OpcCommandProtocolHandler @Inject constructor(
     }
 
     private fun addCommandEndBytes(commandBytes: MutableList<UByte>) {
-        commandBytes.add(DLE_V.toUByte())
-        commandBytes.add(ETX_V.toUByte())
+        commandBytes.add(DLE_V)
+        commandBytes.add(ETX_V)
 
         // Calculate and append CRC
         val crc = crc16Handler.compute(commandBytes)
@@ -85,7 +85,7 @@ internal class OpcCommandProtocolHandler @Inject constructor(
     }
 
     private fun addByteWithEscape(commandBytes: MutableList<UByte>, byte: UByte) {
-        if (byte == DLE_V.toUByte()) {
+        if (byte == DLE_V) {
             commandBytes.add(byte) // Escape DLE byte
         }
         commandBytes.add(byte)

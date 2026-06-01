@@ -43,19 +43,31 @@ At least one of the following Opticon BLE barcode scanners is required:
 
 ### 2. System Requirements
 - **Android Minimum SDK**: 26
-- **Java Version**: 11 or higher
-- **Kotlin Version**: 1.8.20 or higher
-- **Gradle Version**: 7.4 or higher   
-- **AGP (Android Gradle Plugin)**: 7.2.2 or higher 
+- **Compile SDK**: 36
+- **Android Build Tools**: 36.0.0
+- **JDK Version for building**: 17
+- **Gradle Wrapper**: 8.13
+- **Kotlin/AGP**: use the versions pinned in `gradle/libs.versions.toml`
+- **Runtime target**: apps can support Android 8.0+ as long as `minSdk` stays at 26 or lower APIs are explicitly tested
 
 ### 3. Building the opticonnect .aar library (optional)
 
-To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, follow these steps:
+To build the `.aar` file for the OptiConnect SDK with shadowed dependencies, run:
 
-1. Run the shadowJar task: `./gradlew shadowJar`
-2. Package the final `.aar`: `./gradlew bundleShadowedReleaseAar`
+```bash
+./gradlew :opticonnectsdk:bundleShadowedReleaseAar
+```
 
-The generated `.aar` file will be located in `build/outputs/aar/`.
+On Windows, run the same task with:
+
+```powershell
+.\gradlew.bat :opticonnectsdk:bundleShadowedReleaseAar
+```
+
+This task builds the SDK, creates the relocated `classes.jar`, and packages the final AAR.
+The generated file will be located at `opticonnectsdk/build/outputs/aar/opticonnectsdk.aar`.
+
+The shaded AAR intentionally relocates SDK-internal dependencies such as Room, Dagger, SQLite, and Timber to reduce conflicts with the host app. External runtime/API dependencies such as Kotlin, coroutines, RxAndroidBLE, and RxKotlin should remain normal app dependencies so the host app can control those versions.
 
 ### 4. Adding the `.aar` library to your project
 
@@ -75,30 +87,19 @@ dependencies {
     // Include the .aar file
     implementation(files("libs/opticonnectsdk.aar"))
 
-    // Core Android dependencies
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    // Required external dependencies not bundled into the shaded AAR
+    implementation("androidx.core:core:1.17.0")
+    implementation("com.polidea.rxandroidble3:rxandroidble:1.19.1")
+    implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
 
-    // RxAndroidBLE and RxKotlin for BLE and reactive programming
-    implementation(libs.rxandroidble)
-    implementation(libs.rxkotlin)
+    // Required by the SDK runtime and Kotlin Flow-based APIs
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.11.0")
 }
 ```
 
-#### Additional Kotlin Dependencies
-
-If using Kotlin, add the Coroutines libraries for asynchronous handling:
-
-```kotlin
-dependencies {
-    // Coroutines dependencies
-    implementation(libs.coroutines)
-    implementation(libs.coroutines.android)
-    implementation(libs.coroutines.rx3)
-}
-```
-
-- Note: Java projects do not require Coroutines as they use callbacks instead of coroutines for asynchronous handling.
+Java projects can use the callback APIs, but the app should still include the coroutine dependencies because the SDK runtime and public API use coroutines internally.
 
 #### Important: Kotlin Plugin Requirement for Java Projects
 
@@ -124,6 +125,8 @@ To enable Bluetooth discovery and connection on Android, add the following permi
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="28" />
 ```
 
+The host app is responsible for requesting the required runtime permissions before starting discovery or connecting to a scanner. The SDK handles the scanner protocol and BLE connection flow, but it does not show permission prompts on behalf of the app.
+
 ## Examples
 
 These examples demonstrate how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000 in both Kotlin and Java.
@@ -141,7 +144,7 @@ This example demonstrates how to integrate the OptiConnect SDK using Kotlin. It 
 
 *MainActivity.kt*
 
-```Kotlin
+```text
 package com.opticon.opticonnect_sdk_example
 
 import android.Manifest

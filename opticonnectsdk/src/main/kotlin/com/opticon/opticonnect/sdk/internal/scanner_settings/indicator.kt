@@ -8,7 +8,6 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Indicator
 import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -46,13 +45,6 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
         GoodReadLedDuration.DURATION_800_MS to IndicatorCommands.GOOD_READ_LED_DURATION_800_MS,
         GoodReadLedDuration.DURATION_2000_MS to IndicatorCommands.GOOD_READ_LED_DURATION_2000_MS
     )
-
-    companion object {
-        const val maxPreambleChars = 8
-        const val maxSuffixChars = 4
-        const val maxPrefixChars = 4
-        const val maxPostambleChars = 8
-    }
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
@@ -202,9 +194,5 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
         callback: (Result<CommandResponse>) -> Unit
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGoodReadLedDuration(deviceId, duration) }
-    }
-
-    private fun LEDColor.toParameters(): List<String> {
-        return listOf(red.toString(), green.toString(), blue.toString())
     }
 }

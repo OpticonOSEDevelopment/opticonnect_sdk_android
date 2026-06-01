@@ -6,14 +6,35 @@ plugins {
     alias(libs.plugins.dokka)
 }
 
+val embedded by configurations.creating {
+    isCanBeResolved = false
+    isCanBeConsumed = false
+}
+
+// Only dependencies added to embedded are bundled into the shaded AAR.
+configurations.named("implementation") {
+    extendsFrom(embedded)
+}
+
+val embeddedRuntimeClasspath by configurations.creating {
+    isCanBeResolved = true
+    isCanBeConsumed = false
+    extendsFrom(embedded)
+}
+
 android {
     namespace = "com.opticon.opticonnect.sdk"
-    compileSdk = 34
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         minSdk = 26
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    testOptions {
+        targetSdk = 36
     }
 
     buildTypes {
@@ -29,60 +50,49 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
     sourceSets["main"].assets.srcDirs("src/main/assets")
     sourceSets["main"].java.srcDirs("build/generated/ksp/main/kotlin")
 
     sourceSets["androidTest"].java.srcDirs("src/androidTest/java")
 }
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        jvmTarget = "11"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
     }
 }
 
 dependencies {
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    implementation(libs.junit)
-    implementation(libs.androidx.runner)
+    add("embedded", libs.room.runtime.android)
+    add("embedded", libs.room.ktx)
+    add("embedded", libs.sqlite.android)
+    add("embedded", libs.sqlite.framework.android)
+    add("embedded", libs.dagger)
+    add("embedded", libs.timber)
+
     implementation(libs.androidx.core)
     ksp(libs.room.compiler)
-    implementation(libs.dagger)
     ksp(libs.dagger.compiler)
-    implementation(libs.timber)
+
     implementation(libs.rxandroidble)
-    implementation(libs.coroutines)
+    api(libs.coroutines)
     implementation(libs.coroutines.android)
     implementation(libs.coroutines.rx3)
-    implementation(libs.mockk)
     implementation(libs.rxkotlin)
-    implementation(libs.android.documentation)
+
+    testImplementation(libs.junit)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.core)
-
     androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.coroutines.test)
 }
 
-// Create a custom resolvable configuration for shadowing
-val shadowRuntimeClasspath by configurations.creating {
-    isCanBeResolved = true
-    isCanBeConsumed = false
-    extendsFrom(configurations["implementation"], configurations["runtimeOnly"])
-}
-
-// Register the ShadowJar task manually
 tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     archiveClassifier.set("all")
 
     dependsOn("compileReleaseKotlin", "compileReleaseJavaWithJavac", "mergeReleaseResources")
-
 
     val kotlinClassesDir = file("build/tmp/kotlin-classes/release") // Path where your classes are located
     val daggerGeneratedDir = file("build/intermediates/javac/release/compileReleaseJavaWithJavac/classes")
@@ -102,71 +112,26 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
     from("build/classes/kotlin/release")
     from(android.sourceSets["main"].resources.srcDirs)
 
-    // Use the custom configuration
-    configurations = listOf(
-        project.configurations.getByName("shadowRuntimeClasspath"),
-        project.configurations.getByName("releaseRuntimeClasspath"),
-        project.configurations.getByName("releaseCompileClasspath")
-    )
+    configurations = listOf()
+    from(embeddedRuntimeClasspath.incoming.artifacts.resolvedArtifacts.map { artifacts ->
+        artifacts.map { artifact ->
+            val artifactFile = artifact.file
+            if (artifactFile.extension == "aar") {
+                val classesJar = zipTree(artifactFile).matching { include("classes.jar") }.singleFile
+                zipTree(classesJar)
+            } else {
+                zipTree(artifactFile)
+            }
+        }
+    })
 
-    val gradleCacheDir = file("${System.getProperty("user.home")}/.gradle/caches/modules-2/files-2.1")
-    val timberAarFile = gradleCacheDir.walkTopDown()
-        .filter { it.name.startsWith("timber-") && it.name.endsWith(".aar") }
-        .firstOrNull()
-
-    val roomAarFile = gradleCacheDir.walkTopDown()
-        .filter { it.name.startsWith("room-runtime-") && it.name.endsWith(".aar") }
-        .firstOrNull()
-
-    val sqliteAarFile = gradleCacheDir.walkTopDown()
-        .filter { it.name.startsWith("sqlite-") && it.name.endsWith(".aar") }
-        .firstOrNull()
-
-    val sqliteFrameworkAarFile = gradleCacheDir.walkTopDown()
-        .filter { it.name.startsWith("sqlite-framework-") && it.name.endsWith(".aar") }
-        .firstOrNull()
-
-    // Ensure the Timber .aar file was found
-    if (timberAarFile != null && roomAarFile != null && sqliteAarFile != null && sqliteFrameworkAarFile != null) {
-        val timberJar = zipTree(timberAarFile).matching {
-            include("classes.jar")
-        }.singleFile
-
-        // Include classes from the extracted classes.jar of Timber
-        from(zipTree(timberJar))
-
-        // Relocate Timber and other dependencies
-        relocate("timber.log", "com.opticon.opticonnect.timber")
-
-        val roomRuntimeJar = zipTree(roomAarFile).matching {
-            include("classes.jar")
-        }.singleFile
-
-        from(zipTree(roomRuntimeJar))
-
-        relocate("androidx.room", "com.opticon.opticonnect.androidx.room")
-
-        val sqliteJar = zipTree(sqliteAarFile).matching {
-            include("classes.jar")
-        }.singleFile
-
-        from(zipTree(sqliteJar))
-
-        val sqliteFrameworkJar = zipTree(sqliteFrameworkAarFile).matching {
-            include("classes.jar")
-        }.singleFile
-
-        from(zipTree(sqliteFrameworkJar))
-
-        relocate("androidx.sqlite", "com.opticon.opticonnect.androidx.sqlite")
-
-        relocate("dagger", "com.opticon.opticonnect.dagger")
-        relocate("javax.inject", "com.opticon.opticonnect.javax.inject")
-        relocate("jakarta", "com.opticon.opticonnect.jakarta")
-        relocate("com.jakewharton", "com.opticon.opticonnect.jakewharton")
-    } else {
-        logger.warn("Timber .aar file not found in the Gradle cache.")
-    }
+    relocate("timber.log", "com.opticon.opticonnect.timber")
+    relocate("androidx.room", "com.opticon.opticonnect.androidx.room")
+    relocate("androidx.sqlite", "com.opticon.opticonnect.androidx.sqlite")
+    relocate("dagger", "com.opticon.opticonnect.dagger")
+    relocate("javax.inject", "com.opticon.opticonnect.javax.inject")
+    relocate("jakarta", "com.opticon.opticonnect.jakarta")
+    relocate("com.jakewharton", "com.opticon.opticonnect.jakewharton")
 
     exclude("_COROUTINE/**")
     exclude("bleshadow/**")
@@ -184,6 +149,7 @@ tasks.register<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shad
     exclude("junit/**")
     exclude("net/**")
     exclude("org/jetbrains/**")
+    exclude("org/jspecify/**")
     exclude("org/reactivestreams/**")
     exclude("org/hamcrest/**")
     exclude("org/intellij/**")
@@ -256,16 +222,6 @@ tasks.register<Zip>("bundleShadowedReleaseAar") {
     // Set the archive name
     archiveFileName.set("${project.name}.aar")
     destinationDirectory.set(layout.buildDirectory.dir("outputs/aar"))
-
-    doLast {
-        // Delete all other files except for opticonnectsdk.aar
-        val outputDir = layout.buildDirectory.dir("outputs/aar").get().asFile
-        outputDir.listFiles()?.forEach { file ->
-            if (file.name != "opticonnectsdk.aar") {
-                file.delete()
-            }
-        }
-    }
 }
 
 tasks.dokkaHtml {

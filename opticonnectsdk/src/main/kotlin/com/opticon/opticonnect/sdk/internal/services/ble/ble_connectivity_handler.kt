@@ -1,5 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.ble
 
+import android.content.Context
 import com.polidea.rxandroidble3.RxBleClient
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
 import com.polidea.rxandroidble3.RxBleConnection
@@ -16,6 +17,7 @@ import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.battery.BatteryHandler
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
+import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.polidea.rxandroidble3.RxBleDevice
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.reactivex.rxjava3.disposables.Disposable
@@ -34,7 +36,9 @@ internal class BleConnectivityHandler @Inject constructor(
     private val dataHandler: DataHandler,
     private val batteryHandler: BatteryHandler,
     private val commandExecutorsManager: CommandExecutorsManager,
-    private val devicesInfoManager: DevicesInfoManager
+    private val devicesInfoManager: DevicesInfoManager,
+    private val settingsHandler: SettingsHandler,
+    private val context: Context
 ) : Closeable {
 
     private val compositeDisposable = CompositeDisposable()
@@ -161,7 +165,10 @@ internal class BleConnectivityHandler @Inject constructor(
             dataHandler.addDataProcessor(deviceId, connection)
             batteryHandler.addBatteryListener(deviceId, connection)
 
-            //Add the command executor to send commands to the device and receive feedback for sent commands.
+            // Warm settings data before command compression can use it.
+            settingsHandler.initialize(context)
+
+            // Add the command executor to send commands to the device and receive feedback for sent commands.
             commandExecutorsManager.createCommandExecutor(deviceId)
 
             devicesInfoManager.fetchInfo(deviceId)

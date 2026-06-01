@@ -1,10 +1,9 @@
 package com.opticon.opticonnect.sdk.api.enums
 
-import com.polidea.rxandroidble3.RxBleConnection
-
 /**
  * Enum representing the connection state of a BLE device.
  */
+@Suppress("unused")
 enum class BleDeviceConnectionState {
     /** The device is disconnected. */
     DISCONNECTED,

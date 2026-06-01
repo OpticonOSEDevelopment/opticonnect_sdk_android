@@ -24,7 +24,7 @@ import org.junit.BeforeClass
 abstract class BaseBluetoothTest {
 
     companion object {
-        const val TEST_DEVICE_MAC_ADDRESS = "38:89:DC:0E:00:4F"
+        const val TEST_DEVICE_MAC_ADDRESS = "38:89:DC:00:00:3E"
         lateinit var context: android.content.Context
 
         @BeforeClass

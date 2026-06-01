@@ -27,13 +27,25 @@ internal class SettingsHandlerImpl @Inject constructor(
     private var directInputKeysSet = mutableSetOf<String>()
     private var directInputKeys = listOf<String>()
 
+    @Volatile
+    private var initialized = false
+
     override fun initialize(context: Context, closeDB: Boolean) {
-        val database = databaseManager.getDatabase(context)
-        initializeCodesDataStructures(database)
-        setDescriptions(database)
-        setDirectInputKeys()
-        if (closeDB) {
-            databaseManager.closeDatabase()
+        if (initialized) return
+
+        synchronized(this) {
+            if (initialized) return
+
+            clearCachedSettings()
+            val database = databaseManager.getDatabase(context)
+            initializeCodesDataStructures(database)
+            setDescriptions(database)
+            setDirectInputKeys()
+            initialized = true
+
+            if (closeDB) {
+                databaseManager.closeDatabase()
+            }
         }
     }
 
@@ -68,43 +80,43 @@ internal class SettingsHandlerImpl @Inject constructor(
             val tables = databaseTablesHelper.getTables(database)
             for (table in tables) {
                 try {
-                    val data = database.query("SELECT * FROM $table")
-                    if (data.count == 0 || !data.columnNames.contains(DatabaseFields.CODE)) {
-                        continue
-                    }
-                    while (data.moveToNext()) {
-                        val codeColumnIndex = data.getColumnIndex(DatabaseFields.CODE)
-                        val descriptionKeyColumnIndex = data.getColumnIndex(DatabaseFields.DESCRIPTION_KEY)
-                        val groupsColumnIndex = data.getColumnIndex(DatabaseFields.GROUPS)
-                        val dimensionsColumnIndex = data.getColumnIndex(DatabaseFields.DIMENSIONS)
-                        val enablesGroupsColumnIndex = data.getColumnIndex(DatabaseFields.ENABLES_GROUPS)
-                        val disablesGroupsColumnIndex = data.getColumnIndex(DatabaseFields.DISABLES_GROUPS)
+                    database.query("SELECT * FROM $table").use { data ->
+                        if (data.count == 0 || !data.columnNames.contains(DatabaseFields.CODE)) {
+                            return@use
+                        }
+                        while (data.moveToNext()) {
+                            val codeColumnIndex = data.getColumnIndex(DatabaseFields.CODE)
+                            val descriptionKeyColumnIndex = data.getColumnIndex(DatabaseFields.DESCRIPTION_KEY)
+                            val groupsColumnIndex = data.getColumnIndex(DatabaseFields.GROUPS)
+                            val dimensionsColumnIndex = data.getColumnIndex(DatabaseFields.DIMENSIONS)
+                            val enablesGroupsColumnIndex = data.getColumnIndex(DatabaseFields.ENABLES_GROUPS)
+                            val disablesGroupsColumnIndex = data.getColumnIndex(DatabaseFields.DISABLES_GROUPS)
 
-                        if (codeColumnIndex >= 0 && descriptionKeyColumnIndex >= 0) {
-                            val code = data.getString(codeColumnIndex)
-                            val descriptionKey = data.getString(descriptionKeyColumnIndex)
-                            val groupsString = if (groupsColumnIndex >= 0) data.getString(groupsColumnIndex) ?: "" else ""
-                            val dimensionsString = if (dimensionsColumnIndex >= 0) data.getString(dimensionsColumnIndex) ?: "" else ""
-                            val enablesGroupsString = if (enablesGroupsColumnIndex >= 0) data.getString(enablesGroupsColumnIndex) ?: "" else ""
-                            val disablesGroupsString = if (disablesGroupsColumnIndex >= 0) data.getString(disablesGroupsColumnIndex) ?: "" else ""
+                            if (codeColumnIndex >= 0 && descriptionKeyColumnIndex >= 0) {
+                                val code = data.getString(codeColumnIndex)
+                                val descriptionKey = data.getString(descriptionKeyColumnIndex)
+                                val groupsString = if (groupsColumnIndex >= 0) data.getString(groupsColumnIndex) ?: "" else ""
+                                val dimensionsString = if (dimensionsColumnIndex >= 0) data.getString(dimensionsColumnIndex) ?: "" else ""
+                                val enablesGroupsString = if (enablesGroupsColumnIndex >= 0) data.getString(enablesGroupsColumnIndex) ?: "" else ""
+                                val disablesGroupsString = if (disablesGroupsColumnIndex >= 0) data.getString(disablesGroupsColumnIndex) ?: "" else ""
 
-                            if (code != null && descriptionKey != null) {
-                                val groups = convertCommaSeparatedToLowerCaseList(groupsString)
-                                groupsForCode[code] = groups
-                                val dimensions = convertCommaSeparatedToLowerCaseList(dimensionsString)
-                                dimensionsForCode[code] = dimensions
-                                val enablesGroups = convertCommaSeparatedToLowerCaseList(enablesGroupsString)
-                                val disablesGroups = convertCommaSeparatedToLowerCaseList(disablesGroupsString)
+                                if (code != null && descriptionKey != null) {
+                                    val groups = convertCommaSeparatedToLowerCaseList(groupsString)
+                                    groupsForCode[code] = groups
+                                    val dimensions = convertCommaSeparatedToLowerCaseList(dimensionsString)
+                                    dimensionsForCode[code] = dimensions
+                                    val enablesGroups = convertCommaSeparatedToLowerCaseList(enablesGroupsString)
+                                    val disablesGroups = convertCommaSeparatedToLowerCaseList(disablesGroupsString)
 
-                                for (group in groups) {
-                                    codesForGroup.computeIfAbsent(group) { mutableListOf() }.add(code)
+                                    for (group in groups) {
+                                        codesForGroup.computeIfAbsent(group) { mutableListOf() }.add(code)
+                                    }
+                                    groupsToEnableForCode[code] = enablesGroups
+                                    groupsToDisableForCode[code] = disablesGroups
                                 }
-                                groupsToEnableForCode[code] = enablesGroups
-                                groupsToDisableForCode[code] = disablesGroups
                             }
                         }
                     }
-                    data.close()
                 } catch (e: Exception) {
                     Timber.e("Failed to process table $table: $e")
                 }
@@ -126,24 +138,24 @@ internal class SettingsHandlerImpl @Inject constructor(
             val tables = databaseTablesHelper.getTables(database)
             for (table in tables) {
                 try {
-                    val data = database.query("SELECT * FROM $table")
-                    if (data.count == 0 || !data.columnNames.contains(DatabaseFields.CODE)) {
-                        continue
-                    }
-                    while (data.moveToNext()) {
-                        val codeColumnIndex = data.getColumnIndex(DatabaseFields.CODE)
-                        val descriptionKeyColumnIndex = data.getColumnIndex(DatabaseFields.DESCRIPTION_KEY)
+                    database.query("SELECT * FROM $table").use { data ->
+                        if (data.count == 0 || !data.columnNames.contains(DatabaseFields.CODE)) {
+                            return@use
+                        }
+                        while (data.moveToNext()) {
+                            val codeColumnIndex = data.getColumnIndex(DatabaseFields.CODE)
+                            val descriptionKeyColumnIndex = data.getColumnIndex(DatabaseFields.DESCRIPTION_KEY)
 
-                        if (codeColumnIndex >= 0 && descriptionKeyColumnIndex >= 0) {
-                            val code = data.getString(codeColumnIndex)
-                            val descriptionKey = data.getString(descriptionKeyColumnIndex)
+                            if (codeColumnIndex >= 0 && descriptionKeyColumnIndex >= 0) {
+                                val code = data.getString(codeColumnIndex)
+                                val descriptionKey = data.getString(descriptionKeyColumnIndex)
 
-                            if (code != null && descriptionKey != null) {
-                                descriptionForCode[code] = descriptionKey
+                                if (code != null && descriptionKey != null) {
+                                    descriptionForCode[code] = descriptionKey
+                                }
                             }
                         }
                     }
-                    data.close()
                 } catch (e: Exception) {
                     Timber.e("Failed to set descriptions for table $table: $e")
                 }
@@ -167,5 +179,18 @@ internal class SettingsHandlerImpl @Inject constructor(
         } catch (e: Exception) {
             Timber.e("Failed to set direct input keys: $e")
         }
+    }
+
+    private fun clearCachedSettings() {
+        groupsForCode.clear()
+        dimensionsForCode.clear()
+        codesForGroup.clear()
+        groupsToEnableForCode.clear()
+        groupsToDisableForCode.clear()
+        defaultScannerSettings.clear()
+        descriptionForCode.clear()
+        charToDirectInputKey.clear()
+        directInputKeysSet.clear()
+        directInputKeys = listOf()
     }
 }

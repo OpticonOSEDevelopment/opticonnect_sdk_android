@@ -53,18 +53,18 @@ internal class DatabaseManager @Inject constructor() {
     }
 
     private fun copyDatabaseFromAssets(databasePath: String, context: Context) {
-        val inputStream: InputStream = context.assets.open(DB_PATH)
-        val outputStream: OutputStream = FileOutputStream(databasePath)
+        File(databasePath).parentFile?.mkdirs()
 
-        val buffer = ByteArray(1024)
-        var length: Int
-        while (inputStream.read(buffer).also { length = it } > 0) {
-            outputStream.write(buffer, 0, length)
+        context.assets.open(DB_PATH).use { inputStream: InputStream ->
+            FileOutputStream(databasePath).use { outputStream: OutputStream ->
+                val buffer = ByteArray(1024)
+                var length: Int
+                while (inputStream.read(buffer).also { length = it } > 0) {
+                    outputStream.write(buffer, 0, length)
+                }
+                outputStream.flush()
+            }
         }
-
-        outputStream.flush()
-        outputStream.close()
-        inputStream.close()
     }
 
     fun closeDatabase() {

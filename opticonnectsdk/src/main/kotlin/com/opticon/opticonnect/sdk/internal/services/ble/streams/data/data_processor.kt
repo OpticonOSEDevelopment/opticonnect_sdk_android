@@ -21,7 +21,7 @@ internal class DataProcessor(
     private val writeCharacteristic: UUID,
     private val opcDataHandler: OpcDataHandler,
     private val connection: RxBleConnection,
-    private val bleDeviceStreamManager: BleDevicesStreamsHandler,
+    bleDeviceStreamManager: BleDevicesStreamsHandler,
 ) : Closeable {
     private val compositeDisposable = CompositeDisposable()
 
@@ -51,12 +51,14 @@ internal class DataProcessor(
     fun initializeStreams() {
         Timber.d("Setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
         connection.setupNotification(readCharacteristic)
+            .doOnNext {
+                Timber.d("Notification stream established for characteristic: $readCharacteristic on device: $deviceId")
+            }
             .flatMap { it }
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(
                 { data ->
-                    Timber.d("Notification successfully set for characteristic: $readCharacteristic on device: $deviceId")
                     scope.launch {
                         try {
                             // Process received BLE data bytes as UByte
@@ -95,7 +97,7 @@ internal class DataProcessor(
                     _barcodeDataStream.emit(barcodeData) // Emit the barcode data into the DataProcessor's barcode stream
                     Timber.d("Barcode data received: Data: ${barcodeData.data} Symbology: ${barcodeData.symbology} Time of Scan: ${barcodeData.timeOfScan} for device: $deviceId")
                 }
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 Timber.d("Barcode data stream collection cancelled for device: $deviceId")
             } catch (e: Exception) {
                 Timber.e(e, "Error collecting barcode data stream for device: $deviceId")
@@ -110,7 +112,7 @@ internal class DataProcessor(
             try {
                 job.cancelAndJoin()
                 Timber.d("Closed resources for device: $deviceId")
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 Timber.d("Data processor job was cancelled for device: $deviceId")
             } catch (e: Exception) {
                 Timber.e(e, "Error during data processor job cancellation for device: $deviceId")
