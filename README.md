@@ -112,6 +112,26 @@ The host app must request runtime permissions before discovery or connection:
 
 ## Common Usage
 
+### Discover Devices
+
+```kotlin
+OptiConnect.bluetoothManager.startDiscovery()
+
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.listenToDiscoveredDevices.collect { device ->
+        Log.d("OptiConnect", "Found device: ${device.deviceId}")
+    }
+}
+```
+
+### Connect To A Scanner
+
+```kotlin
+lifecycleScope.launch {
+    OptiConnect.bluetoothManager.connect(deviceId)
+}
+```
+
 ### Listen To Barcode Data
 
 ```kotlin
