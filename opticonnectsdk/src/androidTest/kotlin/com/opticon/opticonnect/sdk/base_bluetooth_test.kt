@@ -4,6 +4,7 @@ import android.Manifest
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import com.opticon.opticonnect.sdk.api.OptiConnect
+import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import junit.framework.TestCase.assertEquals
@@ -46,6 +47,10 @@ abstract class BaseBluetoothTest {
             }
 
             context = instrumentation.targetContext
+            initializeOptiConnectForTest()
+        }
+
+        fun initializeOptiConnectForTest() {
             OptiConnect.initialize(context)
             OptiConnect.bluetoothManager.startDiscovery()
             OptiConnect.scannerFeedback.set(led = false, buzzer = false, vibration = false)
@@ -55,7 +60,8 @@ abstract class BaseBluetoothTest {
         @JvmStatic
         fun globalTeardown() {
             Thread.sleep(200)
-            OptiConnect.bluetoothManager.stopDiscovery()
+            runCatching { OptiConnect.bluetoothManager.stopDiscovery() }
+            runCatching { OptiConnect.close() }
         }
     }
 
@@ -72,6 +78,7 @@ abstract class BaseBluetoothTest {
 
     @After
     fun teardown() {
+        OptiConnect.initialize(context)
         OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
     }
 
@@ -120,6 +127,36 @@ abstract class BaseBluetoothTest {
             connectionState == targetState
         } finally {
             connectionStateJob.cancel()
+        }
+    }
+
+    suspend fun connectToTestDevice(): Boolean {
+        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+        if (foundDevice == null) return false
+
+        val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
+        return toggleDeviceConnectionState(
+            TEST_DEVICE_MAC_ADDRESS,
+            connectionStateFlow,
+            BleDeviceConnectionState.CONNECTED
+        )
+    }
+
+    suspend fun awaitBarcodeData(timeoutMillis: Long = 30000): BarcodeData? {
+        val deferredBarcodeData = CompletableDeferred<BarcodeData>()
+        val barcodeDataJob = CoroutineScope(Dispatchers.IO).launch {
+            OptiConnect.bluetoothManager.listenToBarcodeData(TEST_DEVICE_MAC_ADDRESS)
+                .collect { barcodeData ->
+                    if (!deferredBarcodeData.isCompleted) {
+                        deferredBarcodeData.complete(barcodeData)
+                    }
+                }
+        }
+
+        return try {
+            withTimeoutOrNull(timeoutMillis) { deferredBarcodeData.await() }
+        } finally {
+            barcodeDataJob.cancel()
         }
     }
 

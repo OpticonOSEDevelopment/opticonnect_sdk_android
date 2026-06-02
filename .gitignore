@@ -41,6 +41,7 @@ signing/
 
 # Log files
 *.log
+*.hprof
 
 # Temporary files
 *.tmp

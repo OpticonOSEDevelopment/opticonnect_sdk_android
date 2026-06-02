@@ -6,7 +6,6 @@ import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
-import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
@@ -14,10 +13,19 @@ import timber.log.Timber
 
 object OptiConnect : LifecycleHandler {
 
+    private val componentLock = Any()
+
+    @Volatile
     private var component: OptiConnectComponent? = null
+
+    @Volatile
     private var isSettingsHandlerInitialized = false
 
-    private lateinit var appContext: Context
+    @Volatile
+    private var isBluetoothManagerInitialized = false
+
+    @Volatile
+    private var appContext: Context? = null
 
     /**
     * Initializes the OptiConnect SDK.
@@ -30,29 +38,50 @@ object OptiConnect : LifecycleHandler {
     */
     override fun initialize(context: Context) {
         // Store application context, which is safe to keep for the app's lifetime
-        appContext = context.applicationContext
+        synchronized(componentLock) {
+            appContext = context.applicationContext
+        }
     }
 
     // Private method to lazily build the Dagger component
     private fun getComponent(context: Context): OptiConnectComponent {
-        if (component == null) {
-            component = DaggerOptiConnectComponent.builder()
-                .context(context.applicationContext)  // Use application context to avoid memory leaks
+        return component ?: synchronized(componentLock) {
+            component ?: DaggerOptiConnectComponent.builder()
+                .context(context.applicationContext)
                 .build()
-
-            if (Timber.forest().isEmpty()) {
-                Timber.plant(OptiConnectDebugTree())
-            }
+                .also { component = it }
+                .also {
+                    if (Timber.forest().isEmpty()) {
+                        Timber.plant(OptiConnectDebugTree())
+                    }
+                }
         }
-        return component!!
     }
 
-    // Function to ensure settingsHandler is initialized
-    private fun ensureSettingsHandlerInitialized(settingsHandler: SettingsHandler) {
+    private fun requireAppContext(): Context {
+        return appContext ?: throw IllegalStateException(
+            "OptiConnect.initialize(context) must be called before using the SDK."
+        )
+    }
+
+    private fun getInitializedSettingsComponent(): OptiConnectComponent = synchronized(componentLock) {
+        val component = getComponentFromContext()
+        val settingsHandler = component.settingsHandler()
         if (!isSettingsHandlerInitialized) {
-            settingsHandler.initialize(appContext)
+            settingsHandler.initialize(requireAppContext())
             isSettingsHandlerInitialized = true
         }
+        component
+    }
+
+    private fun getInitializedBluetoothManager(): BluetoothManager = synchronized(componentLock) {
+        val component = getComponentFromContext()
+        val manager = component.bluetoothManager()
+        if (!isBluetoothManagerInitialized) {
+            component.bluetoothLifecycleHandler().initialize(requireAppContext())
+            isBluetoothManagerInitialized = true
+        }
+        manager
     }
 
     /**
@@ -61,11 +90,10 @@ object OptiConnect : LifecycleHandler {
      * This property provides various configuration options, allowing you to
      * manage symbology settings, indicators, and send commands to the scanner.
      */
-    val scannerSettings: ScannerSettings by lazy {
-        val settingsHandler = getComponentFromContext().settingsHandler()
-        ensureSettingsHandlerInitialized(settingsHandler)
-        getComponentFromContext().scannerSettings()
-    }
+    val scannerSettings: ScannerSettings
+        get() {
+            return getInitializedSettingsComponent().scannerSettings()
+        }
 
     /**
      * Access Bluetooth management operations.
@@ -74,15 +102,8 @@ object OptiConnect : LifecycleHandler {
      * device discovery, connection, and disconnection, ensuring that the Bluetooth
      * lifecycle is managed properly.
      */
-    val bluetoothManager: BluetoothManager by lazy {
-        val manager = getComponentFromContext().bluetoothManager()
-        bluetoothLifeCycleManager.initialize(appContext)
-        manager
-    }
-
-    private val bluetoothLifeCycleManager: LifecycleHandler by lazy {
-        getComponentFromContext().bluetoothLifecycleHandler()
-    }
+    val bluetoothManager: BluetoothManager
+        get() = getInitializedBluetoothManager()
 
     /**
      * Access detailed information about connected BLE devices.
@@ -90,11 +111,10 @@ object OptiConnect : LifecycleHandler {
      * This property allows you to retrieve information such as the MAC address,
      * serial number, local name, and firmware version of a BLE device.
      */
-    val scannerInfo: ScannerInfo by lazy {
-        val settingsHandler = getComponentFromContext().settingsHandler()
-        ensureSettingsHandlerInitialized(settingsHandler)
-        getComponentFromContext().scannerInfo()
-    }
+    val scannerInfo: ScannerInfo
+        get() {
+            return getInitializedSettingsComponent().scannerInfo()
+        }
 
     /**
      * Configure feedback behavior for the scanner.
@@ -102,16 +122,14 @@ object OptiConnect : LifecycleHandler {
      * This property allows you to customize feedback settings such as LED, buzzer,
      * and vibration, controlling the scanner's responses to various commands.
      */
-    val scannerFeedback: ScannerFeedback by lazy {
-        val settingsHandler = getComponentFromContext().settingsHandler()
-        ensureSettingsHandlerInitialized(settingsHandler)
-        getComponentFromContext().scannerFeedback()
-    }
+    val scannerFeedback: ScannerFeedback
+        get() {
+            return getInitializedSettingsComponent().scannerFeedback()
+        }
 
     // Retrieve the component using the weak-referenced context
     private fun getComponentFromContext(): OptiConnectComponent {
-        val ctx = appContext
-        return getComponent(ctx)
+        return getComponent(requireAppContext())
     }
 
     /**
@@ -129,7 +147,13 @@ object OptiConnect : LifecycleHandler {
      * and ensure the system is left in a clean state.
      */
     override fun close() {
-        bluetoothLifeCycleManager.close()
+        synchronized(componentLock) {
+            component?.bluetoothLifecycleHandler()?.close()
+            component = null
+            isSettingsHandlerInitialized = false
+            isBluetoothManagerInitialized = false
+            appContext = null
+        }
         Timber.d("OptiConnect resources released")
     }
 }

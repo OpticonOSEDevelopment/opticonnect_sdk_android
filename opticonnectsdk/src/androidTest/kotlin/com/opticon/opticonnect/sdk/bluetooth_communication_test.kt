@@ -343,4 +343,47 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             }
         }
     }
+
+    @Test
+    fun testZReinitializeAfterCloseReadsBarcodeDataStream() = runBlocking {
+        assertTrue(
+            "Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS before SDK teardown.",
+            connectToTestDevice()
+        )
+
+        OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
+        val barcodeBeforeTeardown = awaitBarcodeData()
+        assertNotNull(
+            "Expected barcode data before SDK teardown. Scan a barcode within the test timeout.",
+            barcodeBeforeTeardown
+        )
+
+        OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+        delay(1000)
+
+        var sdkClosed = false
+        try {
+            OptiConnect.close()
+            sdkClosed = true
+            delay(1000)
+
+            BaseBluetoothTest.initializeOptiConnectForTest()
+            sdkClosed = false
+
+            assertTrue(
+                "Failed to reconnect to device with MAC address $TEST_DEVICE_MAC_ADDRESS after SDK reinitialization.",
+                connectToTestDevice()
+            )
+
+            val barcodeAfterReinitialize = awaitBarcodeData()
+            assertNotNull(
+                "Expected barcode data after SDK reinitialization. Scan a barcode within the test timeout.",
+                barcodeAfterReinitialize
+            )
+        } finally {
+            if (sdkClosed) {
+                BaseBluetoothTest.initializeOptiConnectForTest()
+            }
+        }
+    }
 }
