@@ -7,6 +7,7 @@ import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
 import com.opticon.opticonnect.sdk.api.interfaces.Callback
+import com.opticon.opticonnect.sdk.api.interfaces.ListenerSubscription
 import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.BleDevicesStreamsHandler
 import io.reactivex.rxjava3.plugins.RxJavaPlugins
@@ -27,6 +28,15 @@ internal class BluetoothManagerImpl @Inject constructor(
     private lateinit var context: Context
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private class JobListenerSubscription(private val job: Job) : ListenerSubscription {
+        override val isClosed: Boolean
+            get() = !job.isActive
+
+        override fun close() {
+            job.cancel()
+        }
+    }
 
     override fun initialize(context: Context) {
         Timber.d("Initializing BluetoothManager!")
@@ -70,16 +80,23 @@ internal class BluetoothManagerImpl @Inject constructor(
         return bleDevicesDiscoverer.getDeviceDiscoveryFlow()
     }
 
-    override fun listenToDiscoveredDevices(callback: Callback<BleDiscoveredDevice>) {
-        coroutineScope.launch {
+    private fun <T> collectWithCallback(flow: Flow<T>, callback: Callback<T>): ListenerSubscription {
+        val job = coroutineScope.launch {
             try {
-                listenToDiscoveredDevices().collect { device ->
-                    withContext(Dispatchers.Main) { callback.onSuccess(device) }
+                flow.collect { data ->
+                    withContext(Dispatchers.Main) { callback.onSuccess(data) }
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Throwable) {
                 withContext(Dispatchers.Main) { callback.onError(e) }
             }
         }
+        return JobListenerSubscription(job)
+    }
+
+    override fun listenToDiscoveredDevices(callback: Callback<BleDiscoveredDevice>): ListenerSubscription {
+        return collectWithCallback(listenToDiscoveredDevices(), callback)
     }
 
     override suspend fun connect(deviceId: String) {
@@ -115,32 +132,19 @@ internal class BluetoothManagerImpl @Inject constructor(
         return bleConnectivityHandler.getConnectionStateFlow(deviceId).distinctUntilChanged()
     }
 
-    override fun listenToConnectionState(deviceId: String, callback: Callback<BleDeviceConnectionState>) {
-        coroutineScope.launch {
-            try {
-                listenToConnectionState(deviceId).collect { state ->
-                    withContext(Dispatchers.Main) { callback.onSuccess(state) }
-                }
-            } catch (e: Throwable) {
-                withContext(Dispatchers.Main) { callback.onError(e) }
-            }
-        }
+    override fun listenToConnectionState(
+        deviceId: String,
+        callback: Callback<BleDeviceConnectionState>
+    ): ListenerSubscription {
+        return collectWithCallback(listenToConnectionState(deviceId), callback)
     }
 
     override fun listenToBarcodeData(deviceId: String): Flow<BarcodeData> {
         return bleDevicesStreamsHandler.getOrCreateBarcodeStream(deviceId)
     }
 
-    override fun listenToBarcodeData(deviceId: String, callback: Callback<BarcodeData>) {
-        coroutineScope.launch {
-            try {
-                listenToBarcodeData(deviceId).collect { data ->
-                    withContext(Dispatchers.Main) { callback.onSuccess(data) }
-                }
-            } catch (e: Throwable) {
-                withContext(Dispatchers.Main) { callback.onError(e) }
-            }
-        }
+    override fun listenToBarcodeData(deviceId: String, callback: Callback<BarcodeData>): ListenerSubscription {
+        return collectWithCallback(listenToBarcodeData(deviceId), callback)
     }
 
     override fun getLatestBatteryPercentage(deviceId: String): Int {
@@ -151,32 +155,16 @@ internal class BluetoothManagerImpl @Inject constructor(
         return bleDevicesStreamsHandler.getOrCreateBatteryPercentageStream(deviceId)
     }
 
-    override fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>) {
-        coroutineScope.launch {
-            try {
-                listenToBatteryPercentage(deviceId).collect { percentage ->
-                    withContext(Dispatchers.Main) { callback.onSuccess(percentage) }
-                }
-            } catch (e: Throwable) {
-                withContext(Dispatchers.Main) { callback.onError(e) }
-            }
-        }
+    override fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>): ListenerSubscription {
+        return collectWithCallback(listenToBatteryPercentage(deviceId), callback)
     }
 
     override fun listenToBatteryStatus(deviceId: String): Flow<BatteryLevelStatus> {
         return bleDevicesStreamsHandler.getOrCreateBatteryStatusStream(deviceId)
     }
 
-    override fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>) {
-        coroutineScope.launch {
-            try {
-                listenToBatteryStatus(deviceId).collect { status ->
-                    withContext(Dispatchers.Main) { callback.onSuccess(status) }
-                }
-            } catch (e: Throwable) {
-                withContext(Dispatchers.Main) { callback.onError(e) }
-            }
-        }
+    override fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>): ListenerSubscription {
+        return collectWithCallback(listenToBatteryStatus(deviceId), callback)
     }
 
     override fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {

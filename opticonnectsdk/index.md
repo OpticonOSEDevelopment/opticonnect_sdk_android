@@ -99,7 +99,7 @@ dependencies {
 }
 ```
 
-Java projects can use the callback APIs, but the app should still include the coroutine dependencies because the SDK runtime and public API use coroutines internally.
+Java projects can use the callback APIs, but the app should still include the coroutine dependencies because the SDK runtime and public API use coroutines internally. Long-running callback listeners return a `ListenerSubscription`; call `close()` when the screen or generated workflow no longer needs discovery, connection-state, barcode, or battery updates.
 
 #### Important: Kotlin Plugin Requirement for Java Projects
 

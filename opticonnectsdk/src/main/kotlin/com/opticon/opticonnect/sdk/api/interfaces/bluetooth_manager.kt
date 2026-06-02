@@ -49,8 +49,9 @@ interface BluetoothManager {
      * Callback-based version of [listenToDiscoveredDevices] for Java interoperability.
      *
      * @param callback The callback to receive discovered devices or errors.
+     * @return A subscription that stops discovery updates when closed.
      */
-    fun listenToDiscoveredDevices(callback: Callback<BleDiscoveredDevice>)
+    fun listenToDiscoveredDevices(callback: Callback<BleDiscoveredDevice>): ListenerSubscription
 
     // Connection Methods
 
@@ -61,13 +62,15 @@ interface BluetoothManager {
      * specified by the [deviceId].
      *
      * @param deviceId The identifier of the target scanner.
+     * @throws com.opticon.opticonnect.sdk.api.exceptions.BleConnectionException when the connection cannot be established.
      */
     suspend fun connect(deviceId: String)
 
     /**
      * Callback-based version of [connect] for Java interoperability.
      *
-     * Use this method to initiate a connection attempt and receive updates on success or failure.
+     * Use this method to initiate a connection attempt. [Callback.onSuccess] is called only after
+     * the scanner is connected; [Callback.onError] is called when the connection cannot be established.
      *
      * @param deviceId The identifier of the target scanner.
      * @param callback The callback to receive success or error status.
@@ -101,8 +104,9 @@ interface BluetoothManager {
      *
      * @param deviceId The identifier of the target scanner.
      * @param callback Callback to receive [BleDeviceConnectionState].
+     * @return A subscription that stops connection state updates when closed.
      */
-    fun listenToConnectionState(deviceId: String, callback: Callback<BleDeviceConnectionState>)
+    fun listenToConnectionState(deviceId: String, callback: Callback<BleDeviceConnectionState>): ListenerSubscription
 
     // Barcode Data Methods
 
@@ -122,8 +126,9 @@ interface BluetoothManager {
      *
      * @param deviceId The identifier of the target scanner.
      * @param callback Callback to receive [BarcodeData].
+     * @return A subscription that stops barcode updates when closed.
      */
-    fun listenToBarcodeData(deviceId: String, callback: Callback<BarcodeData>)
+    fun listenToBarcodeData(deviceId: String, callback: Callback<BarcodeData>): ListenerSubscription
 
     // Battery Percentage Methods
 
@@ -144,8 +149,9 @@ interface BluetoothManager {
      *
      * @param deviceId The identifier of the target scanner.
      * @param callback Callback to receive battery percentage as an [Int].
+     * @return A subscription that stops battery percentage updates when closed.
      */
-    fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>)
+    fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>): ListenerSubscription
 
     /**
      * Retrieves the latest battery percentage of a specific Opticon BLE scanner.
@@ -177,8 +183,9 @@ interface BluetoothManager {
      *
      * @param deviceId The identifier of the target scanner.
      * @param callback Callback to receive [BatteryLevelStatus].
+     * @return A subscription that stops battery status updates when closed.
      */
-    fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>)
+    fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>): ListenerSubscription
 
     /**
      * Retrieves the latest battery status of a specific Opticon BLE scanner.

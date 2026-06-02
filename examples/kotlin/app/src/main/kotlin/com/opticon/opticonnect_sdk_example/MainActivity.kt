@@ -35,6 +35,8 @@ class MainActivity : ComponentActivity() {
     private var deviceState by mutableStateOf(DeviceState())
     private var userRequestedDisconnect by mutableStateOf(false)
     private var discoveryJob: Job? = null
+    private var connectionStateJob: Job? = null
+    private val deviceDataJobs = mutableListOf<Job>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -108,16 +110,20 @@ class MainActivity : ComponentActivity() {
                     connect(deviceId)
                     startListeningToDeviceData(deviceId)
 
-                    listenToConnectionState(deviceId).collect { state ->
-                        deviceState = deviceState.copy(
-                            connectionState = state,
-                            connectedDeviceId = if (state == BleDeviceConnectionState.CONNECTED) deviceId else ""
-                        )
+                    connectionStateJob?.cancel()
+                    connectionStateJob = lifecycleScope.launch {
+                        listenToConnectionState(deviceId).collect { state ->
+                            deviceState = deviceState.copy(
+                                connectionState = state,
+                                connectedDeviceId = if (state == BleDeviceConnectionState.CONNECTED) deviceId else ""
+                            )
 
-                        Log.d("OptiConnect", "Device $deviceId state changed to: $state")
+                            Log.d("OptiConnect", "Device $deviceId state changed to: $state")
 
-                        if (state == BleDeviceConnectionState.DISCONNECTED) {
-                            deviceState = DeviceState() // Reset state on disconnect
+                            if (state == BleDeviceConnectionState.DISCONNECTED) {
+                                cancelDeviceListeners()
+                                deviceState = DeviceState() // Reset state on disconnect
+                            }
                         }
                     }
                 } catch (e: Exception) {
@@ -131,19 +137,21 @@ class MainActivity : ComponentActivity() {
 
     // Listens to data from the connected device (barcode, battery, charging status)
     private fun startListeningToDeviceData(deviceId: String) {
-        lifecycleScope.launch {
+        cancelDeviceDataJobs()
+
+        deviceDataJobs += lifecycleScope.launch {
             OptiConnect.bluetoothManager.listenToBarcodeData(deviceId).collect { barcode ->
                 deviceState = deviceState.copy(barcodeData = barcode.data)
             }
         }
 
-        lifecycleScope.launch {
+        deviceDataJobs += lifecycleScope.launch {
             OptiConnect.bluetoothManager.listenToBatteryPercentage(deviceId).collect { battery ->
                 deviceState = deviceState.copy(batteryPercentage = battery)
             }
         }
 
-        lifecycleScope.launch {
+        deviceDataJobs += lifecycleScope.launch {
             OptiConnect.bluetoothManager.listenToBatteryStatus(deviceId).collect { status ->
                 val isPoweredOrCharging = status.isCharging || status.isWiredCharging || status.isWirelessCharging
                 Log.d("OptiConnect", "Battery status: $status")
@@ -152,11 +160,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun cancelDeviceDataJobs() {
+        deviceDataJobs.forEach { it.cancel() }
+        deviceDataJobs.clear()
+    }
+
+    private fun cancelDeviceListeners() {
+        connectionStateJob?.cancel()
+        connectionStateJob = null
+        cancelDeviceDataJobs()
+    }
+
     // Disconnects from the device and resets the state
     private fun disconnectDevice(deviceId: String) {
         lifecycleScope.launch {
             userRequestedDisconnect = true
             discoveryJob?.cancel()
+            cancelDeviceListeners()
             OptiConnect.bluetoothManager.stopDiscovery()
             OptiConnect.bluetoothManager.disconnect(deviceId)
             deviceState = DeviceState()
@@ -165,6 +185,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        discoveryJob?.cancel()
+        cancelDeviceListeners()
         OptiConnect.close()
     }
 }

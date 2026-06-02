@@ -85,7 +85,7 @@ dependencies {
 }
 ```
 
-Java projects can use the callback APIs, but still need the Kotlin plugin and coroutine dependencies because the SDK is Kotlin-based internally.
+Java projects can use the callback APIs, but still need the Kotlin plugin and coroutine dependencies because the SDK is Kotlin-based internally. Long-running callback listeners return a `ListenerSubscription`; call `close()` when the screen or generated workflow no longer needs updates.
 
 ### 4. Add Bluetooth Permissions
 
@@ -128,7 +128,11 @@ lifecycleScope.launch {
 
 ```kotlin
 lifecycleScope.launch {
-    OptiConnect.bluetoothManager.connect(deviceId)
+    try {
+        OptiConnect.bluetoothManager.connect(deviceId)
+    } catch (e: Exception) {
+        Log.e("OptiConnect", "Failed to connect", e)
+    }
 }
 ```
 
@@ -140,6 +144,15 @@ lifecycleScope.launch {
         Log.d("OptiConnect", barcode.data)
     }
 }
+```
+
+Java callback listeners should keep the returned subscription and close it during cleanup:
+
+```java
+ListenerSubscription barcodeSubscription =
+    OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, callback);
+
+barcodeSubscription.close();
 ```
 
 ### Listen To Connection State
