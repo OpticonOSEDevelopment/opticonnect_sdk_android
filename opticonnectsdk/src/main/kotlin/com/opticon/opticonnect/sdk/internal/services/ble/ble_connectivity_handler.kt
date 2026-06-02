@@ -81,26 +81,26 @@ internal class BleConnectivityHandler @Inject constructor(
 
             while (true) {
                 val connectionResult = CompletableDeferred<Result<Unit>>()
-                var connectionDisposable: Disposable? = null
+                val connectionDisposable = AtomicReference<Disposable?>()
                 try {
                     Timber.d("Attempting to connect to device: $deviceId")
                     withTimeout(connectionTimeoutMillis) {
-                        connectionDisposable = establishConnection(bleDevice, connectionResult)
+                        connectionDisposable.set(establishConnection(bleDevice, connectionResult))
                         connectionResult.await().getOrThrow()
                     }
                     break
                 } catch (e: TimeoutCancellationException) {
                     lastFailure = e
                     Timber.d("Connection attempt timed out ($retryCount/$maxRetries): $e")
-                    connectionDisposable?.dispose()
+                    connectionDisposable.get()?.dispose()
                 } catch (e: CancellationException) {
-                    connectionDisposable?.dispose()
+                    connectionDisposable.get()?.dispose()
                     connectionStateFlow.emit(BleDeviceConnectionState.DISCONNECTED)
                     throw e
                 } catch (e: Exception) {
                     lastFailure = e
                     Timber.d("Connection attempt failed ($retryCount/$maxRetries): $e")
-                    connectionDisposable?.dispose()
+                    connectionDisposable.get()?.dispose()
                 }
                 retryCount++
                 if (retryCount >= maxRetries) {

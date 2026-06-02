@@ -28,13 +28,11 @@ This is the shortest path from adding the SDK to receiving barcode data:
 8. Listen for barcode data.
 
 ```kotlin
-import kotlinx.coroutines.flow.first
-
 OptiConnect.initialize(context)
 OptiConnect.bluetoothManager.startDiscovery()
 
 lifecycleScope.launch {
-    val device = OptiConnect.bluetoothManager.listenToDiscoveredDevices.first()
+    val device = OptiConnect.bluetoothManager.listenToDiscoveredDevices().first()
 
     OptiConnect.bluetoothManager.connect(device.deviceId)
 
@@ -148,7 +146,7 @@ lifecycleScope.launch {
 
 Java callback listeners should keep the returned subscription and close it during cleanup:
 
-```java
+```text
 ListenerSubscription barcodeSubscription =
     OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, callback);
 

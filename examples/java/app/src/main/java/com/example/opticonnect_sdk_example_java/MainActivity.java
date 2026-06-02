@@ -23,6 +23,9 @@ import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
 import com.opticon.opticonnect.sdk.api.interfaces.Callback;
 import com.opticon.opticonnect.sdk.api.interfaces.ListenerSubscription;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import kotlin.Unit;
 
 public class MainActivity extends ComponentActivity {
@@ -30,11 +33,8 @@ public class MainActivity extends ComponentActivity {
     private DeviceState deviceState = new DeviceState();
     private TextView connectionStatusText, barcodeDataText, batteryPercentageText, chargingStatusText;
     private boolean userRequestedDisconnect = false;
-    private ListenerSubscription discoverySubscription;
-    private ListenerSubscription connectionStateSubscription;
-    private ListenerSubscription barcodeDataSubscription;
-    private ListenerSubscription batteryPercentageSubscription;
-    private ListenerSubscription batteryStatusSubscription;
+    private final List<ListenerSubscription> discoverySubscriptions = new ArrayList<>();
+    private final List<ListenerSubscription> deviceSubscriptions = new ArrayList<>();
 
     private final ActivityResultLauncher<String[]> requestPermissionsLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), this::onPermissionsResult);
@@ -86,8 +86,8 @@ public class MainActivity extends ComponentActivity {
         OptiConnect.INSTANCE.initialize(this);
         OptiConnect.INSTANCE.getBluetoothManager().startDiscovery();
 
-        closeDiscoverySubscription();
-        discoverySubscription = OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
+        closeDiscoverySubscriptions();
+        trackDiscoverySubscription(OptiConnect.INSTANCE.getBluetoothManager().listenToDiscoveredDevices(new Callback<>() {
             @Override
             public void onSuccess(BleDiscoveredDevice device) {
                 if (!userRequestedDisconnect && deviceState.getConnectionState() == BleDeviceConnectionState.DISCONNECTED) {
@@ -102,7 +102,7 @@ public class MainActivity extends ComponentActivity {
             public void onError(@NonNull Throwable error) {
                 Log.e("OptiConnect", "Error discovering devices: " + error.getMessage());
             }
-        });
+        }));
     }
 
     private void connectToDevice(String deviceId) {
@@ -127,7 +127,7 @@ public class MainActivity extends ComponentActivity {
     private void startListeningToDeviceData(String deviceId) {
         closeDeviceSubscriptions();
 
-        barcodeDataSubscription = OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, new Callback<>() {
+        trackDeviceSubscription(OptiConnect.INSTANCE.getBluetoothManager().listenToBarcodeData(deviceId, new Callback<>() {
             @Override
             public void onSuccess(BarcodeData barcode) {
                 deviceState.setBarcodeData(barcode.getData());
@@ -138,9 +138,9 @@ public class MainActivity extends ComponentActivity {
             public void onError(@NonNull Throwable error) {
                 Log.e("OptiConnect", "Error receiving barcode data: " + error.getMessage());
             }
-        });
+        }));
 
-        batteryPercentageSubscription = OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryPercentage(deviceId, new Callback<>() {
+        trackDeviceSubscription(OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryPercentage(deviceId, new Callback<>() {
             @Override
             public void onSuccess(Integer batteryPercentage) {
                 deviceState.setBatteryPercentage(batteryPercentage);
@@ -151,9 +151,9 @@ public class MainActivity extends ComponentActivity {
             public void onError(@NonNull Throwable error) {
                 Log.e("OptiConnect", "Error receiving battery percentage: " + error.getMessage());
             }
-        });
+        }));
 
-        batteryStatusSubscription = OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryStatus(deviceId, new Callback<>() {
+        trackDeviceSubscription(OptiConnect.INSTANCE.getBluetoothManager().listenToBatteryStatus(deviceId, new Callback<>() {
             @Override
             public void onSuccess(BatteryLevelStatus status) {
                 boolean isPoweredOrCharging = status.isCharging() || status.isWiredCharging() || status.isWirelessCharging();
@@ -166,12 +166,11 @@ public class MainActivity extends ComponentActivity {
             public void onError(@NonNull Throwable error) {
                 Log.e("OptiConnect", "Error receiving battery status: " + error.getMessage());
             }
-        });
+        }));
     }
 
     private void listenToConnectionState(String deviceId) {
-        closeConnectionStateSubscription();
-        connectionStateSubscription = OptiConnect.INSTANCE.getBluetoothManager().listenToConnectionState(deviceId, new Callback<>() {
+        trackDeviceSubscription(OptiConnect.INSTANCE.getBluetoothManager().listenToConnectionState(deviceId, new Callback<>() {
             @Override
             public void onSuccess(BleDeviceConnectionState state) {
                 deviceState.setConnectionState(state);
@@ -186,43 +185,38 @@ public class MainActivity extends ComponentActivity {
             public void onError(@NonNull Throwable error) {
                 Log.e("OptiConnect", "Error receiving connection state: " + error.getMessage());
             }
-        });
+        }));
     }
 
-    private void closeSubscription(ListenerSubscription subscription) {
-        if (subscription != null && !subscription.isClosed()) {
-            subscription.close();
-        }
+    private void trackDiscoverySubscription(ListenerSubscription subscription) {
+        discoverySubscriptions.add(subscription);
     }
 
-    private void closeDiscoverySubscription() {
-        closeSubscription(discoverySubscription);
-        discoverySubscription = null;
+    private void trackDeviceSubscription(ListenerSubscription subscription) {
+        deviceSubscriptions.add(subscription);
     }
 
-    private void closeConnectionStateSubscription() {
-        closeSubscription(connectionStateSubscription);
-        connectionStateSubscription = null;
-    }
-
-    private void closeDeviceDataSubscriptions() {
-        closeSubscription(barcodeDataSubscription);
-        closeSubscription(batteryPercentageSubscription);
-        closeSubscription(batteryStatusSubscription);
-        barcodeDataSubscription = null;
-        batteryPercentageSubscription = null;
-        batteryStatusSubscription = null;
+    private void closeDiscoverySubscriptions() {
+        closeSubscriptions(discoverySubscriptions);
     }
 
     private void closeDeviceSubscriptions() {
-        closeConnectionStateSubscription();
-        closeDeviceDataSubscriptions();
+        closeSubscriptions(deviceSubscriptions);
+    }
+
+    private void closeSubscriptions(List<ListenerSubscription> subscriptions) {
+        for (ListenerSubscription subscription : subscriptions) {
+            if (!subscription.isClosed()) {
+                subscription.close();
+            }
+        }
+        subscriptions.clear();
     }
 
     private void disconnectDevice() {
         String deviceId = deviceState.getConnectedDeviceId();
         userRequestedDisconnect = true;
-        closeDiscoverySubscription();
+        closeDiscoverySubscriptions();
         closeDeviceSubscriptions();
         OptiConnect.INSTANCE.getBluetoothManager().stopDiscovery();
         if (deviceId != null && !deviceId.isEmpty()) {
@@ -257,7 +251,7 @@ public class MainActivity extends ComponentActivity {
 
     @Override
     protected void onDestroy() {
-        closeDiscoverySubscription();
+        closeDiscoverySubscriptions();
         closeDeviceSubscriptions();
         OptiConnect.INSTANCE.close();
         super.onDestroy();

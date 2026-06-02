@@ -148,7 +148,7 @@ This example demonstrates how to integrate the OptiConnect SDK using Kotlin. It 
 
 *MainActivity.kt*
 
-```kt
+```text
 package com.opticon.opticonnect_sdk_example
 
 import android.Manifest

@@ -5,7 +5,7 @@ package com.opticon.opticonnect.sdk.api.exceptions
  */
 class BleConnectionException(
     val deviceId: String,
-    val attempts: Int,
+    attempts: Int,
     cause: Throwable? = null
 ) : RuntimeException(
     "Failed to connect to BLE device $deviceId after $attempts attempts.",
