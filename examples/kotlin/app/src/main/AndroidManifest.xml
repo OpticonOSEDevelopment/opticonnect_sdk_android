@@ -27,7 +27,7 @@
         android:theme="@style/Theme.Opticonnect_SDK_Example"
         tools:targetApi="31">
         <activity
-            android:name=".AdvancedScannerActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Opticonnect_SDK_Example">
