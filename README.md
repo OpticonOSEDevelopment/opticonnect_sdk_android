@@ -116,7 +116,7 @@ The host app must request runtime permissions before discovery or connection:
 OptiConnect.bluetoothManager.startDiscovery()
 
 lifecycleScope.launch {
-    OptiConnect.bluetoothManager.listenToDiscoveredDevices.collect { device ->
+    OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { device ->
         Log.d("OptiConnect", "Found device: ${device.deviceId}")
     }
 }
