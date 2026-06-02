@@ -1,9 +1,5 @@
 # Module opticonnect sdk
 
-<p style="text-align: center; margin: 8px 0 24px;">
-    <img src="images/opticon_logo.svg" alt="Opticon" style="width: 200px; max-width: 60%;">
-</p>
-
 OptiConnect SDK enables seamless integration with [Opticon](https://opticon.com/)'s BLE [OPN-2500](https://opticon.com/product/opn-2500/) and [OPN-6000](https://opticon.com/product/opn-6000/) barcode scanners. This SDK allows you to manage Bluetooth Low Energy (BLE) connections, handle scanner data streams, and programmatically control scanner settings via commands.
 
 ## Features

@@ -233,8 +233,27 @@ tasks.dokkaHtml {
     }
 }
 
-tasks.register<Copy>("copyDokkaImages") {
+val customizeDokkaLandingPage by tasks.registering {
     dependsOn("dokkaHtml")
+
+    doLast {
+        val indexFile = layout.buildDirectory.file("dokka/html/index.html").get().asFile
+        val title = """    <h1 class="cover"><span><span>opticonnect</span></span> <span><span>sdk</span></span></h1>"""
+        val titleWithLogo = """
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 32px;">
+      <h1 class="cover" style="margin: 0;"><span><span>opticonnect</span></span> <span><span>sdk</span></span></h1>
+      <img src="images/opticon_logo_dokka.svg" alt="Opticon" style="width: 200px; max-width: 35%; flex-shrink: 0; transform: translateY(-12px);">
+    </div>""".trimEnd()
+
+        val html = indexFile.readText()
+        if (title in html) {
+            indexFile.writeText(html.replace(title, titleWithLogo))
+        }
+    }
+}
+
+tasks.register<Copy>("copyDokkaImages") {
+    dependsOn(customizeDokkaLandingPage)
     from("images")  // Source directory containing your images
     into(layout.buildDirectory.dir("dokka/html/images"))  // Destination in Dokka's output
 }
