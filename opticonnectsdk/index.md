@@ -135,11 +135,14 @@ At runtime, request `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT` on Android 12+ (API
 
 These examples demonstrate how to integrate the OptiConnect SDK to discover devices, manage Bluetooth connections, retrieve barcode data, and monitor battery status for the OPN-2500 and OPN-6000 in both Kotlin and Java.
 
+An advanced Kotlin sample is also available in [examples/kotlin-advanced](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin-advanced). It shows a manual scanner list with per-device connect/disconnect controls, live barcode and battery fields, and a small scanner setting toggle.
+
 #### Main Components in the Example
 - **DeviceState**: A data class managing the state of the connected BLE scanner, including device ID, connection state, barcode data, battery percentage, and charging status.
 - **MainActivity**:  The main activity for setting up the SDK, handling Bluetooth permissions, discovering devices, managing connection and disconnection events, and starting listeners for barcode data and battery updates.
 #### User Interfaces
 - **Kotlin (Compose)**: `ConnectionStatusScreen` displays the connection status, barcode data, battery level, and charging state in a simple Compose layout.
+- **Advanced Kotlin (Compose)**: `AdvancedScannerActivity` displays discovered scanners in a list and lets the user connect or disconnect each scanner manually.
 - **Java (XML Layout)**: `activity_main.xml` provides a similar UI using TextView components to display the connection status, barcode data, battery level, and charging state, along with a "Disconnect" button.
 
 ### Kotlin Example

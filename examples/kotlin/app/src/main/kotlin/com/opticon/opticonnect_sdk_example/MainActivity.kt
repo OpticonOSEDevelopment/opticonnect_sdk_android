@@ -9,9 +9,18 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -22,7 +31,6 @@ import com.opticon.opticonnect_sdk_example.ui.theme.Opticonnect_SDK_ExampleTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-// Holds device-specific connection and data state
 data class DeviceState(
     val connectedDeviceId: String = "",
     val connectionState: BleDeviceConnectionState = BleDeviceConnectionState.DISCONNECTED,
@@ -44,7 +52,6 @@ class MainActivity : ComponentActivity() {
         checkBluetoothPermissions()
     }
 
-    // Sets up the main UI screen
     @Composable
     private fun MainScreen() {
         Opticonnect_SDK_ExampleTheme {
@@ -57,11 +64,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // Checks for required Bluetooth permissions and requests them if not granted
     private fun checkBluetoothPermissions() {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             listOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT)
-        } else listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        } else {
+            listOf(Manifest.permission.ACCESS_FINE_LOCATION)
+        }
 
         val toRequest = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
@@ -69,73 +77,72 @@ class MainActivity : ComponentActivity() {
 
         if (toRequest.isNotEmpty()) {
             requestPermissionsLauncher.launch(toRequest.toTypedArray())
-        } else initializeOptiConnectAndStartDiscovery()
+        } else {
+            initializeOptiConnectAndStartDiscovery()
+        }
     }
 
-    // Launcher for permission requests
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        if (permissions.all { it.value }) initializeOptiConnectAndStartDiscovery()
-        else Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show()
+        if (permissions.all { it.value }) {
+            initializeOptiConnectAndStartDiscovery()
+        } else {
+            Toast.makeText(this, "Bluetooth permissions are required.", Toast.LENGTH_LONG).show()
+        }
     }
 
-    // Initializes OptiConnect SDK and starts device discovery
     private fun initializeOptiConnectAndStartDiscovery() {
-        OptiConnect.initialize(this).apply {
-            userRequestedDisconnect = false
-            OptiConnect.bluetoothManager.startDiscovery()
-            discoveryJob?.cancel()
-            discoveryJob = lifecycleScope.launch {
-                // Collects discovered devices and connects if disconnected
-                OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { device ->
-                    if (!userRequestedDisconnect && deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
-                        deviceState = deviceState.copy(
-                            connectedDeviceId = device.deviceId,
-                            connectionState = BleDeviceConnectionState.CONNECTING
-                        )
-                        connectToDevice(device.deviceId)
-                    }
+        OptiConnect.initialize(this)
+        userRequestedDisconnect = false
+        OptiConnect.bluetoothManager.startDiscovery()
+
+        discoveryJob?.cancel()
+        discoveryJob = lifecycleScope.launch {
+            OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { device ->
+                if (!userRequestedDisconnect && deviceState.connectionState == BleDeviceConnectionState.DISCONNECTED) {
+                    deviceState = deviceState.copy(
+                        connectedDeviceId = device.deviceId,
+                        connectionState = BleDeviceConnectionState.CONNECTING
+                    )
+                    connectToDevice(device.deviceId)
                 }
             }
         }
     }
 
-    // Connects to the discovered device
     private fun connectToDevice(deviceId: String) {
         lifecycleScope.launch {
-            OptiConnect.bluetoothManager.apply {
-                try {
-                    // Initiates the connection and listens to connection state
-                    connect(deviceId)
-                    startListeningToDeviceData(deviceId)
+            try {
+                OptiConnect.bluetoothManager.connect(deviceId)
+                startListeningToConnectionState(deviceId)
+                startListeningToDeviceData(deviceId)
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
+                deviceState = DeviceState()
+            }
+        }
+    }
 
-                    connectionStateJob?.cancel()
-                    connectionStateJob = lifecycleScope.launch {
-                        listenToConnectionState(deviceId).collect { state ->
-                            deviceState = deviceState.copy(
-                                connectionState = state,
-                                connectedDeviceId = if (state == BleDeviceConnectionState.CONNECTED) deviceId else ""
-                            )
+    private fun startListeningToConnectionState(deviceId: String) {
+        connectionStateJob?.cancel()
+        connectionStateJob = lifecycleScope.launch {
+            OptiConnect.bluetoothManager.listenToConnectionState(deviceId).collect { state ->
+                deviceState = deviceState.copy(
+                    connectionState = state,
+                    connectedDeviceId = if (state == BleDeviceConnectionState.CONNECTED) deviceId else ""
+                )
 
-                            Log.d("OptiConnect", "Device $deviceId state changed to: $state")
+                Log.d("OptiConnect", "Device $deviceId state changed to: $state")
 
-                            if (state == BleDeviceConnectionState.DISCONNECTED) {
-                                cancelDeviceListeners()
-                                deviceState = DeviceState() // Reset state on disconnect
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    // Handle connection failure and reset device state
-                    Toast.makeText(this@MainActivity, "Failed to connect: ${e.message}", Toast.LENGTH_SHORT).show()
+                if (state == BleDeviceConnectionState.DISCONNECTED) {
+                    cancelDeviceListeners()
                     deviceState = DeviceState()
                 }
             }
         }
     }
 
-    // Listens to data from the connected device (barcode, battery, charging status)
     private fun startListeningToDeviceData(deviceId: String) {
         cancelDeviceDataJobs()
 
@@ -171,11 +178,11 @@ class MainActivity : ComponentActivity() {
         cancelDeviceDataJobs()
     }
 
-    // Disconnects from the device and resets the state
     private fun disconnectDevice(deviceId: String) {
         lifecycleScope.launch {
             userRequestedDisconnect = true
             discoveryJob?.cancel()
+            discoveryJob = null
             cancelDeviceListeners()
             OptiConnect.bluetoothManager.stopDiscovery()
             OptiConnect.bluetoothManager.disconnect(deviceId)
@@ -191,7 +198,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// UI for showing the connection status and device data
 @Composable
 fun ConnectionStatusScreen(
     connectionState: DeviceState,
@@ -202,25 +208,36 @@ fun ConnectionStatusScreen(
         color = MaterialTheme.colorScheme.background
     ) {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize()
         ) {
             when (connectionState.connectionState) {
                 BleDeviceConnectionState.CONNECTING -> {
                     Text("Connecting to device...", style = MaterialTheme.typography.headlineMedium)
                     CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
                 }
+
                 BleDeviceConnectionState.CONNECTED -> {
-                    Text("Connected to device: ${connectionState.connectedDeviceId}", style = MaterialTheme.typography.headlineMedium)
+                    Text(
+                        "Connected to device: ${connectionState.connectedDeviceId}",
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                     Text("Barcode Data: ${connectionState.barcodeData ?: "No barcode scanned yet."}")
                     Text("Battery: ${connectionState.batteryPercentage ?: "N/A"}%")
                     Text("Charging/USB power: ${if (connectionState.isCharging == true) "Yes" else "No"}")
-                    Button(onClick = { onDisconnect(connectionState.connectedDeviceId) }, modifier = Modifier.padding(top = 16.dp)) {
+                    Button(
+                        onClick = { onDisconnect(connectionState.connectedDeviceId) },
+                        modifier = Modifier.padding(top = 16.dp)
+                    ) {
                         Text("Disconnect")
                     }
                 }
+
                 BleDeviceConnectionState.DISCONNECTED -> {
                     Text("Searching for devices...", style = MaterialTheme.typography.headlineMedium)
                 }
+
                 BleDeviceConnectionState.DISCONNECTING -> {
                     Text("Disconnecting from device...", style = MaterialTheme.typography.headlineMedium)
                 }
