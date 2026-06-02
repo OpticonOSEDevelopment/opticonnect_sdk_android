@@ -116,8 +116,8 @@ internal class BleConnectivityHandler @Inject constructor(
         bleDevice: RxBleDevice,
         connectionResult: CompletableDeferred<Result<Unit>>
     ): Disposable {
-        lateinit var connectionDisposable: Disposable
-        connectionDisposable = bleDevice.establishConnection(false)
+        val connectionDisposableRef = AtomicReference<Disposable?>()
+        val connectionDisposable = bleDevice.establishConnection(false)
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .doOnSubscribe {
@@ -128,6 +128,16 @@ internal class BleConnectivityHandler @Inject constructor(
                     Timber.d("Connected to device: ${bleDevice.macAddress}")
                     // Emit the CONNECTED state
                     scope.launch {
+                        val connectionDisposable = connectionDisposableRef.get()
+                        if (connectionDisposable == null) {
+                            connectionResult.complete(
+                                Result.failure(
+                                    IllegalStateException("Connection disposable was not available for ${bleDevice.macAddress}.")
+                                )
+                            )
+                            return@launch
+                        }
+
                         // Initialize the device after establishing the connection
                         val session = initializeDeviceSession(
                             deviceId = bleDevice.macAddress,
@@ -156,11 +166,16 @@ internal class BleConnectivityHandler @Inject constructor(
                         Timber.e(error, "Unexpected connection failure for device: ${bleDevice.macAddress}")
                     }
                     scope.launch {
-                        closeSession(bleDevice.macAddress, emitDisconnecting = false)
+                        closeSession(
+                            deviceId = bleDevice.macAddress,
+                            emitDisconnecting = false,
+                            expectedConnectionDisposable = connectionDisposableRef.get()
+                        )
                     }
                     connectionResult.complete(Result.failure(error))
                 }
             )
+        connectionDisposableRef.set(connectionDisposable)
         return connectionDisposable
     }
 
@@ -277,9 +292,6 @@ internal class BleConnectivityHandler @Inject constructor(
             Timber.d("Ignoring stale disconnect callback for previous session: $deviceId")
             return
         } else {
-            commandExecutorsManager.close(deviceId)
-            dataHandler.close(deviceId)
-            batteryHandler.close(deviceId)
             Timber.d("No active BLE device session found for device: $deviceId")
         }
 
