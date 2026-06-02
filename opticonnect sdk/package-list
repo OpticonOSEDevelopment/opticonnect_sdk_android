@@ -1114,7 +1114,6 @@ $dokka.location:com.opticon.opticonnect.sdk.api.enums/SymbologyType/values/#/Poi
 $dokka.location:com.opticon.opticonnect.sdk.api.exceptions////PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/BleConnectionException/#kotlin.String#kotlin.Int#kotlin.Throwable?/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/-ble-connection-exception.html
-$dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/attempts/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/attempts.html
 $dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/deviceId/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/device-id.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces////PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/BluetoothManager///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-bluetooth-manager/index.html
