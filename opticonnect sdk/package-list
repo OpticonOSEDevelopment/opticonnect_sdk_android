@@ -1111,6 +1111,11 @@ $dokka.location:com.opticon.opticonnect.sdk.api.enums/SymbologyType///PointingTo
 $dokka.location:com.opticon.opticonnect.sdk.api.enums/SymbologyType/entries/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.enums/-symbology-type/entries.html
 $dokka.location:com.opticon.opticonnect.sdk.api.enums/SymbologyType/valueOf/#kotlin.String/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.enums/-symbology-type/value-of.html
 $dokka.location:com.opticon.opticonnect.sdk.api.enums/SymbologyType/values/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.enums/-symbology-type/values.html
+$dokka.location:com.opticon.opticonnect.sdk.api.exceptions////PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/index.html
+$dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/index.html
+$dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/BleConnectionException/#kotlin.String#kotlin.Int#kotlin.Throwable?/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/-ble-connection-exception.html
+$dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/attempts/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/attempts.html
+$dokka.location:com.opticon.opticonnect.sdk.api.exceptions/BleConnectionException/deviceId/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.exceptions/-ble-connection-exception/device-id.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces////PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/BluetoothManager///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-bluetooth-manager/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/BluetoothManager/connect/#kotlin.String#com.opticon.opticonnect.sdk.api.interfaces.Callback[kotlin.Unit]/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-bluetooth-manager/connect.html
@@ -1134,6 +1139,9 @@ $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/BluetoothManager/stop
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/Callback///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-callback/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/Callback/onError/#kotlin.Throwable/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-callback/on-error.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/Callback/onSuccess/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-callback/on-success.html
+$dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ListenerSubscription///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-listener-subscription/index.html
+$dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ListenerSubscription/close/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-listener-subscription/close.html
+$dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ListenerSubscription/isClosed/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-listener-subscription/is-closed.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ScannerFeedback///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-scanner-feedback/index.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ScannerFeedback/buzzer/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-scanner-feedback/buzzer.html
 $dokka.location:com.opticon.opticonnect.sdk.api.interfaces/ScannerFeedback/led/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api.interfaces/-scanner-feedback/led.html
@@ -1608,6 +1616,7 @@ com.opticon.opticonnect.sdk.api
 com.opticon.opticonnect.sdk.api.constants.commands
 com.opticon.opticonnect.sdk.api.entities
 com.opticon.opticonnect.sdk.api.enums
+com.opticon.opticonnect.sdk.api.exceptions
 com.opticon.opticonnect.sdk.api.interfaces
 com.opticon.opticonnect.sdk.api.scanner_settings.enums
 com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific
