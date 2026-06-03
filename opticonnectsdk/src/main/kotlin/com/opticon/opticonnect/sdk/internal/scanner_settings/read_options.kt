@@ -23,7 +23,8 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
 
     private val readModeCommands = mapOf(
         ReadMode.SINGLE_READ to ScanCommands.SINGLE_READ,
-        ReadMode.MULTIPLE_READ to ScanCommands.MULTIPLE_READ
+        ReadMode.MULTIPLE_READ to ScanCommands.MULTIPLE_READ,
+        ReadMode.CONTINUOUS_READ to ScanCommands.CONTINUOUS_READ
     )
 
     private val readTimeCommands = mapOf(

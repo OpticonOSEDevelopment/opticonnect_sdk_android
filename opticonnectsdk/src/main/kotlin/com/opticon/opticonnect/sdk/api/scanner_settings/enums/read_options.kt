@@ -8,7 +8,8 @@ enum class PositiveAndNegativeBarcodesMode {
 
 enum class ReadMode {
     SINGLE_READ,
-    MULTIPLE_READ
+    MULTIPLE_READ,
+    CONTINUOUS_READ
 }
 
 enum class ReadTime {
