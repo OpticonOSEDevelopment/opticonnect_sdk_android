@@ -7,7 +7,6 @@ import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.IndicatorCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.SingleLetterCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
-import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
@@ -42,21 +41,11 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                 BleDeviceConnectionState.CONNECTED)
         if (isDeviceConnected) {
             OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-            val deferredBarcodeData = CompletableDeferred<BarcodeData>()
-            val barcodeDataJob = launch {
-                OptiConnect.bluetoothManager.listenToBarcodeData(TEST_DEVICE_MAC_ADDRESS)
-                    .collect { barcodeData ->
-                    Timber.i("Barcode data received: ${barcodeData.data} for device $TEST_DEVICE_MAC_ADDRESS")
-                    deferredBarcodeData.complete(barcodeData)
-                }
-            }
-
-            try {
-                val receivedBarcodeData = withTimeoutOrNull(10000) { deferredBarcodeData.await() }
-                assertNotNull("Expected barcode data was not received.", receivedBarcodeData)
-            } finally {
-                barcodeDataJob.cancel()
-            }
+            val receivedBarcodeData = awaitBarcodeData(
+                prompt = "test1BarcodeDataStream: please scan one barcode now.",
+                timeoutMillis = 10000
+            )
+            assertNotNull("Expected barcode data was not received.", receivedBarcodeData)
         } else {
             fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
         }
@@ -127,7 +116,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13_ONLY, ledFeedback = true, buzzerFeedback = true, vibrationFeedback = true))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_ALL_2D_CODES_ONLY, ledFeedback = true, buzzerFeedback = true, vibrationFeedback = true))
             waitForScannerSettingsToSettle()
-            val settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+            val settings = getSettingsFromConnectedTestDevice()
             Timber.d("Compressed settings: $settings")
             assertTrue("Settings compression test failed.", settings.size == 2
                     && settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT }
@@ -160,7 +149,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_ASCII_MODE))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT))
             waitForScannerSettingsToSettle()
-            val settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+            val settings = getSettingsFromConnectedTestDevice()
             Timber.d("Compressed settings: $settings")
             assertTrue("Settings compression test failed.", settings.size == 5 &&
                 settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
@@ -321,21 +310,30 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
                 BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
-                OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-                val connectionPoolIdTarget = "4567"
-                OptiConnect.scannerSettings.connectionPool.setId(TEST_DEVICE_MAC_ADDRESS, connectionPoolIdTarget)
-                val isDeviceDisconnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
-                    BleDeviceConnectionState.DISCONNECTED)
-                if (isDeviceDisconnected) {
-                    val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
-                    assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
+                try {
+                    OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
+                    val connectionPoolIdTarget = "4567"
+                    OptiConnect.scannerSettings.connectionPool.setId(TEST_DEVICE_MAC_ADDRESS, connectionPoolIdTarget)
+                    val isDeviceDisconnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                        BleDeviceConnectionState.DISCONNECTED)
+                    if (isDeviceDisconnected) {
+                        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+                        assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
 
-                    Timber.d("Found device with MAC address $TEST_DEVICE_MAC_ADDRESS and connection pool ${foundDevice?.connectionPoolId}.")
+                        Timber.d("Found device with MAC address $TEST_DEVICE_MAC_ADDRESS and connection pool ${foundDevice?.connectionPoolId}.")
 
-                    val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
-                        BleDeviceConnectionState.CONNECTED)
-                    if (isDeviceConnected) {
-                        assertEquals(OptiConnect.scannerSettings.connectionPool.getId(TEST_DEVICE_MAC_ADDRESS), connectionPoolIdTarget)
+                        val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
+                            BleDeviceConnectionState.CONNECTED)
+                        if (isDeviceConnected) {
+                            assertEquals(OptiConnect.scannerSettings.connectionPool.getId(TEST_DEVICE_MAC_ADDRESS), connectionPoolIdTarget)
+                        }
+                    }
+                } finally {
+                    runCatching {
+                        OptiConnect.scannerSettings.connectionPool.resetId(TEST_DEVICE_MAC_ADDRESS)
+                        waitForScannerSettingsToSettle()
+                    }.onFailure {
+                        Timber.w(it, "Failed to restore connection pool ID after test")
                     }
                 }
             } else {

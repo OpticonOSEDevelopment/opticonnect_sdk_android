@@ -1,11 +1,13 @@
 package com.opticon.opticonnect.sdk
 
 import android.Manifest
+import android.util.Log
 import android.os.Build
 import androidx.test.platform.app.InstrumentationRegistry
 import com.opticon.opticonnect.sdk.api.OptiConnect
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice
+import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.CompletableDeferred
@@ -22,10 +24,15 @@ import org.junit.After
 import org.junit.AfterClass
 import org.junit.Before
 import org.junit.BeforeClass
+import org.junit.Rule
+import org.junit.rules.TestWatcher
+import org.junit.runner.Description
+import timber.log.Timber
 
 abstract class BaseBluetoothTest {
 
     companion object {
+        private const val TEST_LOG_TAG = "OptiConnectTest"
         const val TEST_DEVICE_MAC_ADDRESS = "38:89:DC:00:00:3E"
         lateinit var context: android.content.Context
 
@@ -51,10 +58,12 @@ abstract class BaseBluetoothTest {
         }
 
         fun initializeOptiConnectForTest() {
+            logTestStep("Initializing OptiConnect test SDK.")
             OptiConnect.initialize(context)
             OptiConnect.setDebugLoggingEnabled(true)
             OptiConnect.bluetoothManager.startDiscovery()
             OptiConnect.scannerFeedback.set(led = false, buzzer = false, vibration = false)
+            logTestStep("Discovery started and scanner feedback disabled.")
         }
 
         @AfterClass
@@ -63,6 +72,30 @@ abstract class BaseBluetoothTest {
             Thread.sleep(200)
             runCatching { OptiConnect.bluetoothManager.stopDiscovery() }
             runCatching { OptiConnect.close() }
+        }
+
+        fun logTestStep(message: String) {
+            Log.i(TEST_LOG_TAG, message)
+            Timber.i(message)
+        }
+    }
+
+    @get:Rule
+    val testLogger = object : TestWatcher() {
+        override fun starting(description: Description) {
+            logTestStep("Starting test: ${description.methodName}.")
+            when (description.methodName) {
+                "test1BarcodeDataStream" -> {
+                    logTestStep("This test requires one barcode scan. Wait for the scan prompt.")
+                }
+                "testZReinitializeAfterCloseReadsBarcodeDataStream" -> {
+                    logTestStep("This test requires two barcode scans. Wait for the scan prompts.")
+                }
+            }
+        }
+
+        override fun finished(description: Description) {
+            logTestStep("Finished test: ${description.methodName}.")
         }
     }
 
@@ -90,10 +123,12 @@ abstract class BaseBluetoothTest {
             OptiConnect.bluetoothManager.startDiscovery()
         }
 
+        logTestStep("Waiting for BLE discovery of $deviceId.")
         val deferredDevice = CompletableDeferred<BleDiscoveredDevice?>()
         val collectionJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { discoveredDevice ->
                 if (discoveredDevice.deviceId == deviceId) {
+                    logTestStep("Discovered test scanner $deviceId.")
                     deferredDevice.complete(discoveredDevice)
                 }
             }
@@ -123,12 +158,15 @@ abstract class BaseBluetoothTest {
             when (targetState) {
                 BleDeviceConnectionState.CONNECTED -> {
                     if (OptiConnect.bluetoothManager.isDiscovering) {
+                        logTestStep("Stopping discovery before connecting to $deviceId.")
                         OptiConnect.bluetoothManager.stopDiscovery()
                         delay(500)
                     }
+                    logTestStep("Connecting to test scanner $deviceId.")
                     OptiConnect.bluetoothManager.connect(deviceId)
                 }
                 BleDeviceConnectionState.DISCONNECTED -> {
+                    logTestStep("Disconnecting test scanner $deviceId.")
                     OptiConnect.bluetoothManager.disconnect(deviceId)
                     delay(1000)
                 }
@@ -140,6 +178,7 @@ abstract class BaseBluetoothTest {
                 connectionStateFlow.first { it == targetState }
             }
 
+            logTestStep("Connection state for $deviceId is ${connectionState ?: "timeout waiting for $targetState"}.")
             connectionState == targetState
         } finally {
             connectionStateJob.cancel()
@@ -147,38 +186,83 @@ abstract class BaseBluetoothTest {
     }
 
     suspend fun connectToTestDevice(): Boolean {
-        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
-        if (foundDevice == null) return false
+        val foundDevice = withTimeoutOrNull(10000) {
+            discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+        }
+        if (foundDevice == null) {
+            logTestStep("Discovery did not find $TEST_DEVICE_MAC_ADDRESS; trying direct MAC connection.")
+            Timber.w("Device $TEST_DEVICE_MAC_ADDRESS was not discovered before direct connection attempt.")
+        }
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        val connected = toggleDeviceConnectionState(
-            TEST_DEVICE_MAC_ADDRESS,
-            connectionStateFlow,
-            BleDeviceConnectionState.CONNECTED
-        )
+        val connected = runCatching {
+            toggleDeviceConnectionState(
+                TEST_DEVICE_MAC_ADDRESS,
+                connectionStateFlow,
+                BleDeviceConnectionState.CONNECTED
+            )
+        }.onFailure {
+            Timber.w(it, "Failed to connect to test device $TEST_DEVICE_MAC_ADDRESS.")
+        }.getOrDefault(false)
         if (connected) {
+            logTestStep("Test scanner $TEST_DEVICE_MAC_ADDRESS connected.")
             delay(750)
+        } else {
+            logTestStep("Failed to connect to test scanner $TEST_DEVICE_MAC_ADDRESS.")
         }
         return connected
     }
 
     suspend fun waitForScannerSettingsToSettle() {
+        logTestStep("Waiting for scanner settings to settle.")
         delay(9000)
     }
 
-    suspend fun awaitBarcodeData(timeoutMillis: Long = 30000): BarcodeData? {
+    suspend fun getSettingsFromConnectedTestDevice(): List<CommandData> {
+        logTestStep("Fetching scanner settings.")
+        return runCatching {
+            OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+        }.getOrElse { error ->
+            if (!error.message.orEmpty().contains("Command executor closed")) {
+                throw error
+            }
+
+            logTestStep("Settings fetch found a closed executor; reconnecting once before retry.")
+            Timber.w(error, "Settings fetch hit a closed command executor; reconnecting test device once.")
+            OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+            delay(1000)
+
+            check(connectToTestDevice()) {
+                "Failed to reconnect to device with MAC address $TEST_DEVICE_MAC_ADDRESS before fetching settings."
+            }
+
+            logTestStep("Retrying scanner settings fetch after reconnect.")
+            OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+        }
+    }
+
+    suspend fun awaitBarcodeData(
+        prompt: String = "Waiting for barcode scan data. Please scan a barcode now.",
+        timeoutMillis: Long = 30000
+    ): BarcodeData? {
+        logTestStep(prompt)
         val deferredBarcodeData = CompletableDeferred<BarcodeData>()
         val barcodeDataJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToBarcodeData(TEST_DEVICE_MAC_ADDRESS)
                 .collect { barcodeData ->
                     if (!deferredBarcodeData.isCompleted) {
+                        logTestStep("Barcode data received: ${barcodeData.data}")
                         deferredBarcodeData.complete(barcodeData)
                     }
                 }
         }
 
         return try {
-            withTimeoutOrNull(timeoutMillis) { deferredBarcodeData.await() }
+            withTimeoutOrNull(timeoutMillis) { deferredBarcodeData.await() }.also { barcodeData ->
+                if (barcodeData == null) {
+                    logTestStep("Timed out waiting for barcode scan data.")
+                }
+            }
         } finally {
             barcodeDataJob.cancel()
         }
