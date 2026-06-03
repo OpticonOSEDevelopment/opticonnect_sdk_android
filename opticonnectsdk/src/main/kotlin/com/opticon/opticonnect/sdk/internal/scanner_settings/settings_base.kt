@@ -40,4 +40,13 @@ internal abstract class SettingsBase() {
             )
         }
     }
+
+    protected suspend fun sendMappedCommand(
+        deviceId: String,
+        command: String?,
+        invalidMessage: String
+    ): CommandResponse {
+        return command?.let { sendCommand(deviceId, it) }
+            ?: CommandResponse.failed(invalidMessage)
+    }
 }

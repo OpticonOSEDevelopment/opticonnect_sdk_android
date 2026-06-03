@@ -187,20 +187,25 @@ internal class BleConnectivityHandler @Inject constructor(
         val subscription = CompositeDisposable()
 
         bleDevice.observeConnectionStateChanges()
-            .subscribe { state ->
-                when (state) {
-                    RxBleConnection.RxBleConnectionState.DISCONNECTED -> {
-                        scope.launch {
-                            closeSession(
-                                deviceId = deviceId,
-                                emitDisconnecting = false,
-                                expectedConnectionDisposable = connectionDisposable
-                            )
+            .subscribe(
+                { state ->
+                    when (state) {
+                        RxBleConnection.RxBleConnectionState.DISCONNECTED -> {
+                            scope.launch {
+                                closeSession(
+                                    deviceId = deviceId,
+                                    emitDisconnecting = false,
+                                    expectedConnectionDisposable = connectionDisposable
+                                )
+                            }
                         }
+                        else -> Unit
                     }
-                    else -> Unit
+                },
+                { error ->
+                    Timber.e(error, "Error observing connection state for device: $deviceId")
                 }
-            }.addTo(subscription)
+            ).addTo(subscription)
 
         return subscription
     }

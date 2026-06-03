@@ -28,7 +28,7 @@ internal class UPCAImpl @Inject constructor() : SettingsBase(), UPCA {
     override suspend fun setLeadingZeroAndTransmitCDMode(deviceId: String, mode: UPCALeadingZeroAndTransmitCDMode): CommandResponse {
         val command = upcALeadingZeroAndTransmitCDModeCommands[mode]
         Timber.d("Setting UPC_A leading zero and transmit CD mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported UPC-A leading zero/transmit CD mode: $mode")
     }
 
     override fun setLeadingZeroAndTransmitCDMode(deviceId: String, mode: UPCALeadingZeroAndTransmitCDMode, callback: (Result<CommandResponse>) -> Unit) {

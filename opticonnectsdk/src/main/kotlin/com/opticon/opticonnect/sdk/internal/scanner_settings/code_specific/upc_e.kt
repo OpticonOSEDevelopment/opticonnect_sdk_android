@@ -37,7 +37,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     ): CommandResponse {
         val command = upceLeadingZeroAndTransmitCDModeCommands[mode]
         Timber.d("Setting UPCE leading zero and transmit CD mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported UPC-E leading zero/transmit CD mode: $mode")
     }
 
     override fun setLeadingZeroAndTransmitCDMode(
@@ -54,7 +54,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     ): CommandResponse {
         val command = upceConversionModeCommands[mode]
         Timber.d("Setting UPCE conversion mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported UPC-E conversion mode: $mode")
     }
 
     override fun setConversionMode(

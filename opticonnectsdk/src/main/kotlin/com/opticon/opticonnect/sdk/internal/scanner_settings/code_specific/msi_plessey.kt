@@ -36,7 +36,7 @@ internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey
     override suspend fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings): CommandResponse {
         val command = checkCDCommands[setting]
         Timber.d("Setting MSI Plessey check digit mode for deviceId $deviceId to $setting")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported MSI Plessey check digit setting: $setting")
     }
 
     override fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: (Result<CommandResponse>) -> Unit) {
@@ -46,7 +46,7 @@ internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey
     override suspend fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings): CommandResponse {
         val command = cdTransmissionCommands[setting]
         Timber.d("Setting MSI Plessey check digit transmission mode for deviceId $deviceId to $setting")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported MSI Plessey check digit transmission setting: $setting")
     }
 
     override fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: (Result<CommandResponse>) -> Unit) {

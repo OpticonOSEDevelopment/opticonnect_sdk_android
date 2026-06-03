@@ -27,7 +27,7 @@ internal class Code11Impl @Inject constructor() : SettingsBase(), Code11 {
     override suspend fun setCheckCD(deviceId: String, setting: Code11CheckCDSettings): CommandResponse {
         val command = checkCDCommands[setting]
         Timber.d("Setting Code 11 check digit validation for deviceId $deviceId to $setting")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Code 11 check digit setting: $setting")
     }
 
     override fun setCheckCD(

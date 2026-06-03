@@ -34,7 +34,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
     override suspend fun setMode(deviceId: String, mode: Code39Mode): CommandResponse {
         val command = modeCommands[mode]
         Timber.d("Setting Code 39 mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Code 39 mode: $mode")
     }
 
     override fun setMode(deviceId: String, mode: Code39Mode, callback: (Result<CommandResponse>) -> Unit) {
@@ -114,7 +114,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
     override suspend fun setMinLength(deviceId: String, length: Code39MinimumLength): CommandResponse {
         val command = minLengthCommands[length]
         Timber.d("Setting Code 39 minimum length for deviceId $deviceId to $length")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Code 39 minimum length: $length")
     }
 
     override fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: (Result<CommandResponse>) -> Unit) {

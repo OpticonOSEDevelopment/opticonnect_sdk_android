@@ -58,7 +58,7 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
     override suspend fun setMinimumDataLength(deviceId: String, dataLength: DataLength): CommandResponse {
         val command = dataLengthCommands[dataLength]
         Timber.d("Setting minimum data length for deviceId $deviceId to $dataLength")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported 2 of 5/S-Code minimum data length: $dataLength")
     }
 
     override fun setMinimumDataLength(

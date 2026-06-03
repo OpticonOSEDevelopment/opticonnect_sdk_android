@@ -25,7 +25,7 @@ internal class TelepenImpl @Inject constructor() : SettingsBase(), Telepen {
     override suspend fun setMode(deviceId: String, mode: TelepenMode): CommandResponse {
         val command = telepenCodeModeCommands[mode]
         Timber.d("Setting Telepen code mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Telepen mode: $mode")
     }
 
     override fun setMode(deviceId: String, mode: TelepenMode, callback: (Result<CommandResponse>) -> Unit) {

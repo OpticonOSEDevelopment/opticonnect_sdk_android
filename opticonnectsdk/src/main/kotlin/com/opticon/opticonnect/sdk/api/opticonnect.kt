@@ -14,6 +14,7 @@ import timber.log.Timber
 object OptiConnect : LifecycleHandler {
 
     private val componentLock = Any()
+    private val debugTree = OptiConnectDebugTree()
 
     @Volatile
     private var component: OptiConnectComponent? = null
@@ -26,6 +27,9 @@ object OptiConnect : LifecycleHandler {
 
     @Volatile
     private var appContext: Context? = null
+
+    @Volatile
+    private var debugLoggingEnabled = false
 
     /**
     * Initializes the OptiConnect SDK.
@@ -43,6 +47,23 @@ object OptiConnect : LifecycleHandler {
         }
     }
 
+    /**
+     * Enables or disables SDK debug logging.
+     *
+     * Logging is disabled by default so host apps do not receive verbose SDK logs unless they opt in.
+     */
+    fun setDebugLoggingEnabled(enabled: Boolean) {
+        synchronized(componentLock) {
+            debugLoggingEnabled = enabled
+            val isPlanted = debugTree in Timber.forest()
+            if (enabled && !isPlanted) {
+                Timber.plant(debugTree)
+            } else if (!enabled && isPlanted) {
+                Timber.uproot(debugTree)
+            }
+        }
+    }
+
     // Private method to lazily build the Dagger component
     private fun getComponent(context: Context): OptiConnectComponent {
         return component ?: synchronized(componentLock) {
@@ -50,11 +71,6 @@ object OptiConnect : LifecycleHandler {
                 .context(context.applicationContext)
                 .build()
                 .also { component = it }
-                .also {
-                    if (Timber.forest().isEmpty()) {
-                        Timber.plant(OptiConnectDebugTree())
-                    }
-                }
         }
     }
 

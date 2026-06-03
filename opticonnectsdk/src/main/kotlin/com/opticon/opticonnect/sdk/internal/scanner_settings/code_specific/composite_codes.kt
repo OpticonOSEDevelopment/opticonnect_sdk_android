@@ -26,7 +26,7 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
     override suspend fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode): CommandResponse {
         val command = outputModeCommands[outputMode]
         Timber.d("Setting composite codes output mode for deviceId $deviceId to $outputMode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported composite codes output mode: $outputMode")
     }
 
     override fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: (Result<CommandResponse>) -> Unit) {

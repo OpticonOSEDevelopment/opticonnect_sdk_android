@@ -35,7 +35,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
     override suspend fun setGS1128Mode(deviceId: String, mode: Code128AndGS1128Mode): CommandResponse {
         val command = modeCommands[mode]
         Timber.d("Setting GS1-128 mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported GS1-128 mode: $mode")
     }
 
     override fun setGS1128Mode(deviceId: String, mode: Code128AndGS1128Mode, callback: (Result<CommandResponse>) -> Unit) {
@@ -45,7 +45,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
     override suspend fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode): CommandResponse {
         val command = conversionCommands[mode]
         Timber.d("Setting GS1-128 conversion mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported GS1-128 conversion mode: $mode")
     }
 
     override fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode, callback: (Result<CommandResponse>) -> Unit) {

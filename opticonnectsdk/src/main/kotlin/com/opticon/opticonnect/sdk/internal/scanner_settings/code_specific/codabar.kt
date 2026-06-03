@@ -46,7 +46,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
     override suspend fun setMode(deviceId: String, mode: CodabarMode): CommandResponse {
         val command = modeCommands[mode]
         Timber.d("Setting Codabar mode for deviceId $deviceId to $mode")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Codabar mode: $mode")
     }
 
     override fun setMode(deviceId: String, mode: CodabarMode, callback: (Result<CommandResponse>) -> Unit) {
@@ -98,7 +98,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
     override suspend fun setMinimumLength(deviceId: String, length: CodabarMinimumLength): CommandResponse {
         val command = minLengthCommands[length]
         Timber.d("Setting Codabar minimum length for deviceId $deviceId to $length")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Codabar minimum length: $length")
     }
 
     override fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: (Result<CommandResponse>) -> Unit) {
@@ -124,7 +124,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
     ): CommandResponse {
         val command = startStopTransmissionCommands[transmission]
         Timber.d("Setting Codabar start/stop transmission for deviceId $deviceId to $transmission")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported Codabar start/stop transmission: $transmission")
     }
 
     override fun setStartStopTransmission(deviceId: String, transmission: CodabarStartStopTransmission, callback: (Result<CommandResponse>) -> Unit) {

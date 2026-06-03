@@ -27,7 +27,7 @@ internal class IATAImpl @Inject constructor() : SettingsBase(), IATA {
     override suspend fun setCheckCD(deviceId: String, setting: IATACheckCDSettings): CommandResponse {
         val command = checkCDCommands[setting]
         Timber.d("Setting IATA check digit mode for deviceId $deviceId to $setting")
-        return sendCommand(deviceId, command!!)
+        return sendMappedCommand(deviceId, command, "Unsupported IATA check digit setting: $setting")
     }
 
     override fun setCheckCD(deviceId: String, setting: IATACheckCDSettings, callback: (Result<CommandResponse>) -> Unit) {
