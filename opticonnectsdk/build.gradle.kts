@@ -228,7 +228,14 @@ tasks.dokkaHtml {
     moduleName.set("opticonnect sdk")
     dokkaSourceSets {
         configureEach {
+            documentedVisibilities.set(
+                setOf(org.jetbrains.dokka.DokkaConfiguration.Visibility.PUBLIC)
+            )
             includes.from("index.md")
+            perPackageOption {
+                matchingRegex.set("com\\.opticon\\.opticonnect\\.sdk\\.internal.*")
+                suppress.set(true)
+            }
         }
     }
 }

@@ -3,7 +3,6 @@ package com.opticon.opticonnect.sdk.api
 import com.opticon.opticonnect.sdk.internal.logging.OptiConnectDebugTree
 import android.content.Context
 import com.opticon.opticonnect.sdk.api.interfaces.BluetoothManager
-import com.opticon.opticonnect.sdk.internal.interfaces.LifecycleHandler
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerFeedback
 import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
@@ -11,7 +10,7 @@ import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
 import timber.log.Timber
 
-object OptiConnect : LifecycleHandler {
+object OptiConnect {
 
     private val componentLock = Any()
     private val debugTree = OptiConnectDebugTree()
@@ -40,7 +39,7 @@ object OptiConnect : LifecycleHandler {
     *
     * @param context The application context, which will be retained for the app's lifecycle to avoid memory leaks.
     */
-    override fun initialize(context: Context) {
+    fun initialize(context: Context) {
         // Store application context, which is safe to keep for the app's lifetime
         synchronized(componentLock) {
             appContext = context.applicationContext
@@ -162,7 +161,7 @@ object OptiConnect : LifecycleHandler {
      * This function should be called when OptiConnect is no longer needed, to avoid memory leaks
      * and ensure the system is left in a clean state.
      */
-    override fun close() {
+    fun close() {
         synchronized(componentLock) {
             component?.bluetoothLifecycleHandler()?.close()
             component = null

@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.Result
 
-object CallbackUtils {
+internal object CallbackUtils {
 
     /**
      * Wraps a suspend function with a callback, allowing for safe, asynchronous
