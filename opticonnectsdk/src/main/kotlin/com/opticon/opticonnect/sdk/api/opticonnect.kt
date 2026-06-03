@@ -8,7 +8,12 @@ import com.opticon.opticonnect.sdk.api.interfaces.ScannerInfo
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings
 import com.opticon.opticonnect.sdk.internal.di.OptiConnectComponent
 import com.opticon.opticonnect.sdk.internal.di.DaggerOptiConnectComponent
+import com.polidea.rxandroidble3.exceptions.BleDisconnectedException
+import io.reactivex.rxjava3.exceptions.UndeliverableException
+import io.reactivex.rxjava3.plugins.RxJavaPlugins
 import timber.log.Timber
+import java.io.IOException
+import java.net.SocketException
 
 object OptiConnect {
 
@@ -30,6 +35,9 @@ object OptiConnect {
     @Volatile
     private var debugLoggingEnabled = false
 
+    @Volatile
+    private var rxJavaErrorHandlerInstalled = false
+
     /**
     * Initializes the OptiConnect SDK.
     *
@@ -42,6 +50,7 @@ object OptiConnect {
     fun initialize(context: Context) {
         // Store application context, which is safe to keep for the app's lifetime
         synchronized(componentLock) {
+            installRxJavaErrorHandlerIfNeeded()
             appContext = context.applicationContext
         }
     }
@@ -77,6 +86,27 @@ object OptiConnect {
         return appContext ?: throw IllegalStateException(
             "OptiConnect.initialize(context) must be called before using the SDK."
         )
+    }
+
+    private fun installRxJavaErrorHandlerIfNeeded() {
+        if (rxJavaErrorHandlerInstalled || RxJavaPlugins.getErrorHandler() != null) return
+
+        RxJavaPlugins.setErrorHandler { error ->
+            val cause = if (error is UndeliverableException) error.cause else error
+            when (cause) {
+                is BleDisconnectedException -> {
+                    Timber.d(cause, "Ignoring expected BLE disconnect after Rx stream disposal")
+                }
+                is SocketException, is IOException -> {
+                    Timber.d(cause, "Ignoring expected I/O error after Rx stream disposal")
+                }
+                else -> {
+                    Thread.currentThread().uncaughtExceptionHandler
+                        ?.uncaughtException(Thread.currentThread(), error)
+                }
+            }
+        }
+        rxJavaErrorHandlerInstalled = true
     }
 
     private fun getInitializedSettingsComponent(): OptiConnectComponent = synchronized(componentLock) {

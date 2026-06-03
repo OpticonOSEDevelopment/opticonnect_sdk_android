@@ -126,8 +126,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_DATA_MATRIX, ledFeedback = true, buzzerFeedback = true, vibrationFeedback = true))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_EAN_13_ONLY, ledFeedback = true, buzzerFeedback = true, vibrationFeedback = true))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(SymbologyCommands.ENABLE_ALL_2D_CODES_ONLY, ledFeedback = true, buzzerFeedback = true, vibrationFeedback = true))
-            delay(6000)
-            var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+            waitForScannerSettingsToSettle()
+            val settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
             Timber.d("Compressed settings: $settings")
             assertTrue("Settings compression test failed.", settings.size == 2
                     && settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT }
@@ -159,8 +159,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_NUMERIC_MODE))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.TELEPEN_ASCII_MODE))
             OptiConnect.scannerSettings.executeCommand(TEST_DEVICE_MAC_ADDRESS, ScannerCommand(CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT))
-            delay(6000)
-            var settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
+            waitForScannerSettingsToSettle()
+            val settings = OptiConnect.scannerSettings.getSettings(TEST_DEVICE_MAC_ADDRESS)
             Timber.d("Compressed settings: $settings")
             assertTrue("Settings compression test failed.", settings.size == 5 &&
                 settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
@@ -205,7 +205,7 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                                     result3.onSuccess {
                                         // Delay to ensure settings have been applied
                                         CoroutineScope(Dispatchers.Main).launch {
-                                            delay(6000)
+                                            waitForScannerSettingsToSettle()
 
                                             OptiConnect.scannerSettings.getSettings(
                                                 TEST_DEVICE_MAC_ADDRESS

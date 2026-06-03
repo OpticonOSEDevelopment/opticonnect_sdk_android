@@ -52,6 +52,7 @@ abstract class BaseBluetoothTest {
 
         fun initializeOptiConnectForTest() {
             OptiConnect.initialize(context)
+            OptiConnect.setDebugLoggingEnabled(true)
             OptiConnect.bluetoothManager.startDiscovery()
             OptiConnect.scannerFeedback.set(led = false, buzzer = false, vibration = false)
         }
@@ -73,6 +74,7 @@ abstract class BaseBluetoothTest {
                 OptiConnect.bluetoothManager.listenToConnectionState(TEST_DEVICE_MAC_ADDRESS)
                     .firstOrNull { it == BleDeviceConnectionState.DISCONNECTED }
             }
+            delay(1000)
         }
     }
 
@@ -80,9 +82,14 @@ abstract class BaseBluetoothTest {
     fun teardown() {
         OptiConnect.initialize(context)
         OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+        Thread.sleep(1000)
     }
 
     suspend fun discoverDevice(deviceId: String): BleDiscoveredDevice? {
+        if (!OptiConnect.bluetoothManager.isDiscovering) {
+            OptiConnect.bluetoothManager.startDiscovery()
+        }
+
         val deferredDevice = CompletableDeferred<BleDiscoveredDevice?>()
         val collectionJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { discoveredDevice ->
@@ -112,10 +119,19 @@ abstract class BaseBluetoothTest {
 
         return try {
             // Attempt to connect or disconnect based on the target state
-            delay(500)
+            delay(750)
             when (targetState) {
-                BleDeviceConnectionState.CONNECTED -> OptiConnect.bluetoothManager.connect(deviceId)
-                BleDeviceConnectionState.DISCONNECTED -> OptiConnect.bluetoothManager.disconnect(deviceId)
+                BleDeviceConnectionState.CONNECTED -> {
+                    if (OptiConnect.bluetoothManager.isDiscovering) {
+                        OptiConnect.bluetoothManager.stopDiscovery()
+                        delay(500)
+                    }
+                    OptiConnect.bluetoothManager.connect(deviceId)
+                }
+                BleDeviceConnectionState.DISCONNECTED -> {
+                    OptiConnect.bluetoothManager.disconnect(deviceId)
+                    delay(1000)
+                }
                 else -> throw IllegalArgumentException("Unsupported target state: $targetState")
             }
 
@@ -135,11 +151,19 @@ abstract class BaseBluetoothTest {
         if (foundDevice == null) return false
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
-        return toggleDeviceConnectionState(
+        val connected = toggleDeviceConnectionState(
             TEST_DEVICE_MAC_ADDRESS,
             connectionStateFlow,
             BleDeviceConnectionState.CONNECTED
         )
+        if (connected) {
+            delay(750)
+        }
+        return connected
+    }
+
+    suspend fun waitForScannerSettingsToSettle() {
+        delay(9000)
     }
 
     suspend fun awaitBarcodeData(timeoutMillis: Long = 30000): BarcodeData? {
