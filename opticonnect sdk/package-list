@@ -1609,9 +1609,6 @@ $dokka.location:com.opticon.opticonnect.sdk.api/OptiConnect/scannerFeedback/#/Po
 $dokka.location:com.opticon.opticonnect.sdk.api/OptiConnect/scannerInfo/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api/-opti-connect/scanner-info.html
 $dokka.location:com.opticon.opticonnect.sdk.api/OptiConnect/scannerSettings/#/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api/-opti-connect/scanner-settings.html
 $dokka.location:com.opticon.opticonnect.sdk.api/OptiConnect/setDebugLoggingEnabled/#kotlin.Boolean/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.api/-opti-connect/set-debug-logging-enabled.html
-$dokka.location:com.opticon.opticonnect.sdk.internal.utils////PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.internal.utils/index.html
-$dokka.location:com.opticon.opticonnect.sdk.internal.utils/CallbackUtils///PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.internal.utils/-callback-utils/index.html
-$dokka.location:com.opticon.opticonnect.sdk.internal.utils/CallbackUtils/wrapWithCallback/#kotlinx.coroutines.CoroutineScope#kotlin.Function1[kotlin.Result[TypeParam(bounds=[kotlin.Any?])],kotlin.Unit]#kotlin.coroutines.SuspendFunction0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/opticonnect sdk/com.opticon.opticonnect.sdk.internal.utils/-callback-utils/wrap-with-callback.html
 com.opticon.opticonnect.sdk.api
 com.opticon.opticonnect.sdk.api.constants.commands
 com.opticon.opticonnect.sdk.api.entities
@@ -1622,5 +1619,4 @@ com.opticon.opticonnect.sdk.api.scanner_settings.enums
 com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific
 com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
-com.opticon.opticonnect.sdk.internal.utils
 
