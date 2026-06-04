@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!--
+        Dependency/tool version updates are reviewed intentionally for SDK compatibility.
+        Keep Android lint enabled for real correctness issues without failing/noising on
+        "newer version available" advisory checks.
+    -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
+</lint>

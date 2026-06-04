@@ -33,7 +33,10 @@ abstract class BaseBluetoothTest {
 
     companion object {
         private const val TEST_LOG_TAG = "OptiConnectTest"
-        const val TEST_DEVICE_MAC_ADDRESS = "38:89:DC:00:00:3E"
+        private const val TEST_DEVICE_MAC_PREFIX = "3889"
+        private var resolvedTestDeviceMacAddress: String? = null
+        val TEST_DEVICE_MAC_ADDRESS: String
+            get() = resolvedTestDeviceMacAddress ?: TEST_DEVICE_MAC_PREFIX
         lateinit var context: android.content.Context
 
         @BeforeClass
@@ -78,6 +81,19 @@ abstract class BaseBluetoothTest {
             Log.i(TEST_LOG_TAG, message)
             Timber.i(message)
         }
+
+        private fun normalizeMacAddress(deviceId: String): String =
+            deviceId.filter { it.isLetterOrDigit() }.uppercase()
+
+        private fun matchesTestScannerPrefix(deviceId: String): Boolean =
+            normalizeMacAddress(deviceId).startsWith(TEST_DEVICE_MAC_PREFIX)
+
+        private fun rememberTestScanner(deviceId: String) {
+            if (resolvedTestDeviceMacAddress != deviceId) {
+                resolvedTestDeviceMacAddress = deviceId
+                logTestStep("Using test scanner $deviceId.")
+            }
+        }
     }
 
     @get:Rule
@@ -102,9 +118,10 @@ abstract class BaseBluetoothTest {
     @Before
     fun setup() {
         runBlocking {
-            OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+            val deviceId = resolvedTestDeviceMacAddress ?: return@runBlocking
+            OptiConnect.bluetoothManager.disconnect(deviceId)
             withTimeoutOrNull(2000) {
-                OptiConnect.bluetoothManager.listenToConnectionState(TEST_DEVICE_MAC_ADDRESS)
+                OptiConnect.bluetoothManager.listenToConnectionState(deviceId)
                     .firstOrNull { it == BleDeviceConnectionState.DISCONNECTED }
             }
             delay(1000)
@@ -114,7 +131,9 @@ abstract class BaseBluetoothTest {
     @After
     fun teardown() {
         OptiConnect.initialize(context)
-        OptiConnect.bluetoothManager.disconnect(TEST_DEVICE_MAC_ADDRESS)
+        resolvedTestDeviceMacAddress?.let { deviceId ->
+            OptiConnect.bluetoothManager.disconnect(deviceId)
+        }
         Thread.sleep(1000)
     }
 
@@ -123,12 +142,21 @@ abstract class BaseBluetoothTest {
             OptiConnect.bluetoothManager.startDiscovery()
         }
 
-        logTestStep("Waiting for BLE discovery of $deviceId.")
+        val resolvedDeviceId = resolvedTestDeviceMacAddress
+        val targetDescription = resolvedDeviceId ?: "scanner with MAC prefix $TEST_DEVICE_MAC_PREFIX"
+        logTestStep("Waiting for BLE discovery of $targetDescription.")
         val deferredDevice = CompletableDeferred<BleDiscoveredDevice?>()
         val collectionJob = CoroutineScope(Dispatchers.IO).launch {
             OptiConnect.bluetoothManager.listenToDiscoveredDevices().collect { discoveredDevice ->
-                if (discoveredDevice.deviceId == deviceId) {
-                    logTestStep("Discovered test scanner $deviceId.")
+                val matchesResolvedDevice = resolvedDeviceId != null &&
+                        discoveredDevice.deviceId.equals(resolvedDeviceId, ignoreCase = true)
+                val matchesRequestedDevice = resolvedDeviceId == null &&
+                        discoveredDevice.deviceId.equals(deviceId, ignoreCase = true)
+                val matchesPrefix = resolvedDeviceId == null && matchesTestScannerPrefix(discoveredDevice.deviceId)
+
+                if (matchesResolvedDevice || matchesRequestedDevice || matchesPrefix) {
+                    rememberTestScanner(discoveredDevice.deviceId)
+                    logTestStep("Discovered test scanner ${discoveredDevice.deviceId}.")
                     deferredDevice.complete(discoveredDevice)
                 }
             }
@@ -189,26 +217,33 @@ abstract class BaseBluetoothTest {
         val foundDevice = withTimeoutOrNull(10000) {
             discoverDevice(TEST_DEVICE_MAC_ADDRESS)
         }
+        val deviceId = foundDevice?.deviceId ?: resolvedTestDeviceMacAddress
+        if (deviceId == null) {
+            logTestStep("Discovery did not find a scanner with MAC prefix $TEST_DEVICE_MAC_PREFIX.")
+            Timber.w("No device with MAC prefix $TEST_DEVICE_MAC_PREFIX was discovered before connection attempt.")
+            return false
+        }
+
         if (foundDevice == null) {
-            logTestStep("Discovery did not find $TEST_DEVICE_MAC_ADDRESS; trying direct MAC connection.")
-            Timber.w("Device $TEST_DEVICE_MAC_ADDRESS was not discovered before direct connection attempt.")
+            logTestStep("Discovery did not find $deviceId; trying direct MAC connection.")
+            Timber.w("Device $deviceId was not discovered before direct connection attempt.")
         }
 
         val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
         val connected = runCatching {
             toggleDeviceConnectionState(
-                TEST_DEVICE_MAC_ADDRESS,
+                deviceId,
                 connectionStateFlow,
                 BleDeviceConnectionState.CONNECTED
             )
         }.onFailure {
-            Timber.w(it, "Failed to connect to test device $TEST_DEVICE_MAC_ADDRESS.")
+            Timber.w(it, "Failed to connect to test device $deviceId.")
         }.getOrDefault(false)
         if (connected) {
-            logTestStep("Test scanner $TEST_DEVICE_MAC_ADDRESS connected.")
+            logTestStep("Test scanner $deviceId connected.")
             delay(750)
         } else {
-            logTestStep("Failed to connect to test scanner $TEST_DEVICE_MAC_ADDRESS.")
+            logTestStep("Failed to connect to test scanner $deviceId.")
         }
         return connected
     }
