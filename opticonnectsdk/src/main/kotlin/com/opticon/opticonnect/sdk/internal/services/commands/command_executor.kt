@@ -17,6 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -39,6 +40,7 @@ internal class CommandExecutor @Inject constructor(
 
     private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val commandMutex = Mutex()
+    private val commandSubmissionChannel = Channel<Command>(Channel.UNLIMITED)
     private val pendingCommandsQueue = LinkedList<Command>()
     private val responseData = StringBuilder()
 
@@ -47,7 +49,20 @@ internal class CommandExecutor @Inject constructor(
     private var closed = false
 
     init {
+        coroutineScope.launch { processCommandSubmissions() }
         coroutineScope.launch { initializeResponseListener() }
+    }
+
+    private suspend fun processCommandSubmissions() {
+        for (command in commandSubmissionChannel) {
+            commandMutex.withLock {
+                if (closed) {
+                    command.completer.complete(CommandResponse.failed("Command executor closed."))
+                } else {
+                    enqueueCommandLocked(command)
+                }
+            }
+        }
     }
 
     private suspend fun initializeResponseListener() {
@@ -59,14 +74,9 @@ internal class CommandExecutor @Inject constructor(
 
     override fun sendCommand(command: Command) {
         Timber.d("Sending command to queue: ${command.code}")
-        coroutineScope.launch {
-            commandMutex.withLock {
-                if (closed) {
-                    command.completer.complete(CommandResponse.failed("Command executor closed."))
-                    return@withLock
-                }
-                enqueueCommandLocked(command)
-            }
+        val result = commandSubmissionChannel.trySend(command)
+        if (result.isFailure) {
+            command.completer.complete(CommandResponse.failed("Command executor closed."))
         }
     }
 
@@ -223,6 +233,7 @@ internal class CommandExecutor @Inject constructor(
                     }
                 }
                 pendingCommandsQueue.clear()
+                commandSubmissionChannel.close()
                 timeoutManager.close()
                 saveSettingsJob?.cancel()
             }

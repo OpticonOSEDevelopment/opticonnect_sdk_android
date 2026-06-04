@@ -43,6 +43,7 @@ class OpcDataHandlerTest {
                 assertEquals(Symbologies.EAN_13, barcode.symbologyId)
                 assertEquals("EAN-13", barcode.symbology)
                 assertEquals(TEST_DEVICE_ID, barcode.deviceId)
+                assertEquals(1, barcode.sequenceNumber)
                 assertTrue(barcode.timeOfScan.isNotBlank())
             }
         }
@@ -69,28 +70,43 @@ class OpcDataHandlerTest {
     }
 
     @Test
-    fun ignoresDuplicateBarcodeSequencePacket() {
+    fun emitsRepeatedBarcodePacketWithSequenceNumberForClientDeduplication() {
         runBlocking {
             createHandler().use { handler ->
-                val firstBarcodeResult = async {
+                val barcodeResults = async {
                     withTimeout(1000) {
-                        handler.barcodeDataStream.first()
+                        handler.barcodeDataStream.take(2).toList()
                     }
                 }
                 yield()
 
                 handler.processData(hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET))
-                assertEquals("2620734570914\r", firstBarcodeResult.await().data)
+                handler.processData(hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET))
 
-                val duplicateBarcodeResult = async {
-                    withTimeoutOrNull(500) {
-                        handler.barcodeDataStream.first()
+                val barcodes = barcodeResults.await()
+                assertEquals(listOf("2620734570914\r", "2620734570914\r"), barcodes.map { it.data })
+                assertEquals(listOf(1, 1), barcodes.map { it.sequenceNumber })
+            }
+        }
+    }
+
+    @Test
+    fun emitsSameBarcodeDataWhenSequenceNumberDiffers() {
+        runBlocking {
+            createHandler().use { handler ->
+                val barcodeResults = async {
+                    withTimeout(1000) {
+                        handler.barcodeDataStream.take(2).toList()
                     }
                 }
                 yield()
 
-                handler.processData(hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET))
-                assertEquals(null, duplicateBarcodeResult.await())
+                handler.processData(buildBarcodeWithTimestampFrame(sequenceNumber = 1, data = "2620734570914\r"))
+                handler.processData(buildBarcodeWithTimestampFrame(sequenceNumber = 2, data = "2620734570914\r"))
+
+                val barcodes = barcodeResults.await()
+                assertEquals(listOf("2620734570914\r", "2620734570914\r"), barcodes.map { it.data })
+                assertEquals(listOf(1, 2), barcodes.map { it.sequenceNumber })
             }
         }
     }
@@ -216,6 +232,33 @@ class OpcDataHandlerTest {
         body.add((crc shr 8).toUByte())
         body.add((crc and 0xFF).toUByte())
         return body
+    }
+
+    private fun buildBarcodeWithTimestampFrame(sequenceNumber: Int, data: String): List<UByte> {
+        val header = listOf(
+            (sequenceNumber shr 8) and 0xFF,
+            sequenceNumber and 0xFF,
+            0x01,
+            0x00,
+            0x01,
+            0xA0,
+            0x65,
+            0x11,
+            0x9A,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00,
+            0x00
+        )
+
+        return buildFrame(
+            type = 0xA2.toUByte(),
+            header = header.map { it.toUByte() },
+            data = data.toByteArray(Charsets.UTF_8).map { it.toUByte() }
+        )
     }
 
     private fun uBytes(vararg bytes: Int): List<UByte> =

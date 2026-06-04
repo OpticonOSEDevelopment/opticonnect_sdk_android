@@ -59,8 +59,6 @@ internal class OpcDataHandler @Inject constructor(
     private val headerBytes = mutableListOf<Int>()
     private val dataBytes = mutableListOf<Int>()
 
-    private var previousSeqNr = -1
-
     private val OPC_DLE_STX_CRC = 0x4e72
 
     suspend fun processData(data: List<UByte>, shouldReturnResult: Boolean = false): String {
@@ -148,16 +146,8 @@ internal class OpcDataHandler @Inject constructor(
                                     result = dataString
                                     return result
                                 } else if (type == BARCODE_TYPE || type == BARCODE_WITH_TIME_TYPE) {
-                                    try {
-                                        Timber.d("Barcode data processed: $dataString")
-                                        if (sequenceNumber == previousSeqNr) {
-                                            return result
-                                        }
-                                        previousSeqNr = sequenceNumber ?: -1
-                                    } catch (e: Exception) {
-                                        Timber.e(e, "Error extracting sequence number")
-                                    }
-                                    postProcessAndSendBarcodeData(dataString, dataBytes)
+                                    Timber.d("Barcode data processed: $dataString")
+                                    postProcessAndSendBarcodeData(dataString, dataBytes, sequenceNumber)
                                 } else if (type == MENU_COMMAND_RSP_TYPE) {
                                     Timber.d("Command response processed: $dataString")
                                     _commandDataStream.emit(CommandResponsePacket(dataString, sequenceNumber))
@@ -191,7 +181,7 @@ internal class OpcDataHandler @Inject constructor(
         }
     }
 
-    private fun postProcessAndSendBarcodeData(data: String, dataBytes: List<Int>) {
+    private fun postProcessAndSendBarcodeData(data: String, dataBytes: List<Int>, sequenceNumber: Int?) {
         var quantity = 1
         var symbologyId = 0
         var symbology = ""
@@ -232,7 +222,8 @@ internal class OpcDataHandler @Inject constructor(
             symbologyId = symbologyId,
             symbology = symbology,
             timeOfScan = timeOfScan,
-            deviceId = deviceId
+            deviceId = deviceId,
+            sequenceNumber = sequenceNumber
         )
 
         scope.launch {

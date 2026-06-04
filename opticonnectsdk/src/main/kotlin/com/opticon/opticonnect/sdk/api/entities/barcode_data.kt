@@ -9,6 +9,7 @@ package com.opticon.opticonnect.sdk.api.entities
  * - Information about the barcode symbology ([symbology] and [symbologyId]).
  * - The time of the scan ([timeOfScan]).
  * - The ID of the scanning device ([deviceId]).
+ * - The scanner protocol sequence number ([sequenceNumber]), when available.
  */
 data class BarcodeData(
     /**
@@ -66,5 +67,14 @@ data class BarcodeData(
     /**
      * The device ID of the scanner that scanned the barcode.
      */
-    val deviceId: String
+    val deviceId: String,
+
+    /**
+     * The scanner protocol sequence number for this barcode packet, when available.
+     *
+     * This can be useful for advanced deduplication, auditing, or debugging. The same barcode
+     * scanned twice should normally have different sequence numbers, while a retransmitted packet
+     * should repeat the same sequence number and payload.
+     */
+    val sequenceNumber: Int? = null
 )

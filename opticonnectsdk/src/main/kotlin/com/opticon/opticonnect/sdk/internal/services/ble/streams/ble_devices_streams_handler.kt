@@ -3,6 +3,7 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
 import com.opticon.opticonnect.sdk.internal.entities.CommandResponsePacket
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
@@ -25,9 +26,17 @@ internal class BleDevicesStreamsHandler @Inject constructor() {
         percentage = -1
     )
     private val defaultBatteryPercentage = -1
+    private val barcodeBufferCapacity = 256
+    private val commandBufferCapacity = 64
 
     fun getOrCreateBarcodeStream(deviceId: String): MutableSharedFlow<BarcodeData> {
-        return barcodeStreams.computeIfAbsent(deviceId) { MutableSharedFlow(replay = 0) }
+        return barcodeStreams.computeIfAbsent(deviceId) {
+            MutableSharedFlow(
+                replay = 0,
+                extraBufferCapacity = barcodeBufferCapacity,
+                onBufferOverflow = BufferOverflow.SUSPEND
+            )
+        }
     }
 
     fun getOrCreateBatteryStatusStream(deviceId: String): MutableSharedFlow<BatteryLevelStatus> {
@@ -39,7 +48,13 @@ internal class BleDevicesStreamsHandler @Inject constructor() {
     }
 
     fun getOrCreateCommandStream(deviceId: String): MutableSharedFlow<CommandResponsePacket> {
-        return commandStreams.computeIfAbsent(deviceId) { MutableSharedFlow(replay = 0) }
+        return commandStreams.computeIfAbsent(deviceId) {
+            MutableSharedFlow(
+                replay = 0,
+                extraBufferCapacity = commandBufferCapacity,
+                onBufferOverflow = BufferOverflow.SUSPEND
+            )
+        }
     }
 
     fun getLatestBatteryPercentage(deviceId: String): Int {

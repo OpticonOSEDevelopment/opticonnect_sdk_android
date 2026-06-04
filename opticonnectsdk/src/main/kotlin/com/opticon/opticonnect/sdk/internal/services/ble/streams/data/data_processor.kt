@@ -49,6 +49,33 @@ internal class DataProcessor(
     }
 
     fun initializeStreams() {
+        // Forward data from OpcDataHandler's command and barcode streams before notifications start.
+        scope.launch {
+            try {
+                opcDataHandler.commandDataStream.collect { command ->
+                    _commandStream.emit(command) // Emit the command data into the DataProcessor's command stream
+                    Timber.d("Command received: $command for device: $deviceId")
+                }
+            } catch (_: CancellationException) {
+                Timber.d("Command data stream collection cancelled for device: $deviceId")
+            } catch (e: Exception) {
+                Timber.e(e, "Error collecting command data stream for device: $deviceId")
+            }
+        }
+
+        scope.launch {
+            try {
+                opcDataHandler.barcodeDataStream.collect { barcodeData ->
+                    _barcodeDataStream.emit(barcodeData) // Emit the barcode data into the DataProcessor's barcode stream
+                    Timber.d("Barcode data received: Data: ${barcodeData.data} Symbology: ${barcodeData.symbology} Time of Scan: ${barcodeData.timeOfScan} for device: $deviceId")
+                }
+            } catch (_: CancellationException) {
+                Timber.d("Barcode data stream collection cancelled for device: $deviceId")
+            } catch (e: Exception) {
+                Timber.e(e, "Error collecting barcode data stream for device: $deviceId")
+            }
+        }
+
         Timber.d("Setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
         connection.setupNotification(readCharacteristic)
             .doOnNext {
@@ -76,33 +103,6 @@ internal class DataProcessor(
                     }
                 }
             ).addTo(compositeDisposable)
-
-        // Forward data from OpcDataHandler's command and barcode streams to DataProcessor's own streams
-        scope.launch {
-            try {
-                opcDataHandler.commandDataStream.collect { command ->
-                    _commandStream.emit(command) // Emit the command data into the DataProcessor's command stream
-                    Timber.d("Command received: $command for device: $deviceId")
-                }
-            } catch (_: CancellationException) {
-                Timber.d("Command data stream collection cancelled for device: $deviceId")
-            } catch (e: Exception) {
-                Timber.e(e, "Error collecting command data stream for device: $deviceId")
-            }
-        }
-
-        scope.launch {
-            try {
-                opcDataHandler.barcodeDataStream.collect { barcodeData ->
-                    _barcodeDataStream.emit(barcodeData) // Emit the barcode data into the DataProcessor's barcode stream
-                    Timber.d("Barcode data received: Data: ${barcodeData.data} Symbology: ${barcodeData.symbology} Time of Scan: ${barcodeData.timeOfScan} for device: $deviceId")
-                }
-            } catch (_: CancellationException) {
-                Timber.d("Barcode data stream collection cancelled for device: $deviceId")
-            } catch (e: Exception) {
-                Timber.e(e, "Error collecting barcode data stream for device: $deviceId")
-            }
-        }
     }
 
     override fun close() {
