@@ -2,6 +2,10 @@ package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
 import com.opticon.opticonnect.sdk.internal.constants.Symbologies
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ACK
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.DLE
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.DLE_V
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ETX_V
+import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.STX_V
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
@@ -9,6 +13,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.yield
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
@@ -44,6 +49,53 @@ class OpcDataHandlerTest {
     }
 
     @Test
+    fun parsesCapturedBarcodePacketSplitAcrossNotifications() {
+        runBlocking {
+            createHandler().use { handler ->
+                val barcodeResult = async {
+                    withTimeout(1000) {
+                        handler.barcodeDataStream.first()
+                    }
+                }
+                yield()
+
+                hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET)
+                    .chunked(7)
+                    .forEach { chunk -> handler.processData(chunk) }
+
+                assertEquals("2620734570914\r", barcodeResult.await().data)
+            }
+        }
+    }
+
+    @Test
+    fun ignoresDuplicateBarcodeSequencePacket() {
+        runBlocking {
+            createHandler().use { handler ->
+                val firstBarcodeResult = async {
+                    withTimeout(1000) {
+                        handler.barcodeDataStream.first()
+                    }
+                }
+                yield()
+
+                handler.processData(hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET))
+                assertEquals("2620734570914\r", firstBarcodeResult.await().data)
+
+                val duplicateBarcodeResult = async {
+                    withTimeoutOrNull(500) {
+                        handler.barcodeDataStream.first()
+                    }
+                }
+                yield()
+
+                handler.processData(hexToUBytes(CAPTURED_EAN_13_WITH_TIMESTAMP_PACKET))
+                assertEquals(null, duplicateBarcodeResult.await())
+            }
+        }
+    }
+
+    @Test
     fun parsesCapturedCommandAckPacket() {
         runBlocking {
             createHandler().use { handler ->
@@ -56,7 +108,55 @@ class OpcDataHandlerTest {
 
                 handler.processData(hexToUBytes(CAPTURED_COMMAND_ACK_PACKET))
 
-                assertEquals(ACK.toString(), commandResponseResult.await())
+                val commandResponse = commandResponseResult.await()
+                assertEquals(ACK.toString(), commandResponse.data)
+                assertEquals(5, commandResponse.sequenceNumber)
+            }
+        }
+    }
+
+    @Test
+    fun parsesCommandResponseWithStuffedDleInPayload() {
+        runBlocking {
+            createHandler().use { handler ->
+                val commandResponseResult = async {
+                    withTimeout(1000) {
+                        handler.commandDataStream.first()
+                    }
+                }
+                yield()
+
+                handler.processData(
+                    buildFrame(
+                        type = 0x64.toUByte(),
+                        header = uBytes(0x00, 0x0C, 0x00, 0x00),
+                        data = uBytes(0x41, 0x10, 0x42)
+                    )
+                )
+
+                val commandResponse = commandResponseResult.await()
+                assertEquals("A${DLE}B", commandResponse.data)
+                assertEquals(12, commandResponse.sequenceNumber)
+            }
+        }
+    }
+
+    @Test
+    fun ignoresCommandResponseWithInvalidCrc() {
+        runBlocking {
+            createHandler().use { handler ->
+                val commandResponseResult = async {
+                    withTimeoutOrNull(500) {
+                        handler.commandDataStream.first()
+                    }
+                }
+                yield()
+
+                val packetWithBadCrc = hexToUBytes(CAPTURED_COMMAND_ACK_PACKET).toMutableList()
+                packetWithBadCrc[packetWithBadCrc.lastIndex] = 0x00.toUByte()
+                handler.processData(packetWithBadCrc)
+
+                assertEquals(null, commandResponseResult.await())
             }
         }
     }
@@ -76,9 +176,14 @@ class OpcDataHandlerTest {
                     handler.processData(hexToUBytes(packet))
                 }
 
+                val commandResponses = commandResponsesResult.await()
                 assertEquals(
                     listOf("]EBLE[BCDJUW28D", "", ACK.toString()),
-                    commandResponsesResult.await()
+                    commandResponses.map { it.data }
+                )
+                assertEquals(
+                    listOf(11, 11, 11),
+                    commandResponses.map { it.sequenceNumber }
                 )
             }
         }
@@ -95,6 +200,26 @@ class OpcDataHandlerTest {
         hex.replace(Regex("[^0-9A-Fa-f]"), "")
             .chunked(2)
             .map { it.toInt(16).toUByte() }
+
+    private fun buildFrame(type: UByte, header: List<UByte>, data: List<UByte>): List<UByte> {
+        val body = mutableListOf(DLE_V, STX_V, type)
+        (header + data).forEach { byte ->
+            if (byte == DLE_V) {
+                body.add(DLE_V)
+            }
+            body.add(byte)
+        }
+        body.add(DLE_V)
+        body.add(ETX_V)
+
+        val crc = CRC16Handler().compute(body)
+        body.add((crc shr 8).toUByte())
+        body.add((crc and 0xFF).toUByte())
+        return body
+    }
+
+    private fun uBytes(vararg bytes: Int): List<UByte> =
+        bytes.map { it.toUByte() }
 
     private companion object {
         const val TEST_DEVICE_ID = "38:89:DC:0E:00:0F"

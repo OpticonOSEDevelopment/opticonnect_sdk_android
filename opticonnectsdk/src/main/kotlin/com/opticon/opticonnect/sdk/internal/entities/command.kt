@@ -28,6 +28,7 @@ internal open class Command(
         get() = parsedData
 
     var retried = false
+    var sentSequenceNumber: Int? = null
 
     init {
         buildParsedData()

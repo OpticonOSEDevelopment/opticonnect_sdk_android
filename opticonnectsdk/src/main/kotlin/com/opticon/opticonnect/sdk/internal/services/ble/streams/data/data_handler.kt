@@ -1,5 +1,6 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
+import com.opticon.opticonnect.sdk.internal.entities.CommandResponsePacket
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
 import com.opticon.opticonnect.sdk.internal.services.ble.constants.UuidConstants
@@ -23,7 +24,7 @@ internal class DataHandler @Inject constructor(
     private val dataProcessors = ConcurrentHashMap<String, DataProcessor>()
     private val mutex = Mutex()
 
-    override suspend fun getCommandResponseStream(deviceId: String): Flow<String> {
+    override suspend fun getCommandResponseStream(deviceId: String): Flow<CommandResponsePacket> {
         return bleDevicesStreamsHandler.getOrCreateCommandStream(deviceId)
     }
 

@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.commands
 
 import com.opticon.opticonnect.sdk.internal.entities.Command
+import com.opticon.opticonnect.sdk.internal.entities.CommandPacket
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.CRC16Handler
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.DLE_V
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.STX_V
@@ -16,19 +17,21 @@ internal class OpcCommandProtocolHandler @Inject constructor(
 ) : CommandBytesProvider {
     private var seqNr = 0
 
-    private fun incrementSeqNr() {
-        // Increment and wrap sequence number within 16-bit limit
+    private fun nextSeqNr(): Int {
+        val current = seqNr
         seqNr = (seqNr + 1) % (1 shl 16)
+        return current
     }
 
-    override fun getCommandBytes(command: Command): ByteArray {
+    override fun getCommandPacket(command: Command): CommandPacket {
         return try {
             val menuCommandType: UByte = 0x43u // 0x43: Menu command with sequence number
+            val currentSeqNr = nextSeqNr()
             val commandData = command.data
             val commandBytes = mutableListOf<UByte>()
 
             // Add start bytes
-            addCommandStartBytes(commandBytes, menuCommandType, seqNr)
+            addCommandStartBytes(commandBytes, menuCommandType, currentSeqNr)
 
             // Add command data
             for (char in commandData) {
@@ -38,18 +41,12 @@ internal class OpcCommandProtocolHandler @Inject constructor(
             // Add end bytes
             addCommandEndBytes(commandBytes)
 
-            // Finalize and return the command bytes
-            val bytes = finalizeCommandBytes(commandBytes)
-            bytes.map { it.toByte() }.toByteArray()
+            val bytes = commandBytes.map { it.toByte() }.toByteArray()
+            CommandPacket(bytes, currentSeqNr)
         } catch (e: Exception) {
             Timber.e(e, "Error generating command bytes: ${e.message}")
             throw e
         }
-    }
-
-    private fun finalizeCommandBytes(commandBytes: MutableList<UByte>): List<UByte> {
-        incrementSeqNr()
-        return commandBytes
     }
 
     private fun intToTwoByteList(value: Int): List<UByte> {

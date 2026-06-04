@@ -1,6 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.services.ble.streams.data
 
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData
+import com.opticon.opticonnect.sdk.internal.entities.CommandResponsePacket
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.DLE_V
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ETX_V
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.STX_V
@@ -32,11 +33,11 @@ internal class OpcDataHandler @Inject constructor(
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
 
-    private val _commandDataStream = MutableSharedFlow<String>(replay = 0)
+    private val _commandDataStream = MutableSharedFlow<CommandResponsePacket>(replay = 0)
     private val _barcodeDataStream = MutableSharedFlow<BarcodeData>(replay = 0)
 
     // Expose flows as immutable SharedFlow
-    val commandDataStream: SharedFlow<String> get() = _commandDataStream
+    val commandDataStream: SharedFlow<CommandResponsePacket> get() = _commandDataStream
     val barcodeDataStream: SharedFlow<BarcodeData> get() = _barcodeDataStream
 
     private val BARCODE_TYPE = 0x82
@@ -142,24 +143,24 @@ internal class OpcDataHandler @Inject constructor(
                             } else {
                                 val dataBytesArray = dataBytes.map { it.toByte() }.toByteArray()
                                 val dataString = String(dataBytesArray, Charsets.UTF_8)
+                                val sequenceNumber = extractSequenceNumberOrNull(headerBytes)
                                 if (shouldReturnResult) {
                                     result = dataString
                                     return result
                                 } else if (type == BARCODE_TYPE || type == BARCODE_WITH_TIME_TYPE) {
                                     try {
                                         Timber.d("Barcode data processed: $dataString")
-                                        val sequenceNumber = extractSequenceNumber(headerBytes)
                                         if (sequenceNumber == previousSeqNr) {
                                             return result
                                         }
-                                        previousSeqNr = sequenceNumber
+                                        previousSeqNr = sequenceNumber ?: -1
                                     } catch (e: Exception) {
                                         Timber.e(e, "Error extracting sequence number")
                                     }
                                     postProcessAndSendBarcodeData(dataString, dataBytes)
                                 } else if (type == MENU_COMMAND_RSP_TYPE) {
                                     Timber.d("Command response processed: $dataString")
-                                    _commandDataStream.emit(dataString)
+                                    _commandDataStream.emit(CommandResponsePacket(dataString, sequenceNumber))
                                 }
                             }
                         }
@@ -179,6 +180,15 @@ internal class OpcDataHandler @Inject constructor(
             throw IllegalArgumentException(errorMsg)
         }
         return (headerBytes[0] shl 8) or headerBytes[1]
+    }
+
+    private fun extractSequenceNumberOrNull(headerBytes: List<Int>): Int? {
+        return try {
+            extractSequenceNumber(headerBytes)
+        } catch (e: Exception) {
+            Timber.e(e, "Error extracting sequence number")
+            null
+        }
     }
 
     private fun postProcessAndSendBarcodeData(data: String, dataBytes: List<Int>) {

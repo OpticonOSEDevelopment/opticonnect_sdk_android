@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.commands
 
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.entities.Command
+import com.opticon.opticonnect.sdk.internal.entities.CommandResponsePacket
 import com.opticon.opticonnect.sdk.internal.utils.TimeoutManager
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleCommandResponseReader
 import com.opticon.opticonnect.sdk.internal.services.ble.interfaces.BleDataWriter
@@ -83,9 +84,10 @@ internal class CommandExecutor @Inject constructor(
         startCommandTimeout(command)
 
         try {
-            val bytes = commandBytesProvider.getCommandBytes(command)
+            val packet = commandBytesProvider.getCommandPacket(command)
+            command.sentSequenceNumber = packet.sequenceNumber
             coroutineScope.launch {
-                bleDataWriter.writeData(deviceId, command.code, bytes)
+                bleDataWriter.writeData(deviceId, command.code, packet.bytes)
             }
         } catch (e: Exception) {
             Timber.e("Error sending command: ${command.code}, Error: $e")
@@ -136,17 +138,27 @@ internal class CommandExecutor @Inject constructor(
         }
     }
 
-    private suspend fun commandResponseReceivedEvent(data: String) {
+    private suspend fun commandResponseReceivedEvent(responsePacket: CommandResponsePacket) {
         commandMutex.withLock {
-            commandResponseReceivedEventLocked(data)
+            commandResponseReceivedEventLocked(responsePacket)
         }
     }
 
-    private suspend fun commandResponseReceivedEventLocked(data: String) {
+    private suspend fun commandResponseReceivedEventLocked(responsePacket: CommandResponsePacket) {
         if (pendingCommandsQueue.isEmpty()) return
 
         val command = pendingCommandsQueue.first()
-        Timber.d("Command response received for: ${command.code}, Data: $data")
+        val sequenceNumber = responsePacket.sequenceNumber
+        if (sequenceNumber != null && command.sentSequenceNumber != sequenceNumber) {
+            Timber.w(
+                "Ignoring command response for sequence $sequenceNumber. " +
+                    "Expected ${command.sentSequenceNumber} for command ${command.code}."
+            )
+            return
+        }
+
+        val data = responsePacket.data
+        Timber.d("Command response received for: ${command.code}, Sequence: $sequenceNumber, Data: $data")
 
         when (data) {
             NAK.toString() -> {
