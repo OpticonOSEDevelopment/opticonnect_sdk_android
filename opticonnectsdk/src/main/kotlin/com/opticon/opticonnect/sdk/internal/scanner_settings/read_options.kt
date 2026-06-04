@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.ScanCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.*
@@ -58,7 +60,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setPositiveAndNegativeBarcodesMode(
         deviceId: String,
         mode: PositiveAndNegativeBarcodesMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPositiveAndNegativeBarcodesMode(deviceId, mode) }
     }
@@ -71,7 +73,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setReadMode(
         deviceId: String,
         mode: ReadMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setReadMode(deviceId, mode) }
     }
@@ -84,7 +86,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setReadTime(
         deviceId: String,
         time: ReadTime,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setReadTime(deviceId, time) }
     }
@@ -97,7 +99,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setIlluminationMode(
         deviceId: String,
         mode: IlluminationMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIlluminationMode(deviceId, mode) }
     }
@@ -109,7 +111,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setAiming(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAiming(deviceId, enabled) }
     }
@@ -121,7 +123,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setTriggerRepeat(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTriggerRepeat(deviceId, enabled) }
     }
@@ -133,7 +135,7 @@ internal class ReadOptionsImpl @Inject constructor() : ReadOptions, SettingsBase
     override fun setDeleteKey(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setDeleteKey(deviceId, enabled) }
     }

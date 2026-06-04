@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.DataLength
@@ -33,7 +35,7 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command)
     }
 
-    override fun setSpaceCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setSpaceCheck(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSpaceCheck(deviceId, enabled) }
     }
 
@@ -50,7 +52,7 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
     override fun setSCodeTransmissionAsInterleaved(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSCodeTransmissionAsInterleaved(deviceId, enabled) }
     }
@@ -64,7 +66,7 @@ internal class Code2Of5AndSCodeImpl @Inject constructor() : SettingsBase(), Code
     override fun setMinimumDataLength(
         deviceId: String,
         dataLength: DataLength,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinimumDataLength(deviceId, dataLength) }
     }

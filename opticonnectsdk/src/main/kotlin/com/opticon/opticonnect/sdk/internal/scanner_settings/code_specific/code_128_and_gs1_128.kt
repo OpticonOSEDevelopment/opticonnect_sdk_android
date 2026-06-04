@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code128AndGS1128Mode
@@ -38,7 +40,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendMappedCommand(deviceId, command, "Unsupported GS1-128 mode: $mode")
     }
 
-    override fun setGS1128Mode(deviceId: String, mode: Code128AndGS1128Mode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setGS1128Mode(deviceId: String, mode: Code128AndGS1128Mode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGS1128Mode(deviceId, mode) }
     }
 
@@ -48,7 +50,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendMappedCommand(deviceId, command, "Unsupported GS1-128 conversion mode: $mode")
     }
 
-    override fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setGS1128ConversionMode(deviceId: String, mode: GS1128ConversionMode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGS1128ConversionMode(deviceId, mode) }
     }
 
@@ -62,7 +64,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command)
     }
 
-    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
     }
 
@@ -76,7 +78,7 @@ internal class Code128AndGS1128Impl @Inject constructor() : SettingsBase(), Code
         return sendCommand(deviceId, command)
     }
 
-    override fun setLeadingC1Output(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setLeadingC1Output(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLeadingC1Output(deviceId, enabled) }
     }
 }

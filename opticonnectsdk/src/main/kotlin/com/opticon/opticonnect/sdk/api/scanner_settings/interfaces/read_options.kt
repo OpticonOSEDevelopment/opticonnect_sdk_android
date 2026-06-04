@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.IlluminationMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.PositiveAndNegativeBarcodesMode
@@ -35,7 +37,7 @@ interface ReadOptions {
     fun setPositiveAndNegativeBarcodesMode(
         deviceId: String,
         mode: PositiveAndNegativeBarcodesMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -57,7 +59,7 @@ interface ReadOptions {
     fun setReadMode(
         deviceId: String,
         mode: ReadMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -79,7 +81,7 @@ interface ReadOptions {
     fun setReadTime(
         deviceId: String,
         time: ReadTime,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -101,7 +103,7 @@ interface ReadOptions {
     fun setIlluminationMode(
         deviceId: String,
         mode: IlluminationMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -123,7 +125,7 @@ interface ReadOptions {
     fun setAiming(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -145,7 +147,7 @@ interface ReadOptions {
     fun setTriggerRepeat(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -167,6 +169,6 @@ interface ReadOptions {
     fun setDeleteKey(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 }

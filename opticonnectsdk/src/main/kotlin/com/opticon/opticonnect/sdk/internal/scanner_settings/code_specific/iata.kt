@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.IATACheckCDSettings
@@ -30,7 +32,7 @@ internal class IATAImpl @Inject constructor() : SettingsBase(), IATA {
         return sendMappedCommand(deviceId, command, "Unsupported IATA check digit setting: $setting")
     }
 
-    override fun setCheckCD(deviceId: String, setting: IATACheckCDSettings, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCheckCD(deviceId: String, setting: IATACheckCDSettings, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, setting) }
     }
 
@@ -44,7 +46,7 @@ internal class IATAImpl @Inject constructor() : SettingsBase(), IATA {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 }

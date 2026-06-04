@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.IndicatorCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.LEDColor
@@ -57,7 +59,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun toggleBuzzer(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { toggleBuzzer(deviceId, enabled) }
     }
@@ -71,7 +73,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun testBuzzerVolume(
         deviceId: String,
         volume: Int,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { testBuzzerVolume(deviceId, volume) }
     }
@@ -85,7 +87,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setBuzzerVolume(
         deviceId: String,
         volume: Int,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setBuzzerVolume(deviceId, volume) }
     }
@@ -99,7 +101,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setBuzzerDuration(
         deviceId: String,
         duration: BuzzerDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setBuzzerDuration(deviceId, duration) }
     }
@@ -113,7 +115,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setBuzzerType(
         deviceId: String,
         type: BuzzerType,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setBuzzerType(deviceId, type) }
     }
@@ -127,7 +129,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun toggleVibrator(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { toggleVibrator(deviceId, enabled) }
     }
@@ -141,7 +143,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setVibratorDuration(
         deviceId: String,
         duration: VibratorDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setVibratorDuration(deviceId, duration) }
     }
@@ -159,7 +161,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setLED(
         deviceId: String,
         color: LEDColor,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLED(deviceId, color) }
     }
@@ -177,7 +179,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun testLED(
         deviceId: String,
         color: LEDColor,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { testLED(deviceId, color) }
     }
@@ -191,7 +193,7 @@ internal class IndicatorImpl @Inject constructor() : Indicator, SettingsBase() {
     override fun setGoodReadLedDuration(
         deviceId: String,
         duration: GoodReadLedDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setGoodReadLedDuration(deviceId, duration) }
     }

@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UKPlessey
@@ -26,7 +28,7 @@ internal class UKPlesseyImpl @Inject constructor() : SettingsBase(), UKPlessey {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitCDs(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitCDs(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCDs(deviceId, enabled) }
     }
 
@@ -40,7 +42,7 @@ internal class UKPlesseyImpl @Inject constructor() : SettingsBase(), UKPlessey {
         return sendCommand(deviceId, command)
     }
 
-    override fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSpaceInsertion(deviceId, enabled) }
     }
 
@@ -54,7 +56,7 @@ internal class UKPlesseyImpl @Inject constructor() : SettingsBase(), UKPlessey {
         return sendCommand(deviceId, command)
     }
 
-    override fun setAToXConversion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setAToXConversion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAToXConversion(deviceId, enabled) }
     }
 }

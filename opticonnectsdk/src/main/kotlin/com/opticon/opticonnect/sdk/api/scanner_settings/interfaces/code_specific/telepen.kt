@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.TelepenMode
 
@@ -26,5 +28,5 @@ interface Telepen {
      * @param mode The desired Telepen code mode.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setMode(deviceId: String, mode: TelepenMode, callback: (Result<CommandResponse>) -> Unit)
+    fun setMode(deviceId: String, mode: TelepenMode, callback: Callback<CommandResponse>)
 }

@@ -19,6 +19,7 @@ import com.opticon.opticonnect.sdk.api.OptiConnect;
 import com.opticon.opticonnect.sdk.api.entities.BarcodeData;
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus;
 import com.opticon.opticonnect.sdk.api.entities.BleDiscoveredDevice;
+import com.opticon.opticonnect.sdk.api.entities.CommandResponse;
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState;
 import com.opticon.opticonnect.sdk.api.interfaces.Callback;
 import com.opticon.opticonnect.sdk.api.interfaces.ListenerSubscription;
@@ -167,6 +168,20 @@ public class MainActivity extends ComponentActivity {
                 Log.e("OptiConnect", "Error receiving battery status: " + error.getMessage());
             }
         }));
+    }
+
+    private void testScannerBuzzerVolume(String deviceId) {
+        OptiConnect.INSTANCE.getScannerSettings().getIndicator().testBuzzerVolume(deviceId, 50, new Callback<>() {
+            @Override
+            public void onSuccess(CommandResponse response) {
+                Log.d("OptiConnect", "Buzzer test command succeeded: " + response.getResponse());
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                Log.e("OptiConnect", "Buzzer test command failed: " + error.getMessage());
+            }
+        });
     }
 
     private void listenToConnectionState(String deviceId) {

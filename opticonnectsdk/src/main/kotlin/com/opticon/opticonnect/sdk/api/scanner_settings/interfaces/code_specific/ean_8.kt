@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -26,7 +28,7 @@ interface EAN8 {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the 2-character add-on for EAN-8 symbology.
@@ -44,7 +46,7 @@ interface EAN8 {
      * @param enabled A boolean indicating whether to enable or disable the 2-character add-on.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setAddOnPlus2(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setAddOnPlus2(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the 5-character add-on for EAN-8 symbology.
@@ -62,5 +64,5 @@ interface EAN8 {
      * @param enabled A boolean indicating whether to enable or disable the 5-character add-on.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setAddOnPlus5(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setAddOnPlus5(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

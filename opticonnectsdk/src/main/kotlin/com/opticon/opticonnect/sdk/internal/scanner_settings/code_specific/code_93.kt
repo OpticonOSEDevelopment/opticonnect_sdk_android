@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code93
@@ -26,7 +28,7 @@ internal class Code93Impl @Inject constructor() : SettingsBase(), Code93 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
     }
 
@@ -40,7 +42,7 @@ internal class Code93Impl @Inject constructor() : SettingsBase(), Code93 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
     }
 }

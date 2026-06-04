@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.MSIPlesseyCheckCDSettings
@@ -39,7 +41,7 @@ internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey
         return sendMappedCommand(deviceId, command, "Unsupported MSI Plessey check digit setting: $setting")
     }
 
-    override fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, setting) }
     }
 
@@ -49,7 +51,7 @@ internal class MSIPlesseyImpl @Inject constructor() : SettingsBase(), MSIPlessey
         return sendMappedCommand(deviceId, command, "Unsupported MSI Plessey check digit transmission setting: $setting")
     }
 
-    override fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCDTransmission(deviceId, setting) }
     }
 }

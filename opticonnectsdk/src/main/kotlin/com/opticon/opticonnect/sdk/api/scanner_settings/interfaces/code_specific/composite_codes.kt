@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CompositeCodesOutputMode
 
@@ -26,7 +28,7 @@ interface CompositeCodes {
      * @param outputMode The [CompositeCodesOutputMode] enum value representing the desired output mode.
      * @param callback Callback to receive [CommandResponse] or an error.
      */
-    fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: (Result<CommandResponse>) -> Unit)
+    fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: Callback<CommandResponse>)
 
     /**
      * Sets whether to ignore the link flag for composite codes.
@@ -44,7 +46,7 @@ interface CompositeCodes {
      * @param enabled A boolean indicating whether to ignore or not ignore the link flag.
      * @param callback Callback to receive [CommandResponse] or an error.
      */
-    fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the state for GS1 Databar and GS1-128 composite codes.
@@ -62,7 +64,7 @@ interface CompositeCodes {
      * @param enabled A boolean indicating whether to enable or disable GS1 composite codes.
      * @param callback Callback to receive [CommandResponse] or an error.
      */
-    fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the state for EAN/UPC composite codes.
@@ -80,5 +82,5 @@ interface CompositeCodes {
      * @param enabled A boolean indicating whether to enable or disable EAN/UPC composite codes.
      * @param callback Callback to receive [CommandResponse] or an error.
      */
-    fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

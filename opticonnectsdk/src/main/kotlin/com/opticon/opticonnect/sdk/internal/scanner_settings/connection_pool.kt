@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CommunicationCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
@@ -56,7 +58,7 @@ internal class ConnectionPoolImpl @Inject constructor(
         return result
     }
 
-    override fun setId(deviceId: String, poolId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setId(deviceId: String, poolId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setId(deviceId, poolId) }
     }
 
@@ -68,7 +70,7 @@ internal class ConnectionPoolImpl @Inject constructor(
         return connectionPoolIds[deviceId] ?: "0000"  // Return "0000" if ID is unknown
     }
 
-    override fun getId(deviceId: String, callback: (Result<String>) -> Unit) {
+    override fun getId(deviceId: String, callback: Callback<String>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { getId(deviceId) }
     }
 
@@ -78,7 +80,7 @@ internal class ConnectionPoolImpl @Inject constructor(
         return sendCommand(deviceId, CommunicationCommands.SET_CONNECTION_POOL_ID, parameters = directInputKeys)
     }
 
-    override fun resetId(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun resetId(deviceId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { resetId(deviceId) }
     }
 

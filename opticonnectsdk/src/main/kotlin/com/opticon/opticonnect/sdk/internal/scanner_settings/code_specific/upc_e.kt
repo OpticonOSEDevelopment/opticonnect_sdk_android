@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
@@ -43,7 +45,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     override fun setLeadingZeroAndTransmitCDMode(
         deviceId: String,
         mode: UPCELeadingZeroAndTransmitCDMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLeadingZeroAndTransmitCDMode(deviceId, mode) }
     }
@@ -60,7 +62,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     override fun setConversionMode(
         deviceId: String,
         mode: UPCEConversionMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConversionMode(deviceId, mode) }
     }
@@ -81,7 +83,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     override fun setAddOnPlus2(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus2(deviceId, enabled) }
     }
@@ -102,7 +104,7 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
     override fun setAddOnPlus5(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus5(deviceId, enabled) }
     }

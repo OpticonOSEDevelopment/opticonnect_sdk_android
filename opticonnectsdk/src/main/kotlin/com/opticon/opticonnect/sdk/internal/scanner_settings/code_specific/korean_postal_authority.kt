@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.KoreanPostalAuthority
@@ -26,7 +28,7 @@ internal class KoreanPostalAuthorityImpl @Inject constructor() : SettingsBase(),
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 
@@ -40,7 +42,7 @@ internal class KoreanPostalAuthorityImpl @Inject constructor() : SettingsBase(),
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitDash(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitDash(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitDash(deviceId, enabled) }
     }
 
@@ -54,7 +56,7 @@ internal class KoreanPostalAuthorityImpl @Inject constructor() : SettingsBase(),
         return sendCommand(deviceId, command)
     }
 
-    override fun setKoreanPostalOrientation(deviceId: String, setUpsideDown: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setKoreanPostalOrientation(deviceId: String, setUpsideDown: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setKoreanPostalOrientation(deviceId, setUpsideDown) }
     }
 
@@ -68,7 +70,7 @@ internal class KoreanPostalAuthorityImpl @Inject constructor() : SettingsBase(),
         return sendCommand(deviceId, command)
     }
 
-    override fun setUpsideDownReading(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setUpsideDownReading(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setUpsideDownReading(deviceId, enabled) }
     }
 }

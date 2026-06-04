@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
@@ -212,7 +214,7 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
     override fun enableOnlySymbology(
         deviceId: String,
         type: SymbologyType,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { enableOnlySymbology(deviceId, type) }
     }
@@ -237,7 +239,7 @@ internal class SymbologyImpl @Inject constructor() : SettingsBase(), Symbology {
         deviceId: String,
         type: SymbologyType,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSymbology(deviceId, type, enabled) }
     }

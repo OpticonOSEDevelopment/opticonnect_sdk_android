@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.TelepenMode
@@ -28,7 +30,7 @@ internal class TelepenImpl @Inject constructor() : SettingsBase(), Telepen {
         return sendMappedCommand(deviceId, command, "Unsupported Telepen mode: $mode")
     }
 
-    override fun setMode(deviceId: String, mode: TelepenMode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setMode(deviceId: String, mode: TelepenMode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
     }
 }

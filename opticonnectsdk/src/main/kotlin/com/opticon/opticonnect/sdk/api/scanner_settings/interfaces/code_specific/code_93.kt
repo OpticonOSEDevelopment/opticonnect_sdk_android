@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -26,7 +28,7 @@ interface Code93 {
      * @param enabled A boolean indicating whether to enable or disable the check digit validation.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the concatenation mode for Code 93 symbology.
@@ -44,5 +46,5 @@ interface Code93 {
      * @param enabled A boolean indicating whether to enable or disable concatenation.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

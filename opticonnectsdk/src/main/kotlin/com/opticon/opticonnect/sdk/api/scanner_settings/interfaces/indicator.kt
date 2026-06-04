@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.entities.LEDColor
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.BuzzerDuration
@@ -33,7 +35,7 @@ interface Indicator {
     fun toggleBuzzer(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -55,7 +57,7 @@ interface Indicator {
     fun testBuzzerVolume(
         deviceId: String,
         volume: Int,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -77,7 +79,7 @@ interface Indicator {
     fun setBuzzerVolume(
         deviceId: String,
         volume: Int,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -99,7 +101,7 @@ interface Indicator {
     fun setBuzzerDuration(
         deviceId: String,
         duration: BuzzerDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -121,7 +123,7 @@ interface Indicator {
     fun setBuzzerType(
         deviceId: String,
         type: BuzzerType,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -143,7 +145,7 @@ interface Indicator {
     fun toggleVibrator(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -165,7 +167,7 @@ interface Indicator {
     fun setVibratorDuration(
         deviceId: String,
         duration: VibratorDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -187,7 +189,7 @@ interface Indicator {
     fun setLED(
         deviceId: String,
         color: LEDColor,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -209,7 +211,7 @@ interface Indicator {
     fun testLED(
         deviceId: String,
         color: LEDColor,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -231,6 +233,6 @@ interface Indicator {
     fun setGoodReadLedDuration(
         deviceId: String,
         duration: GoodReadLedDuration,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 }

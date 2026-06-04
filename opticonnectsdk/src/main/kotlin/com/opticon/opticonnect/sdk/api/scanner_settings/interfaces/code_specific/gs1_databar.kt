@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -26,7 +28,7 @@ interface GS1Databar {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of the AI (Application Identifier) for GS1 Databar symbology.
@@ -44,5 +46,5 @@ interface GS1Databar {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the AI.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitAI(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitAI(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

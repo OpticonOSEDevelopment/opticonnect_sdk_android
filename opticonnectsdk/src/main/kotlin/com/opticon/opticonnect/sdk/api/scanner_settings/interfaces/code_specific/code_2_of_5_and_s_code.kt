@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.DataLength
 
@@ -27,7 +29,7 @@ interface Code2Of5AndSCode {
      * @param enabled A boolean indicating whether to enable or disable the space check.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setSpaceCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setSpaceCheck(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission mode of S-Code as Interleaved 2 of 5.
@@ -45,7 +47,7 @@ interface Code2Of5AndSCode {
      * @param enabled A boolean indicating whether to transmit or not transmit the S-Code as Interleaved 2 of 5.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setSCodeTransmissionAsInterleaved(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setSCodeTransmissionAsInterleaved(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the minimum data length for Code 2 of 5 and S-Code symbologies.
@@ -63,5 +65,5 @@ interface Code2Of5AndSCode {
      * @param dataLength The [DataLength] enum value representing the minimum data length.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setMinimumDataLength(deviceId: String, dataLength: DataLength, callback: (Result<CommandResponse>) -> Unit)
+    fun setMinimumDataLength(deviceId: String, dataLength: DataLength, callback: Callback<CommandResponse>)
 }

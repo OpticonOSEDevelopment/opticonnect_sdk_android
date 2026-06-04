@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.IATACheckCDSettings
 
@@ -27,7 +29,7 @@ interface IATA {
      * @param setting The [IATACheckCDSettings] enum value representing the desired setting.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setCheckCD(deviceId: String, setting: IATACheckCDSettings, callback: (Result<CommandResponse>) -> Unit)
+    fun setCheckCD(deviceId: String, setting: IATACheckCDSettings, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of the check digit for IATA symbology.
@@ -45,5 +47,5 @@ interface IATA {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

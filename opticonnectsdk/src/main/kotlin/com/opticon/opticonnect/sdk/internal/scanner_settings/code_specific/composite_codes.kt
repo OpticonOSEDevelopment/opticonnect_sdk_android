@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CompositeCodesOutputMode
@@ -29,7 +31,7 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendMappedCommand(deviceId, command, "Unsupported composite codes output mode: $outputMode")
     }
 
-    override fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setOutputMode(deviceId: String, outputMode: CompositeCodesOutputMode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setOutputMode(deviceId, outputMode) }
     }
 
@@ -43,7 +45,7 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendCommand(deviceId, command)
     }
 
-    override fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setIgnoreLinkFlag(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIgnoreLinkFlag(deviceId, enabled) }
     }
 
@@ -57,7 +59,7 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendCommand(deviceId, command)
     }
 
-    override fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCompositeGS1DatabarGS1128(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCompositeGS1DatabarGS1128(deviceId, enabled) }
     }
 
@@ -71,7 +73,7 @@ internal class CompositeCodesImpl @Inject constructor() : SettingsBase(), Compos
         return sendCommand(deviceId, command)
     }
 
-    override fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCompositeEANUPC(deviceId, enabled) }
     }
 }

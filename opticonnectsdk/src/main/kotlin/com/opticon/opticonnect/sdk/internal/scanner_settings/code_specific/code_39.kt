@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39MinimumLength
@@ -37,7 +39,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendMappedCommand(deviceId, command, "Unsupported Code 39 mode: $mode")
     }
 
-    override fun setMode(deviceId: String, mode: Code39Mode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setMode(deviceId: String, mode: Code39Mode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
     }
 
@@ -51,7 +53,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
     }
 
@@ -65,7 +67,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 
@@ -79,7 +81,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitSTSP(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitSTSP(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitSTSP(deviceId, enabled) }
     }
 
@@ -93,7 +95,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
     }
 
@@ -107,7 +109,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitLdAForItPharm(deviceId, enabled) }
     }
 
@@ -117,7 +119,7 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         return sendMappedCommand(deviceId, command, "Unsupported Code 39 minimum length: $length")
     }
 
-    override fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinLength(deviceId, length) }
     }
 }

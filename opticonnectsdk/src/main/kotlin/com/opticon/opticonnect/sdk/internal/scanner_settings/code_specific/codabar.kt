@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
@@ -49,7 +51,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendMappedCommand(deviceId, command, "Unsupported Codabar mode: $mode")
     }
 
-    override fun setMode(deviceId: String, mode: CodabarMode, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setMode(deviceId: String, mode: CodabarMode, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
     }
 
@@ -63,7 +65,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
-    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
     }
 
@@ -77,7 +79,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
-    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 
@@ -91,7 +93,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
-    override fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSpaceInsertion(deviceId, enabled) }
     }
 
@@ -101,7 +103,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendMappedCommand(deviceId, command, "Unsupported Codabar minimum length: $length")
     }
 
-    override fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinimumLength(deviceId, length) }
     }
 
@@ -115,7 +117,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendCommand(deviceId, command)
     }
 
-    override fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setIntercharacterGapCheck(deviceId, enabled) }
     }
 
@@ -127,7 +129,7 @@ internal class CodabarImpl @Inject constructor() : SettingsBase(), Codabar {
         return sendMappedCommand(deviceId, command, "Unsupported Codabar start/stop transmission: $transmission")
     }
 
-    override fun setStartStopTransmission(deviceId: String, transmission: CodabarStartStopTransmission, callback: (Result<CommandResponse>) -> Unit) {
+    override fun setStartStopTransmission(deviceId: String, transmission: CodabarStartStopTransmission, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setStartStopTransmission(deviceId, transmission) }
     }
 }

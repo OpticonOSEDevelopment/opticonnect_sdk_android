@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
 
@@ -28,7 +30,7 @@ interface Symbology {
     fun enableOnlySymbology(
         deviceId: String,
         type: SymbologyType,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -53,6 +55,6 @@ interface Symbology {
         deviceId: String,
         type: SymbologyType,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 }

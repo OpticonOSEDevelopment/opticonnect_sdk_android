@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -25,7 +27,7 @@ interface ConnectionPool {
      * @param poolId The 4-character hexadecimal connection pool ID.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setId(deviceId: String, poolId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun setId(deviceId: String, poolId: String, callback: Callback<CommandResponse>)
 
     /**
      * Caches the connection pool ID locally for the specified device.
@@ -52,7 +54,7 @@ interface ConnectionPool {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive the connection pool ID as a [String].
      */
-    fun getId(deviceId: String, callback: (Result<String>) -> Unit)
+    fun getId(deviceId: String, callback: Callback<String>)
 
     /**
      * Resets the connection pool ID to the default '0000'.
@@ -68,7 +70,7 @@ interface ConnectionPool {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun resetId(deviceId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun resetId(deviceId: String, callback: Callback<CommandResponse>)
 
     /**
      * Checks if the given ID is a valid 4-character hexadecimal value.

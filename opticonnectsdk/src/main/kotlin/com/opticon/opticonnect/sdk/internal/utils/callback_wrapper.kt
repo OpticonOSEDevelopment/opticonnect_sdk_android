@@ -1,8 +1,9 @@
 package com.opticon.opticonnect.sdk.internal.utils
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import kotlin.Result
 
 internal object CallbackUtils {
 
@@ -16,13 +17,13 @@ internal object CallbackUtils {
      */
     fun <T> wrapWithCallback(
         scope: CoroutineScope,
-        callback: (Result<T>) -> Unit,
+        callback: Callback<T>,
         block: suspend () -> T
     ) {
         scope.launch {
             runCatching { block() }
-                .onSuccess { callback(Result.success(it)) }
-                .onFailure { callback(Result.failure(it)) }
+                .onSuccess { callback.onSuccess(it) }
+                .onFailure { callback.onError(it) }
         }
     }
 }

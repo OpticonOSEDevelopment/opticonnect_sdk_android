@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -26,7 +28,7 @@ interface KoreanPostalAuthority {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of dashes in the barcode data for Korean Postal Authority Code symbology.
@@ -44,7 +46,7 @@ interface KoreanPostalAuthority {
      * @param enabled A boolean indicating whether to enable or disable the transmission of dashes.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitDash(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitDash(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the orientation of the scan engine for Korean Postal Authority Code symbology.
@@ -62,7 +64,7 @@ interface KoreanPostalAuthority {
      * @param setUpsideDown A boolean indicating whether to set the orientation to upside-down or normal.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setKoreanPostalOrientation(deviceId: String, setUpsideDown: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setKoreanPostalOrientation(deviceId: String, setUpsideDown: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets upside-down reading for Korean Postal Authority Code symbology.
@@ -80,5 +82,5 @@ interface KoreanPostalAuthority {
      * @param enabled A boolean indicating whether to enable or disable upside-down reading.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setUpsideDownReading(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setUpsideDownReading(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

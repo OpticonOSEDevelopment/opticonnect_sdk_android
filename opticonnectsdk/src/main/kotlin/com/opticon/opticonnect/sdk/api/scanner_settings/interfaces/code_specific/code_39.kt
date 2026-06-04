@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39Mode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39MinimumLength
@@ -28,7 +30,7 @@ interface Code39 {
      * @param mode The [Code39Mode] enum value representing the desired mode.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setMode(deviceId: String, mode: Code39Mode, callback: (Result<CommandResponse>) -> Unit)
+    fun setMode(deviceId: String, mode: Code39Mode, callback: Callback<CommandResponse>)
 
     /**
      * Sets the check digit validation for Code 39 symbology.
@@ -46,7 +48,7 @@ interface Code39 {
      * @param enabled A boolean indicating whether to enable or disable check digit validation.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of the check digit for Code 39 symbology.
@@ -64,7 +66,7 @@ interface Code39 {
      * @param enabled A boolean indicating whether to enable or disable check digit transmission.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of start/stop characters for Code 39 symbology.
@@ -82,7 +84,7 @@ interface Code39 {
      * @param enabled A boolean indicating whether to enable or disable start/stop character transmission.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setTransmitSTSP(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitSTSP(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the concatenation mode for Code 39 symbology.
@@ -100,7 +102,7 @@ interface Code39 {
      * @param enabled A boolean indicating whether to enable or disable concatenation.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setConcatenation(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission of the leading 'A' for IT Pharmaceutical mode in Code 39 symbology.
@@ -118,7 +120,7 @@ interface Code39 {
      * @param enabled A boolean indicating whether to enable or disable leading 'A' transmission.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the minimum length for Code 39 symbology.
@@ -136,5 +138,5 @@ interface Code39 {
      * @param length The [Code39MinimumLength] enum value representing the desired minimum length.
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
-    fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: (Result<CommandResponse>) -> Unit)
+    fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: Callback<CommandResponse>)
 }

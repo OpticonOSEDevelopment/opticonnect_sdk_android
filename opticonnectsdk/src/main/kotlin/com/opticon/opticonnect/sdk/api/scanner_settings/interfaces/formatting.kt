@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
 import com.opticon.opticonnect.sdk.api.enums.FormattableSymbology
@@ -26,7 +28,7 @@ interface Formatting {
      * @param keys A list of [DirectInputKey] values to be used for the preamble.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setPreambleFromKeys(deviceId: String, keys: List<DirectInputKey>, callback: (Result<CommandResponse>) -> Unit)
+    fun setPreambleFromKeys(deviceId: String, keys: List<DirectInputKey>, callback: Callback<CommandResponse>)
 
     /**
      * Sets the preamble formatting using a string.
@@ -44,7 +46,7 @@ interface Formatting {
      * @param preamble A string to be used as the preamble.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setPreambleFromString(deviceId: String, preamble: String, callback: (Result<CommandResponse>) -> Unit)
+    fun setPreambleFromString(deviceId: String, preamble: String, callback: Callback<CommandResponse>)
 
     /**
      * Clears the preamble formatting on the device.
@@ -60,7 +62,7 @@ interface Formatting {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun clearPreamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun clearPreamble(deviceId: String, callback: Callback<CommandResponse>)
 
     /**
      * Sets the prefix formatting using a list of [DirectInputKey].
@@ -80,7 +82,7 @@ interface Formatting {
      * @param symbology The symbology type to be used.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setPrefixFromKeys(deviceId: String, keys: List<DirectInputKey>, symbology: FormattableSymbology, callback: (Result<CommandResponse>) -> Unit)
+    fun setPrefixFromKeys(deviceId: String, keys: List<DirectInputKey>, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
 
     /**
      * Sets the prefix formatting using a string.
@@ -100,7 +102,7 @@ interface Formatting {
      * @param symbology The symbology type to be used.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setPrefixFromString(deviceId: String, prefix: String, symbology: FormattableSymbology, callback: (Result<CommandResponse>) -> Unit)
+    fun setPrefixFromString(deviceId: String, prefix: String, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
 
     /**
      * Clears the prefix formatting on the device.
@@ -116,7 +118,7 @@ interface Formatting {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun clearAllPrefixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun clearAllPrefixes(deviceId: String, callback: Callback<CommandResponse>)
 
     /**
      * Sets the suffix formatting using a list of [DirectInputKey].
@@ -136,7 +138,7 @@ interface Formatting {
      * @param symbology The symbology type to be used.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setSuffixFromKeys(deviceId: String, keys: List<DirectInputKey>, symbology: FormattableSymbology, callback: (Result<CommandResponse>) -> Unit)
+    fun setSuffixFromKeys(deviceId: String, keys: List<DirectInputKey>, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
 
     /**
      * Sets the suffix formatting using a string.
@@ -156,7 +158,7 @@ interface Formatting {
      * @param symbology The symbology type to be used.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun setSuffixFromString(deviceId: String, suffix: String, symbology: FormattableSymbology, callback: (Result<CommandResponse>) -> Unit)
+    fun setSuffixFromString(deviceId: String, suffix: String, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
 
     /**
      * Clears the suffix formatting on the device.
@@ -172,7 +174,7 @@ interface Formatting {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun clearAllSuffixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun clearAllSuffixes(deviceId: String, callback: Callback<CommandResponse>)
 
     /**
      * Sets the postamble formatting using a list of [DirectInputKey].
@@ -193,7 +195,7 @@ interface Formatting {
     fun setPostambleFromKeys(
         deviceId: String,
         keys: List<DirectInputKey>,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -215,7 +217,7 @@ interface Formatting {
     fun setPostambleFromString(
         deviceId: String,
         postamble: String,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -232,5 +234,5 @@ interface Formatting {
      * @param deviceId The identifier of the target device.
      * @param callback Callback to receive the [CommandResponse].
      */
-    fun clearPostamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit)
+    fun clearPostamble(deviceId: String, callback: Callback<CommandResponse>)
 }

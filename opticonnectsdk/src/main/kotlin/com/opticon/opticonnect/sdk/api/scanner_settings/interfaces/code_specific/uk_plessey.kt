@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 
 /**
@@ -25,7 +27,7 @@ interface UKPlessey {
      * @param enabled A boolean indicating whether to enable or disable the transmission of check digits.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCDs(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCDs(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets space insertion between characters for UK Plessey symbology.
@@ -43,7 +45,7 @@ interface UKPlessey {
      * @param enabled A boolean indicating whether to enable or disable space insertion.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the A to X conversion for UK Plessey symbology.
@@ -61,5 +63,5 @@ interface UKPlessey {
      * @param enabled A boolean indicating whether to enable or disable the A to X conversion.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setAToXConversion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setAToXConversion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

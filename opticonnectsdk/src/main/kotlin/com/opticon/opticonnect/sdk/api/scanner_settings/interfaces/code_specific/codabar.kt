@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMinimumLength
@@ -30,7 +32,7 @@ interface Codabar {
      * @param mode The Codabar mode to set.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setMode(deviceId: String, mode: CodabarMode, callback: (Result<CommandResponse>) -> Unit)
+    fun setMode(deviceId: String, mode: CodabarMode, callback: Callback<CommandResponse>)
 
     /**
      * Sets the check digit state for Codabar symbology.
@@ -48,7 +50,7 @@ interface Codabar {
      * @param enabled A boolean indicating whether to enable or disable the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setCheckCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the transmission state of the check digit for Codabar symbology.
@@ -66,7 +68,7 @@ interface Codabar {
      * @param enabled A boolean indicating whether to enable or disable the transmission of the check digit.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the space insertion mode between characters in Codabar symbology.
@@ -84,7 +86,7 @@ interface Codabar {
      * @param enabled A boolean indicating whether to enable or disable space insertion.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the minimum data length for Codabar symbology.
@@ -102,7 +104,7 @@ interface Codabar {
      * @param length The minimum data length to set.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: (Result<CommandResponse>) -> Unit)
+    fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: Callback<CommandResponse>)
 
     /**
      * Sets the intercharacter gap check mode for Codabar symbology.
@@ -120,7 +122,7 @@ interface Codabar {
      * @param enabled A boolean indicating whether to enable or disable the intercharacter gap check.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the start and stop character transmission mode for Codabar symbology.
@@ -141,6 +143,6 @@ interface Codabar {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setStartStopTransmission(
-        deviceId: String, transmission: CodabarStartStopTransmission, callback: (Result<CommandResponse>) -> Unit
+        deviceId: String, transmission: CodabarStartStopTransmission, callback: Callback<CommandResponse>
     )
 }

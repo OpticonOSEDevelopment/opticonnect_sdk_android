@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.MSIPlesseyCheckCDSettings
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.MSIPlesseyCDTransmissionSettings
@@ -28,7 +30,7 @@ interface MSIPlessey {
      * @param setting The desired check digit validation mode.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: (Result<CommandResponse>) -> Unit)
+    fun setCheckCD(deviceId: String, setting: MSIPlesseyCheckCDSettings, callback: Callback<CommandResponse>)
 
     /**
      * Sets the check digit transmission mode for MSI Plessey symbology.
@@ -46,5 +48,5 @@ interface MSIPlessey {
      * @param setting The desired check digit transmission mode.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: (Result<CommandResponse>) -> Unit)
+    fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: Callback<CommandResponse>)
 }

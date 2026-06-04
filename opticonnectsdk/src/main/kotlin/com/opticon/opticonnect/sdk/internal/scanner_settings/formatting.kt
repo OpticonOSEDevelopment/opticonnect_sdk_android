@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.internal.scanner_settings
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.constants.commands.FormattingCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
@@ -156,7 +158,7 @@ internal class FormattingImpl @Inject constructor(
     override fun setPreambleFromKeys(
         deviceId: String,
         keys: List<DirectInputKey>,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPreambleFromKeys(deviceId, keys) }
     }
@@ -170,7 +172,7 @@ internal class FormattingImpl @Inject constructor(
     override fun setPreambleFromString(
         deviceId: String,
         preamble: String,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPreambleFromString(deviceId, preamble) }
     }
@@ -180,7 +182,7 @@ internal class FormattingImpl @Inject constructor(
         return sendCommand(deviceId, FormattingCommands.PREAMBLE)
     }
 
-    override fun clearPreamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun clearPreamble(deviceId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearPreamble(deviceId) }
     }
 
@@ -202,7 +204,7 @@ internal class FormattingImpl @Inject constructor(
         deviceId: String,
         keys: List<DirectInputKey>,
         symbology: FormattableSymbology,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPrefixFromKeys(deviceId, keys, symbology) }
     }
@@ -221,7 +223,7 @@ internal class FormattingImpl @Inject constructor(
         deviceId: String,
         prefix: String,
         symbology: FormattableSymbology,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPrefixFromString(deviceId, prefix, symbology) }
     }
@@ -231,7 +233,7 @@ internal class FormattingImpl @Inject constructor(
         return sendCommand(deviceId, FormattingCommands.CLEAR_PREFIXES)
     }
 
-    override fun clearAllPrefixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun clearAllPrefixes(deviceId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearAllPrefixes(deviceId) }
     }
 
@@ -253,7 +255,7 @@ internal class FormattingImpl @Inject constructor(
         deviceId: String,
         keys: List<DirectInputKey>,
         symbology: FormattableSymbology,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSuffixFromKeys(deviceId, keys, symbology) }
     }
@@ -272,7 +274,7 @@ internal class FormattingImpl @Inject constructor(
         deviceId: String,
         suffix: String,
         symbology: FormattableSymbology,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSuffixFromString(deviceId, suffix, symbology) }
     }
@@ -282,7 +284,7 @@ internal class FormattingImpl @Inject constructor(
         return sendCommand(deviceId, FormattingCommands.CLEAR_SUFFIXES)
     }
 
-    override fun clearAllSuffixes(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun clearAllSuffixes(deviceId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearAllSuffixes(deviceId) }
     }
 
@@ -299,7 +301,7 @@ internal class FormattingImpl @Inject constructor(
     override fun setPostambleFromKeys(
         deviceId: String,
         keys: List<DirectInputKey>,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPostambleFromKeys(deviceId, keys) }
     }
@@ -313,7 +315,7 @@ internal class FormattingImpl @Inject constructor(
     override fun setPostambleFromString(
         deviceId: String,
         postamble: String,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPostambleFromString(deviceId, postamble) }
     }
@@ -323,7 +325,7 @@ internal class FormattingImpl @Inject constructor(
         return sendCommand(deviceId, FormattingCommands.POSTAMBLE)
     }
 
-    override fun clearPostamble(deviceId: String, callback: (Result<CommandResponse>) -> Unit) {
+    override fun clearPostamble(deviceId: String, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { clearPostamble(deviceId) }
     }
 

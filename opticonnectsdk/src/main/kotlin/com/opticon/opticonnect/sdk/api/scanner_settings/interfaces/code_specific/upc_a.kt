@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCALeadingZeroAndTransmitCDMode
 
@@ -27,7 +29,7 @@ interface UPCA {
      * @param mode The leading zero and check digit transmission mode.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setLeadingZeroAndTransmitCDMode(deviceId: String, mode: UPCALeadingZeroAndTransmitCDMode, callback: (Result<CommandResponse>) -> Unit)
+    fun setLeadingZeroAndTransmitCDMode(deviceId: String, mode: UPCALeadingZeroAndTransmitCDMode, callback: Callback<CommandResponse>)
 
     /**
      * Sets the 2-character add-on for UPC_A symbology.
@@ -45,7 +47,7 @@ interface UPCA {
      * @param enabled Whether to enable or disable the 2-character add-on.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setAddOnPlus2(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setAddOnPlus2(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
     /**
      * Sets the 5-character add-on for UPC_A symbology.
@@ -63,5 +65,5 @@ interface UPCA {
      * @param enabled Whether to enable or disable the 5-character add-on.
      * @param callback Callback to receive [CommandResponse].
      */
-    fun setAddOnPlus5(deviceId: String, enabled: Boolean, callback: (Result<CommandResponse>) -> Unit)
+    fun setAddOnPlus5(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 }

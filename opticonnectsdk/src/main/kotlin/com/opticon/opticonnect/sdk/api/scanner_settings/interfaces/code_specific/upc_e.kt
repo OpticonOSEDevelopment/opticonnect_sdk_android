@@ -1,5 +1,7 @@
 package com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific
 
+import com.opticon.opticonnect.sdk.api.interfaces.Callback
+
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCELeadingZeroAndTransmitCDMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCEConversionMode
@@ -34,7 +36,7 @@ interface UPCE {
     fun setLeadingZeroAndTransmitCDMode(
         deviceId: String,
         mode: UPCELeadingZeroAndTransmitCDMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -59,7 +61,7 @@ interface UPCE {
     fun setConversionMode(
         deviceId: String,
         mode: UPCEConversionMode,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -84,7 +86,7 @@ interface UPCE {
     fun setAddOnPlus2(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 
     /**
@@ -109,6 +111,6 @@ interface UPCE {
     fun setAddOnPlus5(
         deviceId: String,
         enabled: Boolean,
-        callback: (Result<CommandResponse>) -> Unit
+        callback: Callback<CommandResponse>
     )
 }
