@@ -139,4 +139,18 @@ interface Code39 {
      * @param callback Callback to receive [CommandResponse] indicating success or failure.
      */
     fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: Callback<CommandResponse>)
+
+    fun getMode(deviceId: String): Code39Mode
+
+    fun isCheckCDEnabled(deviceId: String): Boolean
+
+    fun isTransmitCDEnabled(deviceId: String): Boolean
+
+    fun isTransmitSTSPEnabled(deviceId: String): Boolean
+
+    fun isConcatenationEnabled(deviceId: String): Boolean
+
+    fun isTransmitLdAForItPharmEnabled(deviceId: String): Boolean
+
+    fun getMinLength(deviceId: String): Code39MinimumLength
 }

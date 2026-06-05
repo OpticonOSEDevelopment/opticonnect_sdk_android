@@ -34,6 +34,8 @@ interface Codabar {
      */
     fun setMode(deviceId: String, mode: CodabarMode, callback: Callback<CommandResponse>)
 
+    fun getMode(deviceId: String): CodabarMode
+
     /**
      * Sets the check digit state for Codabar symbology.
      *
@@ -51,6 +53,8 @@ interface Codabar {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setCheckCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isCheckCDEnabled(deviceId: String): Boolean
 
     /**
      * Sets the transmission state of the check digit for Codabar symbology.
@@ -70,6 +74,8 @@ interface Codabar {
      */
     fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
 
+    fun isTransmitCDEnabled(deviceId: String): Boolean
+
     /**
      * Sets the space insertion mode between characters in Codabar symbology.
      *
@@ -87,6 +93,8 @@ interface Codabar {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setSpaceInsertion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isSpaceInsertionEnabled(deviceId: String): Boolean
 
     /**
      * Sets the minimum data length for Codabar symbology.
@@ -106,6 +114,8 @@ interface Codabar {
      */
     fun setMinimumLength(deviceId: String, length: CodabarMinimumLength, callback: Callback<CommandResponse>)
 
+    fun getMinimumLength(deviceId: String): CodabarMinimumLength
+
     /**
      * Sets the intercharacter gap check mode for Codabar symbology.
      *
@@ -123,6 +133,8 @@ interface Codabar {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setIntercharacterGapCheck(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isIntercharacterGapCheckEnabled(deviceId: String): Boolean
 
     /**
      * Sets the start and stop character transmission mode for Codabar symbology.
@@ -145,4 +157,6 @@ interface Codabar {
     fun setStartStopTransmission(
         deviceId: String, transmission: CodabarStartStopTransmission, callback: Callback<CommandResponse>
     )
+
+    fun getStartStopTransmission(deviceId: String): CodabarStartStopTransmission
 }

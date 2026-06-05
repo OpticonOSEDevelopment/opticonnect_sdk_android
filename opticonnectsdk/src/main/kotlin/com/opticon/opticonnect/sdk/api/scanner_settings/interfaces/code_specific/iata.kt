@@ -48,4 +48,8 @@ interface IATA {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun getCheckCD(deviceId: String): IATACheckCDSettings
+
+    fun isTransmitCDEnabled(deviceId: String): Boolean
 }

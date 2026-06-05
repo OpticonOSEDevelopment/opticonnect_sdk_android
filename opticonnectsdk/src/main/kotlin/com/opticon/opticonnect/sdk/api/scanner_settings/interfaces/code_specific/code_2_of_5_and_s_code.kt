@@ -66,4 +66,10 @@ interface Code2Of5AndSCode {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setMinimumDataLength(deviceId: String, dataLength: DataLength, callback: Callback<CommandResponse>)
+
+    fun isSpaceCheckEnabled(deviceId: String): Boolean
+
+    fun isSCodeTransmissionAsInterleavedEnabled(deviceId: String): Boolean
+
+    fun getMinimumDataLength(deviceId: String): DataLength
 }

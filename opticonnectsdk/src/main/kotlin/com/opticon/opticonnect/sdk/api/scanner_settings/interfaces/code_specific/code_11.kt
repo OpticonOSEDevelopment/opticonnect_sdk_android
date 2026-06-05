@@ -48,4 +48,8 @@ interface Code11 {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setTransmitCD(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun getCheckCD(deviceId: String): Code11CheckCDSettings
+
+    fun isTransmitCDEnabled(deviceId: String): Boolean
 }

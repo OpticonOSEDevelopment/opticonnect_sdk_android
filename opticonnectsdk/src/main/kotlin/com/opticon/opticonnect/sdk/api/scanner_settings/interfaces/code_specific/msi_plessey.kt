@@ -49,4 +49,8 @@ interface MSIPlessey {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setCDTransmission(deviceId: String, setting: MSIPlesseyCDTransmissionSettings, callback: Callback<CommandResponse>)
+
+    fun getCheckCD(deviceId: String): MSIPlesseyCheckCDSettings
+
+    fun getCDTransmission(deviceId: String): MSIPlesseyCDTransmissionSettings
 }

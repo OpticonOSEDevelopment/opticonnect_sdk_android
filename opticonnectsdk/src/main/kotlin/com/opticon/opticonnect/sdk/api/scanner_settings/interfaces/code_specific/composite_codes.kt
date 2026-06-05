@@ -83,4 +83,12 @@ interface CompositeCodes {
      * @param callback Callback to receive [CommandResponse] or an error.
      */
     fun setCompositeEANUPC(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun getOutputMode(deviceId: String): CompositeCodesOutputMode
+
+    fun isIgnoreLinkFlagEnabled(deviceId: String): Boolean
+
+    fun isCompositeGS1DatabarGS1128Enabled(deviceId: String): Boolean
+
+    fun isCompositeEANUPCEnabled(deviceId: String): Boolean
 }

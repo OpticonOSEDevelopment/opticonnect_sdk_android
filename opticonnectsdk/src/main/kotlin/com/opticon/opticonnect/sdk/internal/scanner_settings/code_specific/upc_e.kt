@@ -2,13 +2,12 @@ package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
 import com.opticon.opticonnect.sdk.api.interfaces.Callback
 
-import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
-import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCELeadingZeroAndTransmitCDMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.UPCEConversionMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.UPCE
-import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.scanner_settings.descriptors.code_specific.UPCESettingDescriptors
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,27 +16,17 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
+internal class UPCEImpl @Inject constructor(
+    scannerSettingsStateStore: ScannerSettingsStateStore
+) : CodeSpecificSettingsBase(scannerSettingsStateStore), UPCE {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
-    private val upceLeadingZeroAndTransmitCDModeCommands: Map<UPCELeadingZeroAndTransmitCDMode, String> = mapOf(
-        UPCELeadingZeroAndTransmitCDMode.NO_LEADING_ZERO_TRANSMIT_CD to CodeSpecificCommands.UPC_E_NO_LEADING_ZERO_TRANSMIT_CD,
-        UPCELeadingZeroAndTransmitCDMode.NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD to CodeSpecificCommands.UPC_E_NO_LEADING_ZERO_DO_NOT_TRANSMIT_CD,
-        UPCELeadingZeroAndTransmitCDMode.LEADING_ZERO_TRANSMIT_CD to CodeSpecificCommands.UPC_E_LEADING_ZERO_TRANSMIT_CD,
-        UPCELeadingZeroAndTransmitCDMode.LEADING_ZERO_DO_NOT_TRANSMIT_CD to CodeSpecificCommands.UPC_E_LEADING_ZERO_DO_NOT_TRANSMIT_CD
-    )
-
-    private val upceConversionModeCommands: Map<UPCEConversionMode, String> = mapOf(
-        UPCEConversionMode.TRANSMIT_AS_IS to CodeSpecificCommands.UPC_E_TRANSMIT_AS_IS,
-        UPCEConversionMode.TRANSMIT_AS_UPC_A to CodeSpecificCommands.UPC_E_TRANSMIT_AS_UPC_A
-    )
 
     override suspend fun setLeadingZeroAndTransmitCDMode(
         deviceId: String,
         mode: UPCELeadingZeroAndTransmitCDMode
     ): CommandResponse {
-        val command = upceLeadingZeroAndTransmitCDModeCommands[mode]
+        val command = UPCESettingDescriptors.leadingZeroAndTransmitCDMode.commandFor(mode)
         Timber.d("Setting UPCE leading zero and transmit CD mode for deviceId $deviceId to $mode")
         return sendMappedCommand(deviceId, command, "Unsupported UPC-E leading zero/transmit CD mode: $mode")
     }
@@ -50,11 +39,15 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setLeadingZeroAndTransmitCDMode(deviceId, mode) }
     }
 
+    override fun getLeadingZeroAndTransmitCDMode(deviceId: String): UPCELeadingZeroAndTransmitCDMode {
+        return UPCESettingDescriptors.leadingZeroAndTransmitCDMode.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setConversionMode(
         deviceId: String,
         mode: UPCEConversionMode
     ): CommandResponse {
-        val command = upceConversionModeCommands[mode]
+        val command = UPCESettingDescriptors.conversionMode.commandFor(mode)
         Timber.d("Setting UPCE conversion mode for deviceId $deviceId to $mode")
         return sendMappedCommand(deviceId, command, "Unsupported UPC-E conversion mode: $mode")
     }
@@ -67,15 +60,15 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConversionMode(deviceId, mode) }
     }
 
+    override fun getConversionMode(deviceId: String): UPCEConversionMode {
+        return UPCESettingDescriptors.conversionMode.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setAddOnPlus2(
         deviceId: String,
         enabled: Boolean
     ): CommandResponse {
-        val command = if (enabled) {
-            SymbologyCommands.ENABLE_UPC_E_PLUS_2
-        } else {
-            SymbologyCommands.DISABLE_UPC_E_PLUS_2
-        }
+        val command = UPCESettingDescriptors.addOnPlus2.commandFor(enabled)
         Timber.d("Setting UPCE plus 2 add-on for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -88,15 +81,15 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus2(deviceId, enabled) }
     }
 
+    override fun isAddOnPlus2Enabled(deviceId: String): Boolean {
+        return UPCESettingDescriptors.addOnPlus2.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setAddOnPlus5(
         deviceId: String,
         enabled: Boolean
     ): CommandResponse {
-        val command = if (enabled) {
-            SymbologyCommands.ENABLE_UPC_E_PLUS_5
-        } else {
-            SymbologyCommands.DISABLE_UPC_E_PLUS_5
-        }
+        val command = UPCESettingDescriptors.addOnPlus5.commandFor(enabled)
         Timber.d("Setting UPCE plus 5 add-on for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -107,5 +100,9 @@ internal class UPCEImpl @Inject constructor() : SettingsBase(), UPCE {
         callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setAddOnPlus5(deviceId, enabled) }
+    }
+
+    override fun isAddOnPlus5Enabled(deviceId: String): Boolean {
+        return UPCESettingDescriptors.addOnPlus5.valueFrom(settingsFor(deviceId))
     }
 }

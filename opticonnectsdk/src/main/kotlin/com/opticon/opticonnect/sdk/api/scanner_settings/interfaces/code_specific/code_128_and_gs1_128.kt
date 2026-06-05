@@ -84,4 +84,12 @@ interface Code128AndGS1128 {
      * @param callback Callback to receive [CommandResponse] or an error.
      */
     fun setLeadingC1Output(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun getGS1128Mode(deviceId: String): Code128AndGS1128Mode
+
+    fun getGS1128ConversionMode(deviceId: String): GS1128ConversionMode
+
+    fun isConcatenationEnabled(deviceId: String): Boolean
+
+    fun isLeadingC1OutputEnabled(deviceId: String): Boolean
 }

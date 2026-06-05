@@ -57,4 +57,16 @@ interface Symbology {
         enabled: Boolean,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Returns whether the provided symbology is currently enabled in the SDK's scanner settings state.
+     *
+     * The state is initialized from the scanner settings when the scanner connects and refreshed when
+     * [com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettings.getSettings] is called.
+     *
+     * @param deviceId The ID of the device to read the symbology state for.
+     * @param type The symbology to check.
+     * @return True when the symbology is enabled, false otherwise.
+     */
+    fun isSymbologyEnabled(deviceId: String, type: SymbologyType): Boolean
 }

@@ -47,4 +47,8 @@ interface Code93 {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setConcatenation(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isCheckCDEnabled(deviceId: String): Boolean
+
+    fun isConcatenationEnabled(deviceId: String): Boolean
 }

@@ -47,4 +47,8 @@ interface GS1Databar {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setTransmitAI(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isTransmitCDEnabled(deviceId: String): Boolean
+
+    fun isTransmitAIEnabled(deviceId: String): Boolean
 }

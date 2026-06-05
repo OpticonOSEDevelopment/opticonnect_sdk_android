@@ -83,4 +83,12 @@ interface KoreanPostalAuthority {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setUpsideDownReading(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isTransmitCDEnabled(deviceId: String): Boolean
+
+    fun isTransmitDashEnabled(deviceId: String): Boolean
+
+    fun isKoreanPostalOrientationUpsideDown(deviceId: String): Boolean
+
+    fun isUpsideDownReadingEnabled(deviceId: String): Boolean
 }

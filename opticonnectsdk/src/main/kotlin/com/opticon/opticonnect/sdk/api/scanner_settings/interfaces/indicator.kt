@@ -39,6 +39,11 @@ interface Indicator {
     )
 
     /**
+     * Gets the current buzzer enabled state from the SDK's runtime settings state.
+     */
+    fun isBuzzerEnabled(deviceId: String): Boolean
+
+    /**
      * Tests the volume without storing it (non-persistent).
      *
      * @param deviceId The identifier of the target device.
@@ -83,6 +88,11 @@ interface Indicator {
     )
 
     /**
+     * Gets the current persistent buzzer volume from the SDK's runtime settings state.
+     */
+    fun getBuzzerVolume(deviceId: String): Int
+
+    /**
      * Sets the duration of the buzzer sound for the given [deviceId].
      *
      * @param deviceId The identifier of the target device.
@@ -103,6 +113,11 @@ interface Indicator {
         duration: BuzzerDuration,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the current buzzer duration from the SDK's runtime settings state.
+     */
+    fun getBuzzerDuration(deviceId: String): BuzzerDuration
 
     /**
      * Sets the buzzer type for the given [deviceId].
@@ -127,6 +142,11 @@ interface Indicator {
     )
 
     /**
+     * Gets the current buzzer type from the SDK's runtime settings state.
+     */
+    fun getBuzzerType(deviceId: String): BuzzerType
+
+    /**
      * Toggles the vibrator on or off for the given [deviceId].
      *
      * @param deviceId The identifier of the target device.
@@ -147,6 +167,11 @@ interface Indicator {
         enabled: Boolean,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the current vibrator enabled state from the SDK's runtime settings state.
+     */
+    fun isVibratorEnabled(deviceId: String): Boolean
 
     /**
      * Sets the duration of the vibration for the given [deviceId].
@@ -171,6 +196,11 @@ interface Indicator {
     )
 
     /**
+     * Gets the current vibrator duration from the SDK's runtime settings state.
+     */
+    fun getVibratorDuration(deviceId: String): VibratorDuration
+
+    /**
      * Sets the LED color for the given [deviceId].
      *
      * @param deviceId The identifier of the target device.
@@ -191,6 +221,11 @@ interface Indicator {
         color: LEDColor,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the current persistent LED color from the SDK's runtime settings state.
+     */
+    fun getLED(deviceId: String): LEDColor
 
     /**
      * Tests the LED by setting the color temporarily (non-persistent).
@@ -235,4 +270,9 @@ interface Indicator {
         duration: GoodReadLedDuration,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the current good-read LED duration from the SDK's runtime settings state.
+     */
+    fun getGoodReadLedDuration(deviceId: String): GoodReadLedDuration
 }

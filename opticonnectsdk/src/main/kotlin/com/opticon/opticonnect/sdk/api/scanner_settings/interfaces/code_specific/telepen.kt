@@ -29,4 +29,6 @@ interface Telepen {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setMode(deviceId: String, mode: TelepenMode, callback: Callback<CommandResponse>)
+
+    fun getMode(deviceId: String): TelepenMode
 }

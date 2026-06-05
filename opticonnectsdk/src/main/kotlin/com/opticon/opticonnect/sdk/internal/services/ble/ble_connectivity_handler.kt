@@ -8,6 +8,8 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.battery.Battery
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.DataHandler
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
 import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateInitializer
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.kotlin.addTo
@@ -44,6 +46,8 @@ internal class BleConnectivityHandler @Inject constructor(
     private val commandExecutorsManager: CommandExecutorsManager,
     private val devicesInfoManager: DevicesInfoManager,
     private val settingsHandler: SettingsHandler,
+    private val scannerSettingsStateInitializer: ScannerSettingsStateInitializer,
+    private val scannerSettingsStateStore: ScannerSettingsStateStore,
     private val context: Context
 ) : Closeable {
 
@@ -230,6 +234,8 @@ internal class BleConnectivityHandler @Inject constructor(
             // Add the command executor to send commands to the device and receive feedback for sent commands.
             commandExecutorsManager.createCommandExecutor(deviceId)
 
+            scannerSettingsStateInitializer.initialize(deviceId)
+
             devicesInfoManager.fetchInfo(deviceId)
 
             connectionStateSubscription = createConnectionStateSubscription(bleDevice, connectionDisposable)
@@ -250,6 +256,7 @@ internal class BleConnectivityHandler @Inject constructor(
             dataHandler.close(deviceId)
             batteryHandler.close(deviceId)
             connectionDisposable.dispose()
+            scannerSettingsStateStore.clear(deviceId)
             null
         }
     }
@@ -293,6 +300,7 @@ internal class BleConnectivityHandler @Inject constructor(
         val session = sessionToClose.get()
         if (session != null) {
             session.close()
+            scannerSettingsStateStore.clear(deviceId)
         } else if (ignoredStaleCallback.get()) {
             Timber.d("Ignoring stale disconnect callback for previous session: $deviceId")
             return
@@ -310,6 +318,7 @@ internal class BleConnectivityHandler @Inject constructor(
     override fun close() {
         sessions.keys.toList().forEach { closeSession(it, emitDisconnecting = true) }
         sessions.clear()
+        scannerSettingsStateStore.clearAll()
         scope.cancel()
     }
 }

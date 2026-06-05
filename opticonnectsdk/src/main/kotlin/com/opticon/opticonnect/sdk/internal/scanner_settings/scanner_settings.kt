@@ -12,8 +12,8 @@ import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.ScannerSettin
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Symbology
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.CodeSpecific
 import com.opticon.opticonnect.sdk.internal.services.commands.CommandExecutorsManager
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
-import kotlinx.coroutines.delay
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,13 +27,16 @@ internal class ScannerSettingsImpl @Inject constructor(
     override val formatting: Formatting,
     override val connectionPool: ConnectionPool,
     private val commandExecutorsManager: CommandExecutorsManager,
-    private val settingsCompressor: SettingsCompressor
+    private val settingsCompressor: SettingsCompressor,
+    private val scannerSettingsStateStore: ScannerSettingsStateStore
 ) : ScannerSettings {
 
     override suspend fun executeCommand(deviceId: String, command: ScannerCommand): CommandResponse {
         return try {
             Timber.d("Sending command to device $deviceId: $command")
-            commandExecutorsManager.sendCommand(deviceId, command)
+            val result = commandExecutorsManager.sendCommand(deviceId, command)
+            updateSettingsState(deviceId, command, result)
+            result
         } catch (e: Exception) {
             Timber.e("Error sending command to device $deviceId: $e")
             throw e
@@ -51,7 +54,9 @@ internal class ScannerSettingsImpl @Inject constructor(
                 throw Exception("Error fetching settings for device $deviceId: ${result.response}")
             }
 
-            settingsCompressor.getCompressedSettingsList(result.response)
+            val settings = settingsCompressor.getCompressedSettingsList(result.response)
+            scannerSettingsStateStore.replaceSettings(deviceId, settings)
+            settings
         } catch (e: Exception) {
             throw e
         }
@@ -64,10 +69,37 @@ internal class ScannerSettingsImpl @Inject constructor(
                 deviceId,
                 ScannerCommand(CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT, sendFeedback = false)
             )
+            if (result.succeeded) {
+                scannerSettingsStateStore.replaceSettings(deviceId, emptyList())
+            }
             result.succeeded
         } catch (e: Exception) {
             Timber.e("Error resetting settings for device $deviceId: $e")
             throw e
+        }
+    }
+
+    private fun updateSettingsState(
+        deviceId: String,
+        command: ScannerCommand,
+        result: CommandResponse
+    ) {
+        if (!result.succeeded) return
+
+        when (command.code) {
+            CommunicationCommands.FETCH_SETTINGS -> {
+                val settings = settingsCompressor.getCompressedSettingsList(result.response)
+                scannerSettingsStateStore.replaceSettings(deviceId, settings)
+            }
+            CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT -> {
+                scannerSettingsStateStore.replaceSettings(deviceId, emptyList())
+            }
+            else -> {
+                scannerSettingsStateStore.applyCommand(
+                    deviceId,
+                    CommandData(command.code, command.parameters.toMutableList())
+                )
+            }
         }
     }
 }

@@ -27,21 +27,24 @@ data class LEDColor(
     }
 
     /**
-     * Converts an integer value to a hexadecimal string.
+     * Converts the RGB color values into scanner direct input key parameters.
      *
-     * @param value The integer value to convert, which should represent one of the RGB color components.
-     * @return A string in hexadecimal format, with a leading `$` and two digits.
-     */
-    private fun toHex(value: Int): String {
-        return "$" + value.toString(16).padStart(2, '0').uppercase()
-    }
-
-    /**
-     * Converts the RGB color values into a list of strings, each representing one of the color components in hexadecimal format.
-     *
-     * @return A list of hexadecimal strings representing the red, green, and blue components of the color.
+     * For example, green (00FF00) becomes Q0, Q0, $F, $F, Q0, Q0.
      */
     fun toParameters(): List<String> {
-        return listOf(toHex(red), toHex(green), toHex(blue))
+        return listOf(red, green, blue)
+            .joinToString(separator = "") { component ->
+                component.toString(16).padStart(2, '0')
+            }
+            .mapNotNull { char -> char.toDirectInputKeyOrNull() }
+    }
+
+    private fun Char.toDirectInputKeyOrNull(): String? {
+        return when (this) {
+            in '0'..'9' -> "Q$this"
+            in 'a'..'z' -> "\$${uppercaseChar()}"
+            in 'A'..'Z' -> "0$this"
+            else -> null
+        }
     }
 }

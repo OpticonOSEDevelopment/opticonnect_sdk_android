@@ -2,6 +2,7 @@ package com.opticon.opticonnect.sdk.internal.services.scanner_settings
 
 import android.content.Context
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.opticon.opticonnect.sdk.api.entities.CommandData
 import com.opticon.opticonnect.sdk.internal.interfaces.SettingsHandler
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseFields
 import com.opticon.opticonnect.sdk.internal.services.database.DatabaseManager
@@ -50,10 +51,14 @@ internal class SettingsHandlerImpl @Inject constructor(
     }
 
     override fun isDirectInputKey(code: String): Boolean {
-        return directInputKeysSet.contains(code)
+        return directInputKeysSet.contains(normalizeCode(code))
     }
 
-    private fun getStrippedCode(code: String): String {
+    override fun isDefaultCode(code: String): Boolean {
+        return defaultScannerSettings.containsKey(normalizeCode(code))
+    }
+
+    override fun normalizeCode(code: String): String {
         return if (code.startsWith("[") || code.startsWith("]")) {
             code.substring(1)
         } else {
@@ -62,11 +67,51 @@ internal class SettingsHandlerImpl @Inject constructor(
     }
 
     override fun getGroupsToDisableForCode(code: String): List<String> {
-        return groupsToDisableForCode[getStrippedCode(code)] ?: listOf()
+        return groupsToDisableForCode[normalizeCode(code)] ?: listOf()
     }
 
     override fun getGroupsForCode(code: String): List<String> {
-        return groupsForCode[getStrippedCode(code)] ?: listOf()
+        return groupsForCode[normalizeCode(code)] ?: listOf()
+    }
+
+    override fun applyCommandToSettings(
+        settings: MutableMap<String, List<String>>,
+        commandData: CommandData
+    ) {
+        val commandCode = normalizeCode(commandData.command)
+
+        for (group in getGroupsToDisableForCode(commandCode)) {
+            codesForGroup[group]?.forEach { code ->
+                settings.remove(normalizeCode(code))
+            }
+        }
+
+        groupsToEnableForCode[commandCode]?.forEach { group ->
+            codesForGroup[group]?.forEach { code ->
+                settings.putIfAbsent(normalizeCode(code), emptyList())
+            }
+        }
+
+        settings[commandCode] = commandData.parameters.toList()
+    }
+
+    override fun addCommandToCompressedList(
+        commandData: CommandData,
+        compressedList: MutableList<CommandData>
+    ) {
+        val commandCode = normalizeCode(commandData.command)
+        val groupsToDisable = getGroupsToDisableForCode(commandCode)
+
+        compressedList.removeAll {
+            normalizeCode(it.command) == commandCode || (
+                    groupsToDisable.isNotEmpty() &&
+                            getGroupsForCode(it.command).any { group ->
+                                groupsToDisable.contains(group)
+                            }
+                    )
+        }
+
+        compressedList.add(commandData)
     }
 
     private fun convertCommaSeparatedToLowerCaseList(commaSeparated: String): List<String> {
@@ -167,7 +212,8 @@ internal class SettingsHandlerImpl @Inject constructor(
 
     private fun setDirectInputKeys() {
         try {
-            directInputKeys = codesForGroup[DatabaseFields.DIRECT_INPUT_KEYS]?.toList() ?: listOf()
+            val directInputKeysGroup = DatabaseFields.DIRECT_INPUT_KEYS.lowercase()
+            directInputKeys = codesForGroup[directInputKeysGroup]?.toList() ?: listOf()
             directInputKeysSet = directInputKeys.toMutableSet()
 
             for (key in directInputKeys) {

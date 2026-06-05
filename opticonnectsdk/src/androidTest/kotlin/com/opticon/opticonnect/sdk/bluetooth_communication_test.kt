@@ -8,8 +8,14 @@ import com.opticon.opticonnect.sdk.api.constants.commands.IndicatorCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.SingleLetterCommands
 import com.opticon.opticonnect.sdk.api.constants.commands.SymbologyCommands
 import com.opticon.opticonnect.sdk.api.entities.BatteryLevelStatus
+import com.opticon.opticonnect.sdk.api.entities.LEDColor
 import com.opticon.opticonnect.sdk.api.entities.ScannerCommand
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.BuzzerDuration
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.BuzzerType
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.IlluminationMode
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.ReadMode
+import com.opticon.opticonnect.sdk.api.scanner_settings.enums.ReadTime
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import junit.framework.TestCase.*
 import kotlinx.coroutines.CompletableDeferred
@@ -25,7 +31,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.MethodSorters
 import timber.log.Timber
-import java.util.concurrent.CountDownLatch
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4::class)
@@ -163,6 +168,138 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
     }
 
     @Test
+    fun test5ASettingsGetterStateTest() = runBlocking {
+        val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
+        assertNotNull("Expected device with MAC address $TEST_DEVICE_MAC_ADDRESS was not found.", foundDevice)
+
+        val connectionStateFlow = MutableStateFlow(BleDeviceConnectionState.DISCONNECTED)
+        val isDeviceConnected = toggleDeviceConnectionState(
+            TEST_DEVICE_MAC_ADDRESS,
+            connectionStateFlow,
+            BleDeviceConnectionState.CONNECTED
+        )
+        if (isDeviceConnected) {
+            OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
+
+            assertEquals(
+                "Default buzzer type getter returned an unexpected value.",
+                BuzzerType.HIGH_LOW_BUZZER,
+                OptiConnect.scannerSettings.indicator.getBuzzerType(TEST_DEVICE_MAC_ADDRESS)
+            )
+            assertEquals(
+                "Default read mode getter returned an unexpected value.",
+                ReadMode.SINGLE_READ,
+                OptiConnect.scannerSettings.readOptions.getReadMode(TEST_DEVICE_MAC_ADDRESS)
+            )
+
+            assertTrue(
+                "Failed to set buzzer type.",
+                OptiConnect.scannerSettings.indicator.setBuzzerType(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    BuzzerType.LOW_HIGH_BUZZER
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to set buzzer duration.",
+                OptiConnect.scannerSettings.indicator.setBuzzerDuration(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    BuzzerDuration.DURATION_75_MS
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to set buzzer volume.",
+                OptiConnect.scannerSettings.indicator.setBuzzerVolume(TEST_DEVICE_MAC_ADDRESS, 37).succeeded
+            )
+            assertTrue(
+                "Failed to set LED color.",
+                OptiConnect.scannerSettings.indicator.setLED(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    LEDColor(0, 255, 0)
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to set read mode.",
+                OptiConnect.scannerSettings.readOptions.setReadMode(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    ReadMode.MULTIPLE_READ
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to set read time.",
+                OptiConnect.scannerSettings.readOptions.setReadTime(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    ReadTime.EIGHT_SECONDS
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to set illumination mode.",
+                OptiConnect.scannerSettings.readOptions.setIlluminationMode(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    IlluminationMode.ALTERNATING_FLOODLIGHT
+                ).succeeded
+            )
+            assertTrue(
+                "Failed to disable aiming.",
+                OptiConnect.scannerSettings.readOptions.setAiming(TEST_DEVICE_MAC_ADDRESS, false).succeeded
+            )
+            assertTrue(
+                "Failed to enable trigger repeat.",
+                OptiConnect.scannerSettings.readOptions.setTriggerRepeat(TEST_DEVICE_MAC_ADDRESS, true).succeeded
+            )
+            assertTrue(
+                "Failed to disable delete key.",
+                OptiConnect.scannerSettings.readOptions.setDeleteKey(TEST_DEVICE_MAC_ADDRESS, false).succeeded
+            )
+
+            assertConfiguredGetterState(
+                context = "runtime state after successful setters",
+                includeParameterSettings = true
+            )
+
+            waitForScannerSettingsToSettle()
+            val fetchedSettings = getSettingsFromConnectedTestDevice()
+            val fetchedBuzzerVolume = fetchedSettings.firstOrNull {
+                it.command == IndicatorCommands.PERSISTENT_SET_BUZZER
+            }
+            val fetchedLed = fetchedSettings.firstOrNull {
+                it.command == IndicatorCommands.PERSISTENT_SET_LED
+            }
+            BaseBluetoothTest.logTestStep("Fetched settings after getter state test: $fetchedSettings")
+            BaseBluetoothTest.logTestStep(
+                "Fetched buzzer volume setting after getter state test: $fetchedBuzzerVolume"
+            )
+            BaseBluetoothTest.logTestStep(
+                "Fetched LED setting after getter state test: $fetchedLed"
+            )
+            assertNotNull(
+                "Fetched settings did not include persistent buzzer volume (${IndicatorCommands.PERSISTENT_SET_BUZZER}).",
+                fetchedBuzzerVolume
+            )
+            assertNotNull(
+                "Fetched settings did not include persistent LED color (${IndicatorCommands.PERSISTENT_SET_LED}).",
+                fetchedLed
+            )
+            assertEquals(
+                "Fetched persistent buzzer volume did not include the expected direct-input parameters.",
+                listOf("Q3", "Q7"),
+                fetchedBuzzerVolume!!.parameters
+            )
+            assertEquals(
+                "Fetched persistent LED color did not include the expected direct-input parameters.",
+                listOf("Q0", "Q0", "\$F", "\$F", "Q0", "Q0"),
+                fetchedLed!!.parameters
+            )
+
+            assertConfiguredGetterState(
+                context = "rebuilt state after getSettings",
+                includeParameterSettings = true
+            )
+        } else {
+            fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
+        }
+    }
+
+    @Test
     fun test6CodeSpecificTest() {
         runBlocking {
             val foundDevice = discoverDevice(TEST_DEVICE_MAC_ADDRESS)
@@ -175,56 +312,38 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
             val isDeviceConnected = toggleDeviceConnectionState(TEST_DEVICE_MAC_ADDRESS, connectionStateFlow,
                 BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
-                val resultLatch = CountDownLatch(1)
                 OptiConnect.scannerSettings.resetSettings(TEST_DEVICE_MAC_ADDRESS)
-                OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
+
+                val abcOnlyResponse = OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
                     TEST_DEVICE_MAC_ADDRESS,
                     CodabarMode.ABC_CODE_ONLY
-                ) { result ->
-                    result.onSuccess {
-                        OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
-                            TEST_DEVICE_MAC_ADDRESS,
-                            CodabarMode.CODABAR_ABC_AND_CX
-                        ) { result2 ->
-                            result2.onSuccess {
-                                OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
-                                    TEST_DEVICE_MAC_ADDRESS,
-                                    CodabarMode.CX_CODE_ONLY
-                                ) { result3 ->
-                                    result3.onSuccess {
-                                        // Delay to ensure settings have been applied
-                                        CoroutineScope(Dispatchers.Main).launch {
-                                            waitForScannerSettingsToSettle()
+                )
+                assertTrue("Failed to set Codabar mode ABC_CODE_ONLY.", abcOnlyResponse.succeeded)
 
-                                            OptiConnect.scannerSettings.getSettings(
-                                                TEST_DEVICE_MAC_ADDRESS
-                                            ).let { settings ->
-                                                assertTrue(
-                                                    "Settings compression test failed.",
-                                                    settings.size == 2 &&
-                                                            settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
-                                                            settings.any { it.command == CodeSpecificCommands.CODABAR_CX_CODE_ONLY }
-                                                )
-                                                resultLatch.countDown() // Signal completion of async test
-                                            }
-                                        }
-                                    }.onFailure {
-                                        fail("Failed to set Codabar mode CX_CODE_ONLY: ${it.message}")
-                                        resultLatch.countDown()
-                                    }
-                                }
-                            }.onFailure {
-                                fail("Failed to set Codabar mode CODABAR_ABC_AND_CX: ${it.message}")
-                                resultLatch.countDown()
-                            }
-                        }
-                    }.onFailure {
-                        fail("Failed to set Codabar mode ABC_CODE_ONLY: ${it.message}")
-                        resultLatch.countDown()
-                    }
+                val abcAndCxResponse = OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    CodabarMode.CODABAR_ABC_AND_CX
+                )
+                assertTrue("Failed to set Codabar mode CODABAR_ABC_AND_CX.", abcAndCxResponse.succeeded)
+
+                val cxOnlyResponse = OptiConnect.scannerSettings.codeSpecific.codabar.setMode(
+                    TEST_DEVICE_MAC_ADDRESS,
+                    CodabarMode.CX_CODE_ONLY
+                )
+                assertTrue("Failed to set Codabar mode CX_CODE_ONLY.", cxOnlyResponse.succeeded)
+
+                waitForScannerSettingsToSettle()
+
+                OptiConnect.scannerSettings.getSettings(
+                    TEST_DEVICE_MAC_ADDRESS
+                ).let { settings ->
+                    assertTrue(
+                        "Settings compression test failed.",
+                        settings.size == 2 &&
+                                settings.any { it.command == CommunicationCommands.BLUETOOTH_LOW_ENERGY_DEFAULT } &&
+                                settings.any { it.command == CodeSpecificCommands.CODABAR_CX_CODE_ONLY }
+                    )
                 }
-
-                resultLatch.await() // Wait for the async test to finish
             } else {
                 fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
             }
@@ -383,5 +502,57 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                 BaseBluetoothTest.initializeOptiConnectForTest()
             }
         }
+    }
+
+    private fun assertConfiguredGetterState(context: String, includeParameterSettings: Boolean) {
+        assertEquals(
+            "Unexpected buzzer type in $context.",
+            BuzzerType.LOW_HIGH_BUZZER,
+            OptiConnect.scannerSettings.indicator.getBuzzerType(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertEquals(
+            "Unexpected buzzer duration in $context.",
+            BuzzerDuration.DURATION_75_MS,
+            OptiConnect.scannerSettings.indicator.getBuzzerDuration(TEST_DEVICE_MAC_ADDRESS)
+        )
+        if (includeParameterSettings) {
+            assertEquals(
+                "Unexpected buzzer volume in $context.",
+                37,
+                OptiConnect.scannerSettings.indicator.getBuzzerVolume(TEST_DEVICE_MAC_ADDRESS)
+            )
+            assertEquals(
+                "Unexpected LED color in $context.",
+                LEDColor(0, 255, 0),
+                OptiConnect.scannerSettings.indicator.getLED(TEST_DEVICE_MAC_ADDRESS)
+            )
+        }
+        assertEquals(
+            "Unexpected read mode in $context.",
+            ReadMode.MULTIPLE_READ,
+            OptiConnect.scannerSettings.readOptions.getReadMode(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertEquals(
+            "Unexpected read time in $context.",
+            ReadTime.EIGHT_SECONDS,
+            OptiConnect.scannerSettings.readOptions.getReadTime(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertEquals(
+            "Unexpected illumination mode in $context.",
+            IlluminationMode.ALTERNATING_FLOODLIGHT,
+            OptiConnect.scannerSettings.readOptions.getIlluminationMode(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertFalse(
+            "Aiming should be disabled in $context.",
+            OptiConnect.scannerSettings.readOptions.isAimingEnabled(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertTrue(
+            "Trigger repeat should be enabled in $context.",
+            OptiConnect.scannerSettings.readOptions.isTriggerRepeatEnabled(TEST_DEVICE_MAC_ADDRESS)
+        )
+        assertFalse(
+            "Delete key should be disabled in $context.",
+            OptiConnect.scannerSettings.readOptions.isDeleteKeyEnabled(TEST_DEVICE_MAC_ADDRESS)
+        )
     }
 }

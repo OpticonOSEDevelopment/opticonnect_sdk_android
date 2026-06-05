@@ -29,26 +29,10 @@ internal class SettingsCompressor @Inject constructor(
         return settingsHandler.isDirectInputKey(command) || command.startsWith("$")
     }
 
-    private fun addCommandToCompressedList(
-        commandData: CommandData,
-        compressedList: MutableList<CommandData>
-    ) {
-        val groupsToDisable = settingsHandler.getGroupsToDisableForCode(commandData.command)
-
-        compressedList.removeAll {
-            it.command == commandData.command || (groupsToDisable.isNotEmpty() &&
-                    settingsHandler.getGroupsForCode(it.command).any { group ->
-                        groupsToDisable.contains(group)
-                    })
-        }
-
-        compressedList.add(commandData)
-    }
-
     private fun compressCommandList(commandList: List<CommandData>): List<CommandData> {
         val compressedList = mutableListOf<CommandData>()
         for (commandData in commandList) {
-            addCommandToCompressedList(commandData, compressedList)
+            settingsHandler.addCommandToCompressedList(commandData, compressedList)
         }
         return compressedList
     }

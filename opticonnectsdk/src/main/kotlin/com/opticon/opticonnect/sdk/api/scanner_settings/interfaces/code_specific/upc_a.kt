@@ -66,4 +66,10 @@ interface UPCA {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setAddOnPlus5(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun getLeadingZeroAndTransmitCDMode(deviceId: String): UPCALeadingZeroAndTransmitCDMode
+
+    fun isAddOnPlus2Enabled(deviceId: String): Boolean
+
+    fun isAddOnPlus5Enabled(deviceId: String): Boolean
 }

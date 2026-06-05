@@ -2,12 +2,12 @@ package com.opticon.opticonnect.sdk.internal.scanner_settings.code_specific
 
 import com.opticon.opticonnect.sdk.api.interfaces.Callback
 
-import com.opticon.opticonnect.sdk.api.constants.commands.CodeSpecificCommands
 import com.opticon.opticonnect.sdk.api.entities.CommandResponse
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39MinimumLength
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.Code39Mode
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.code_specific.Code39
-import com.opticon.opticonnect.sdk.internal.scanner_settings.SettingsBase
+import com.opticon.opticonnect.sdk.internal.scanner_settings.descriptors.code_specific.Code39SettingDescriptors
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,25 +16,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
+internal class Code39Impl @Inject constructor(
+    scannerSettingsStateStore: ScannerSettingsStateStore
+) : CodeSpecificSettingsBase(scannerSettingsStateStore), Code39 {
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val modeCommands: Map<Code39Mode, String> = mapOf(
-        Code39Mode.NORMAL to CodeSpecificCommands.NORMAL_CODE_39,
-        Code39Mode.FULL_ASCII to CodeSpecificCommands.FULL_ASCII_CODE_39,
-        Code39Mode.FULL_ASCII_IF_POSSIBLE to CodeSpecificCommands.FULL_ASCII_CODE_39_IF_POSSIBLE,
-        Code39Mode.IT_PHARMACEUTICAL_ONLY to CodeSpecificCommands.IT_PHARMACEUTICAL_ONLY,
-        Code39Mode.IT_PHARMACEUTICAL_IF_POSSIBLE to CodeSpecificCommands.IT_PHARMACEUTICAL_IF_POSSIBLE
-    )
-
-    private val minLengthCommands: Map<Code39MinimumLength, String> = mapOf(
-        Code39MinimumLength.ONE_DIGIT to CodeSpecificCommands.CODE_39_MIN_LENGTH_1_DIGIT,
-        Code39MinimumLength.THREE_DIGITS to CodeSpecificCommands.CODE_39_MIN_LENGTH_3_DIGITS
-    )
-
     override suspend fun setMode(deviceId: String, mode: Code39Mode): CommandResponse {
-        val command = modeCommands[mode]
+        val command = Code39SettingDescriptors.mode.commandFor(mode)
         Timber.d("Setting Code 39 mode for deviceId $deviceId to $mode")
         return sendMappedCommand(deviceId, command, "Unsupported Code 39 mode: $mode")
     }
@@ -43,12 +32,12 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMode(deviceId, mode) }
     }
 
+    override fun getMode(deviceId: String): Code39Mode {
+        return Code39SettingDescriptors.mode.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setCheckCD(deviceId: String, enabled: Boolean): CommandResponse {
-        val command = if (enabled) {
-            CodeSpecificCommands.CODE_39_CHECK_CD
-        } else {
-            CodeSpecificCommands.CODE_39_DO_NOT_CHECK_CD
-        }
+        val command = Code39SettingDescriptors.checkCD.commandFor(enabled)
         Timber.d("Setting Code 39 check digit validation for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -57,12 +46,12 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setCheckCD(deviceId, enabled) }
     }
 
+    override fun isCheckCDEnabled(deviceId: String): Boolean {
+        return Code39SettingDescriptors.checkCD.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setTransmitCD(deviceId: String, enabled: Boolean): CommandResponse {
-        val command = if (enabled) {
-            CodeSpecificCommands.CODE_39_TRANSMIT_CD
-        } else {
-            CodeSpecificCommands.CODE_39_DO_NOT_TRANSMIT_CD
-        }
+        val command = Code39SettingDescriptors.transmitCD.commandFor(enabled)
         Timber.d("Setting Code 39 transmit check digit for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -71,12 +60,12 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitCD(deviceId, enabled) }
     }
 
+    override fun isTransmitCDEnabled(deviceId: String): Boolean {
+        return Code39SettingDescriptors.transmitCD.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setTransmitSTSP(deviceId: String, enabled: Boolean): CommandResponse {
-        val command = if (enabled) {
-            CodeSpecificCommands.CODE_39_TRANSMIT_ST_SP
-        } else {
-            CodeSpecificCommands.CODE_39_DO_NOT_TRANSMIT_ST_SP
-        }
+        val command = Code39SettingDescriptors.transmitSTSP.commandFor(enabled)
         Timber.d("Setting Code 39 transmit start/stop characters for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -85,12 +74,12 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitSTSP(deviceId, enabled) }
     }
 
+    override fun isTransmitSTSPEnabled(deviceId: String): Boolean {
+        return Code39SettingDescriptors.transmitSTSP.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setConcatenation(deviceId: String, enabled: Boolean): CommandResponse {
-        val command = if (enabled) {
-            CodeSpecificCommands.CODE_39_ENABLE_CONCATENATION
-        } else {
-            CodeSpecificCommands.CODE_39_DISABLE_CONCATENATION
-        }
+        val command = Code39SettingDescriptors.concatenation.commandFor(enabled)
         Timber.d("Setting Code 39 concatenation for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -99,12 +88,12 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setConcatenation(deviceId, enabled) }
     }
 
+    override fun isConcatenationEnabled(deviceId: String): Boolean {
+        return Code39SettingDescriptors.concatenation.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setTransmitLdAForItPharm(deviceId: String, enabled: Boolean): CommandResponse {
-        val command = if (enabled) {
-            CodeSpecificCommands.CODE_39_TRANSMIT_LEADING_A_FOR_IT_PHARM
-        } else {
-            CodeSpecificCommands.CODE_39_DO_NOT_TRANSMIT_LEADING_A_FOR_IT_PHARM
-        }
+        val command = Code39SettingDescriptors.transmitLdAForItPharm.commandFor(enabled)
         Timber.d("Setting Code 39 transmit leading 'A' for IT Pharmaceutical for deviceId $deviceId to ${if (enabled) "enabled" else "disabled"}")
         return sendCommand(deviceId, command)
     }
@@ -113,13 +102,21 @@ internal class Code39Impl @Inject constructor() : SettingsBase(), Code39 {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setTransmitLdAForItPharm(deviceId, enabled) }
     }
 
+    override fun isTransmitLdAForItPharmEnabled(deviceId: String): Boolean {
+        return Code39SettingDescriptors.transmitLdAForItPharm.valueFrom(settingsFor(deviceId))
+    }
+
     override suspend fun setMinLength(deviceId: String, length: Code39MinimumLength): CommandResponse {
-        val command = minLengthCommands[length]
+        val command = Code39SettingDescriptors.minimumLength.commandFor(length)
         Timber.d("Setting Code 39 minimum length for deviceId $deviceId to $length")
         return sendMappedCommand(deviceId, command, "Unsupported Code 39 minimum length: $length")
     }
 
     override fun setMinLength(deviceId: String, length: Code39MinimumLength, callback: Callback<CommandResponse>) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setMinLength(deviceId, length) }
+    }
+
+    override fun getMinLength(deviceId: String): Code39MinimumLength {
+        return Code39SettingDescriptors.minimumLength.valueFrom(settingsFor(deviceId))
     }
 }

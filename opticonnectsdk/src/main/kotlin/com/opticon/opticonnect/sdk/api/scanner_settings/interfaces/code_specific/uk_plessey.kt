@@ -64,4 +64,10 @@ interface UKPlessey {
      * @param callback Callback to receive [CommandResponse].
      */
     fun setAToXConversion(deviceId: String, enabled: Boolean, callback: Callback<CommandResponse>)
+
+    fun isTransmitCDsEnabled(deviceId: String): Boolean
+
+    fun isSpaceInsertionEnabled(deviceId: String): Boolean
+
+    fun isAToXConversionEnabled(deviceId: String): Boolean
 }

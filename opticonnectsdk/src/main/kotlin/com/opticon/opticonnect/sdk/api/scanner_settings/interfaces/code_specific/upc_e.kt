@@ -113,4 +113,12 @@ interface UPCE {
         enabled: Boolean,
         callback: Callback<CommandResponse>
     )
+
+    fun getLeadingZeroAndTransmitCDMode(deviceId: String): UPCELeadingZeroAndTransmitCDMode
+
+    fun getConversionMode(deviceId: String): UPCEConversionMode
+
+    fun isAddOnPlus2Enabled(deviceId: String): Boolean
+
+    fun isAddOnPlus5Enabled(deviceId: String): Boolean
 }

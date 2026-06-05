@@ -78,6 +78,8 @@ import com.opticon.opticonnect.sdk.internal.services.core.DevicesInfoManager
 import com.opticon.opticonnect.sdk.internal.services.core.DirectInputKeysHelperImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.FormattingImpl
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.DataWizardHelper
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateInitializer
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsCompressor
 import com.opticon.opticonnect.sdk.internal.services.scanner_settings.SettingsHandlerImpl
 import com.opticon.opticonnect.sdk.internal.scanner_settings.ReadOptionsImpl
@@ -110,7 +112,9 @@ internal object OptiConnectModule {
         batteryHandler: BatteryHandler,
         commandExecutorsManager: CommandExecutorsManager,
         devicesInfoManager: DevicesInfoManager,
-        settingsHandler: SettingsHandler
+        settingsHandler: SettingsHandler,
+        scannerSettingsStateInitializer: ScannerSettingsStateInitializer,
+        scannerSettingsStateStore: ScannerSettingsStateStore
     ): BleConnectivityHandler {
         return BleConnectivityHandler(
             bleClient,
@@ -119,6 +123,8 @@ internal object OptiConnectModule {
             commandExecutorsManager,
             devicesInfoManager,
             settingsHandler,
+            scannerSettingsStateInitializer,
+            scannerSettingsStateStore,
             context.applicationContext
         )
     }
@@ -161,122 +167,127 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideSymbology(): Symbology {
-        return SymbologyImpl()
+    fun provideSymbology(
+        scannerSettingsStateStore: ScannerSettingsStateStore,
+        settingsHandler: SettingsHandler
+    ): Symbology {
+        return SymbologyImpl(scannerSettingsStateStore, settingsHandler)
     }
 
     @Provides
     @Singleton
-    fun provideIndicator(): Indicator {
-        return IndicatorImpl()
+    fun provideIndicator(
+        scannerSettingsStateStore: ScannerSettingsStateStore
+    ): Indicator {
+        return IndicatorImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCodabar() : Codabar {
-        return CodabarImpl()
+    fun provideCodabar(scannerSettingsStateStore: ScannerSettingsStateStore) : Codabar {
+        return CodabarImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCode11(): Code11 {
-        return Code11Impl()
+    fun provideCode11(scannerSettingsStateStore: ScannerSettingsStateStore): Code11 {
+        return Code11Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCode128AndGS1128(): Code128AndGS1128 {
-        return Code128AndGS1128Impl()
+    fun provideCode128AndGS1128(scannerSettingsStateStore: ScannerSettingsStateStore): Code128AndGS1128 {
+        return Code128AndGS1128Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCode2Of5AndSCode(): Code2Of5AndSCode {
-        return Code2Of5AndSCodeImpl()
+    fun provideCode2Of5AndSCode(scannerSettingsStateStore: ScannerSettingsStateStore): Code2Of5AndSCode {
+        return Code2Of5AndSCodeImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCode39(): Code39 {
-        return Code39Impl()
+    fun provideCode39(scannerSettingsStateStore: ScannerSettingsStateStore): Code39 {
+        return Code39Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCode93(): Code93 {
-        return Code93Impl()
+    fun provideCode93(scannerSettingsStateStore: ScannerSettingsStateStore): Code93 {
+        return Code93Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideCompositeCodes(): CompositeCodes {
-        return CompositeCodesImpl()
+    fun provideCompositeCodes(scannerSettingsStateStore: ScannerSettingsStateStore): CompositeCodes {
+        return CompositeCodesImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideEAN8(): EAN8 {
-        return EAN8Impl()
+    fun provideEAN8(scannerSettingsStateStore: ScannerSettingsStateStore): EAN8 {
+        return EAN8Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideEAN13(): EAN13 {
-        return EAN13Impl()
+    fun provideEAN13(scannerSettingsStateStore: ScannerSettingsStateStore): EAN13 {
+        return EAN13Impl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideGS1Databar(): GS1Databar {
-        return GS1DatabarImpl()
+    fun provideGS1Databar(scannerSettingsStateStore: ScannerSettingsStateStore): GS1Databar {
+        return GS1DatabarImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideIATA(): IATA {
-        return IATAImpl()
+    fun provideIATA(scannerSettingsStateStore: ScannerSettingsStateStore): IATA {
+        return IATAImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideKoreanPostalAuthority(): KoreanPostalAuthority {
-        return KoreanPostalAuthorityImpl()
+    fun provideKoreanPostalAuthority(scannerSettingsStateStore: ScannerSettingsStateStore): KoreanPostalAuthority {
+        return KoreanPostalAuthorityImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideMSIPlessey(): MSIPlessey {
-        return MSIPlesseyImpl()
+    fun provideMSIPlessey(scannerSettingsStateStore: ScannerSettingsStateStore): MSIPlessey {
+        return MSIPlesseyImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideTelepen(): Telepen {
-        return TelepenImpl()
+    fun provideTelepen(scannerSettingsStateStore: ScannerSettingsStateStore): Telepen {
+        return TelepenImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideUKPlessey(): UKPlessey {
-        return UKPlesseyImpl()
+    fun provideUKPlessey(scannerSettingsStateStore: ScannerSettingsStateStore): UKPlessey {
+        return UKPlesseyImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideUPCA(): UPCA {
-        return UPCAImpl()
+    fun provideUPCA(scannerSettingsStateStore: ScannerSettingsStateStore): UPCA {
+        return UPCAImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideUPCE(): UPCE {
-        return UPCEImpl()
+    fun provideUPCE(scannerSettingsStateStore: ScannerSettingsStateStore): UPCE {
+        return UPCEImpl(scannerSettingsStateStore)
     }
 
     @Provides
     @Singleton
-    fun provideUPCE1(): UPCE1 {
-        return UPCE1Impl()
+    fun provideUPCE1(scannerSettingsStateStore: ScannerSettingsStateStore): UPCE1 {
+        return UPCE1Impl(scannerSettingsStateStore)
     }
 
     @Provides
@@ -334,9 +345,10 @@ internal object OptiConnectModule {
                 connectionPool: ConnectionPool,
                 commandExecutorsManager: CommandExecutorsManager,
                 settingsCompressor: SettingsCompressor,
+                scannerSettingsStateStore: ScannerSettingsStateStore,
     ): ScannerSettings {
         return ScannerSettingsImpl(symbology, codeSpecific, readOptions, indicator, formatting, connectionPool,
-            commandExecutorsManager, settingsCompressor)
+            commandExecutorsManager, settingsCompressor, scannerSettingsStateStore)
     }
 
     @Provides
@@ -508,8 +520,8 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideReadOptions(): ReadOptions {
-        return ReadOptionsImpl()
+    fun provideReadOptions(scannerSettingsStateStore: ScannerSettingsStateStore): ReadOptions {
+        return ReadOptionsImpl(scannerSettingsStateStore)
     }
 
     @Provides

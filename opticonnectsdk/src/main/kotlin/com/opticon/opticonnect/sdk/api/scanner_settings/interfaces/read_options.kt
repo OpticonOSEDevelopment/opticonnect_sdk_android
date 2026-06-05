@@ -41,6 +41,14 @@ interface ReadOptions {
     )
 
     /**
+     * Gets the currently known positive/negative barcode mode from the runtime settings state.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return The currently known [PositiveAndNegativeBarcodesMode], or the default when no override is stored.
+     */
+    fun getPositiveAndNegativeBarcodesMode(deviceId: String): PositiveAndNegativeBarcodesMode
+
+    /**
      * Sets the read mode for the scanner.
      *
      * @param deviceId The identifier of the target device.
@@ -61,6 +69,14 @@ interface ReadOptions {
         mode: ReadMode,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the currently known read mode from the runtime settings state.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return The currently known [ReadMode], or the default when no override is stored.
+     */
+    fun getReadMode(deviceId: String): ReadMode
 
     /**
      * Sets the read time for the scanner.
@@ -85,6 +101,14 @@ interface ReadOptions {
     )
 
     /**
+     * Gets the currently known read time from the runtime settings state.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return The currently known [ReadTime], or the default when no override is stored.
+     */
+    fun getReadTime(deviceId: String): ReadTime
+
+    /**
      * Sets the illumination mode for the scanner.
      *
      * @param deviceId The identifier of the target device.
@@ -105,6 +129,14 @@ interface ReadOptions {
         mode: IlluminationMode,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the currently known illumination mode from the runtime settings state.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return The currently known [IlluminationMode], or the default when no override is stored.
+     */
+    fun getIlluminationMode(deviceId: String): IlluminationMode
 
     /**
      * Toggles the aiming feature for the scanner based on the [enabled] flag.
@@ -129,6 +161,14 @@ interface ReadOptions {
     )
 
     /**
+     * Returns whether aiming is currently known to be enabled.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return True when aiming is enabled, or the default when no override is stored.
+     */
+    fun isAimingEnabled(deviceId: String): Boolean
+
+    /**
      * Toggles the trigger repeat feature for the scanner based on the [enabled] flag.
      *
      * @param deviceId The identifier of the target device.
@@ -151,6 +191,14 @@ interface ReadOptions {
     )
 
     /**
+     * Returns whether trigger repeat is currently known to be enabled.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return True when trigger repeat is enabled, or the default when no override is stored.
+     */
+    fun isTriggerRepeatEnabled(deviceId: String): Boolean
+
+    /**
      * Toggles the delete key feature for the scanner based on the [enabled] flag.
      *
      * @param deviceId The identifier of the target device.
@@ -171,4 +219,12 @@ interface ReadOptions {
         enabled: Boolean,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Returns whether the delete key is currently known to be enabled.
+     *
+     * @param deviceId The identifier of the target device.
+     * @return True when the delete key is enabled, or the default when no override is stored.
+     */
+    fun isDeleteKeyEnabled(deviceId: String): Boolean
 }
