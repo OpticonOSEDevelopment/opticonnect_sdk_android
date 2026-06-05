@@ -514,8 +514,11 @@ internal object OptiConnectModule {
 
     @Provides
     @Singleton
-    fun provideFormatting(directInputKeysHelper: DirectInputKeysHelper): Formatting {
-        return FormattingImpl(directInputKeysHelper)
+    fun provideFormatting(
+        directInputKeysHelper: DirectInputKeysHelper,
+        scannerSettingsStateStore: ScannerSettingsStateStore
+    ): Formatting {
+        return FormattingImpl(directInputKeysHelper, scannerSettingsStateStore)
     }
 
     @Provides

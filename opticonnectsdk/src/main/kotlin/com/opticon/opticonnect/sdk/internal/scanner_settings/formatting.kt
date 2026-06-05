@@ -9,6 +9,7 @@ import com.opticon.opticonnect.sdk.api.enums.FormattableSymbology
 import com.opticon.opticonnect.sdk.internal.interfaces.DirectInputKeysHelper
 import com.opticon.opticonnect.sdk.api.scanner_settings.interfaces.Formatting
 import com.opticon.opticonnect.sdk.internal.scanner_settings.descriptors.FormattingSettingDescriptors
+import com.opticon.opticonnect.sdk.internal.services.scanner_settings.ScannerSettingsStateStore
 import com.opticon.opticonnect.sdk.internal.utils.CallbackUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +20,7 @@ import javax.inject.Singleton
 @Singleton
 internal class FormattingImpl @Inject constructor(
     private val directInputKeysHelper: DirectInputKeysHelper,
+    private val scannerSettingsStateStore: ScannerSettingsStateStore
 ) : Formatting, SettingsBase() {
 
     companion object {
@@ -60,6 +62,10 @@ internal class FormattingImpl @Inject constructor(
         callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPreambleFromString(deviceId, preamble) }
+    }
+
+    override fun getPreamble(deviceId: String): List<DirectInputKey> {
+        return formattingKeysFor(deviceId, FormattingCommands.PREAMBLE)
     }
 
     override suspend fun clearPreamble(deviceId: String): CommandResponse {
@@ -123,6 +129,13 @@ internal class FormattingImpl @Inject constructor(
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPrefixFromString(deviceId, prefix, symbology) }
     }
 
+    override fun getPrefix(deviceId: String, symbology: FormattableSymbology): List<DirectInputKey> {
+        return formattingKeysFor(
+            deviceId,
+            FormattingSettingDescriptors.prefix.commandFor(symbology)
+        )
+    }
+
     override suspend fun clearAllPrefixes(deviceId: String): CommandResponse {
         Timber.d("Clearing all prefixes for deviceId $deviceId")
         return sendCommand(deviceId, FormattingCommands.CLEAR_PREFIXES)
@@ -184,6 +197,13 @@ internal class FormattingImpl @Inject constructor(
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setSuffixFromString(deviceId, suffix, symbology) }
     }
 
+    override fun getSuffix(deviceId: String, symbology: FormattableSymbology): List<DirectInputKey> {
+        return formattingKeysFor(
+            deviceId,
+            FormattingSettingDescriptors.suffix.commandFor(symbology)
+        )
+    }
+
     override suspend fun clearAllSuffixes(deviceId: String): CommandResponse {
         Timber.d("Clearing all suffixes for deviceId $deviceId")
         return sendCommand(deviceId, FormattingCommands.CLEAR_SUFFIXES)
@@ -223,6 +243,10 @@ internal class FormattingImpl @Inject constructor(
         callback: Callback<CommandResponse>
     ) {
         CallbackUtils.wrapWithCallback(coroutineScope, callback) { setPostambleFromString(deviceId, postamble) }
+    }
+
+    override fun getPostamble(deviceId: String): List<DirectInputKey> {
+        return formattingKeysFor(deviceId, FormattingCommands.POSTAMBLE)
     }
 
     override suspend fun clearPostamble(deviceId: String): CommandResponse {
@@ -278,5 +302,21 @@ internal class FormattingImpl @Inject constructor(
     ): CommandResponse {
         return command?.let { sendCommand(deviceId, it, parameters = parameters) }
             ?: CommandResponse.failed(invalidMessage)
+    }
+
+    private fun formattingKeysFor(deviceId: String, command: String?): List<DirectInputKey> {
+        require(command != null) { "Unsupported formatting symbology." }
+
+        return scannerSettingsStateStore.settingsFor(deviceId)[normalizeCommand(command)]
+            ?.mapNotNull { code -> directInputKeysHelper.stringToDirectInputKey(code) }
+            ?: emptyList()
+    }
+
+    private fun normalizeCommand(command: String): String {
+        return if (command.startsWith("[") || command.startsWith("]")) {
+            command.substring(1)
+        } else {
+            command
+        }
     }
 }

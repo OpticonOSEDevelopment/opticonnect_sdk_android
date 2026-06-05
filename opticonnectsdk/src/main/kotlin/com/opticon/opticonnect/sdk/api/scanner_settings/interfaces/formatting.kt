@@ -49,6 +49,13 @@ interface Formatting {
     fun setPreambleFromString(deviceId: String, preamble: String, callback: Callback<CommandResponse>)
 
     /**
+     * Gets the current preamble direct input keys from the SDK's runtime settings state.
+     *
+     * Returns an empty list when no preamble is stored.
+     */
+    fun getPreamble(deviceId: String): List<DirectInputKey>
+
+    /**
      * Clears the preamble formatting on the device.
      *
      * @param deviceId The identifier of the target device.
@@ -105,6 +112,16 @@ interface Formatting {
     fun setPrefixFromString(deviceId: String, prefix: String, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
 
     /**
+     * Gets the current prefix direct input keys for [symbology] from the SDK's runtime settings state.
+     *
+     * Returns an empty list when no prefix is stored for the symbology.
+     */
+    fun getPrefix(
+        deviceId: String,
+        symbology: FormattableSymbology = FormattableSymbology.ALL_CODES
+    ): List<DirectInputKey>
+
+    /**
      * Clears the prefix formatting on the device.
      *
      * @param deviceId The identifier of the target device.
@@ -159,6 +176,16 @@ interface Formatting {
      * @param callback Callback to receive the [CommandResponse].
      */
     fun setSuffixFromString(deviceId: String, suffix: String, symbology: FormattableSymbology, callback: Callback<CommandResponse>)
+
+    /**
+     * Gets the current suffix direct input keys for [symbology] from the SDK's runtime settings state.
+     *
+     * Returns an empty list when no suffix is stored for the symbology.
+     */
+    fun getSuffix(
+        deviceId: String,
+        symbology: FormattableSymbology = FormattableSymbology.ALL_CODES
+    ): List<DirectInputKey>
 
     /**
      * Clears the suffix formatting on the device.
@@ -219,6 +246,13 @@ interface Formatting {
         postamble: String,
         callback: Callback<CommandResponse>
     )
+
+    /**
+     * Gets the current postamble direct input keys from the SDK's runtime settings state.
+     *
+     * Returns an empty list when no postamble is stored.
+     */
+    fun getPostamble(deviceId: String): List<DirectInputKey>
 
     /**
      * Clears the postamble formatting on the device.
