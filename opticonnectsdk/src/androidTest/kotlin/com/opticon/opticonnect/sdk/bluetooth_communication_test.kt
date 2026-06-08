@@ -88,6 +88,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
         if (isDeviceConnected) {
             Timber.d("Fetching device info for device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
             val deviceInfo = OptiConnect.scannerInfo.getInfo(TEST_DEVICE_MAC_ADDRESS)
+            assertNotNull("Expected scanner info for $TEST_DEVICE_MAC_ADDRESS.", deviceInfo)
+            deviceInfo!!
             Timber.d("Device MAC: ${deviceInfo.macAddress}")
             Timber.d("Device Local Name: ${deviceInfo.localName}")
             Timber.d("Device Serial Number: ${deviceInfo.serialNumber}")
@@ -361,7 +363,9 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                 BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 val batteryPercentage = OptiConnect.bluetoothManager.getLatestBatteryPercentage(TEST_DEVICE_MAC_ADDRESS)
+                assertNotNull("Expected latest battery percentage for $TEST_DEVICE_MAC_ADDRESS.", batteryPercentage)
                 Timber.d("Battery percentage: $batteryPercentage%")
+                batteryPercentage!!
                 assert(batteryPercentage in 0..100)
             } else {
                 fail("Failed to connect to device with MAC address $TEST_DEVICE_MAC_ADDRESS.")
@@ -380,6 +384,8 @@ class BluetoothCommunicationTest : BaseBluetoothTest() {
                 BleDeviceConnectionState.CONNECTED)
             if (isDeviceConnected) {
                 val batteryStatus = OptiConnect.bluetoothManager.getLatestBatteryStatus(TEST_DEVICE_MAC_ADDRESS)
+                assertNotNull("Expected latest battery status for $TEST_DEVICE_MAC_ADDRESS.", batteryStatus)
+                batteryStatus!!
                 Timber.d("Latest battery status: ${batteryStatus.percentage}% - Charging: ${batteryStatus.isCharging}")
                 assert(batteryStatus.percentage in 0..100)
             } else {

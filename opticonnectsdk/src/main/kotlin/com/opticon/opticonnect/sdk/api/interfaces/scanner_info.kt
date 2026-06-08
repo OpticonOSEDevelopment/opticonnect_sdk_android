@@ -9,14 +9,15 @@ import com.opticon.opticonnect.sdk.api.entities.DeviceInfo
 interface ScannerInfo {
 
     /**
-     * Retrieves detailed information about a connected Opticon BLE scanner.
+     * Retrieves cached detailed information about a connected Opticon BLE scanner.
      *
-     * Use this method to get stored information about the scanner specified by [deviceId].
-     * You will receive details including the scanner's MAC address, serial number, local name,
-     * and firmware version.
+     * Scanner information is fetched when the SDK initializes a connection to the scanner.
+     * If information for [deviceId] has not been fetched yet, or the device ID is unknown,
+     * this method returns null.
      *
      * @param deviceId The unique identifier of the Opticon BLE scanner.
-     * @return A [DeviceInfo] object containing detailed information about the scanner.
+     * @return A [DeviceInfo] object containing detailed information about the scanner, or null
+     * if no scanner information is available for [deviceId].
      */
-    fun getInfo(deviceId: String): DeviceInfo
+    fun getInfo(deviceId: String): DeviceInfo?
 }

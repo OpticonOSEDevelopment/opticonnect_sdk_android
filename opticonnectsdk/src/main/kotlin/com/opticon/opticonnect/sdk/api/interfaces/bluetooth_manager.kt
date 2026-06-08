@@ -154,15 +154,16 @@ interface BluetoothManager {
     fun listenToBatteryPercentage(deviceId: String, callback: Callback<Int>): ListenerSubscription
 
     /**
-     * Retrieves the latest battery percentage of a specific Opticon BLE scanner.
+     * Retrieves the latest cached battery percentage of a specific Opticon BLE scanner.
      *
      * Use this method to obtain the most recent battery percentage of the scanner specified
      * by the [deviceId]. The percentage is returned as an integer, typically ranging from 0 to 100.
+     * If no battery percentage has been received yet, or the device ID is unknown, this method returns null.
      *
      * @param deviceId The identifier of the target scanner.
-     * @return An integer representing the latest battery percentage.
+     * @return An integer representing the latest battery percentage, or null if no battery percentage is available.
      */
-    fun getLatestBatteryPercentage(deviceId: String): Int
+    fun getLatestBatteryPercentage(deviceId: String): Int?
 
     // Battery Status Methods
 
@@ -188,13 +189,14 @@ interface BluetoothManager {
     fun listenToBatteryStatus(deviceId: String, callback: Callback<BatteryLevelStatus>): ListenerSubscription
 
     /**
-     * Retrieves the latest battery status of a specific Opticon BLE scanner.
+     * Retrieves the latest cached battery status of a specific Opticon BLE scanner.
      *
      * Use this method to obtain the most recent battery status of the scanner specified by
      * the [deviceId]. The status includes details such as charging state, battery health, and more.
+     * If no battery status has been received yet, or the device ID is unknown, this method returns null.
      *
      * @param deviceId The identifier of the target scanner.
-     * @return A [BatteryLevelStatus] object indicating the latest battery status.
+     * @return A [BatteryLevelStatus] object indicating the latest battery status, or null if no status is available.
      */
-    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus
+    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus?
 }

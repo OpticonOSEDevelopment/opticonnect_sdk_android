@@ -135,7 +135,7 @@ internal class BluetoothManagerImpl @Inject constructor(
         return collectWithCallback(listenToBarcodeData(deviceId), callback)
     }
 
-    override fun getLatestBatteryPercentage(deviceId: String): Int {
+    override fun getLatestBatteryPercentage(deviceId: String): Int? {
         return bleDevicesStreamsHandler.getLatestBatteryPercentage(deviceId)
     }
 
@@ -155,7 +155,7 @@ internal class BluetoothManagerImpl @Inject constructor(
         return collectWithCallback(listenToBatteryStatus(deviceId), callback)
     }
 
-    override fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {
+    override fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus? {
         return bleDevicesStreamsHandler.getLatestBatteryStatus(deviceId)
     }
 

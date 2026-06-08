@@ -35,6 +35,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -61,15 +62,7 @@ import com.opticon.opticonnect.sdk.api.entities.LEDColor
 import com.opticon.opticonnect.sdk.api.enums.BleDeviceConnectionState
 import com.opticon.opticonnect.sdk.api.enums.DirectInputKey
 import com.opticon.opticonnect.sdk.api.enums.SymbologyType
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.BuzzerDuration
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.BuzzerType
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.GoodReadLedDuration
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.IlluminationMode
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.PositiveAndNegativeBarcodesMode
 import com.opticon.opticonnect.sdk.api.scanner_settings.enums.ReadMode
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.ReadTime
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.VibratorDuration
-import com.opticon.opticonnect.sdk.api.scanner_settings.enums.code_specific.CodabarMode
 import com.opticon.opticonnect_sdk_example.ui.theme.Opticonnect_SDK_ExampleTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -89,36 +82,17 @@ data class ScannerUiState(
 data class ScannerSettingsUiState(
     val buzzerEnabled: Boolean = true,
     val buzzerVolume: Int = 100,
-    val buzzerType: BuzzerType = BuzzerType.SINGLE_TONE_BUZZER,
-    val buzzerDuration: BuzzerDuration = BuzzerDuration.DURATION_100_MS,
-    val vibratorEnabled: Boolean = false,
-    val vibratorDuration: VibratorDuration = VibratorDuration.DURATION_100_MS,
     val ledColor: LEDColor = LEDColor(0, 255, 0),
-    val goodReadLedDuration: GoodReadLedDuration = GoodReadLedDuration.DURATION_60_MS,
     val readMode: ReadMode = ReadMode.SINGLE_READ,
-    val readTime: ReadTime = ReadTime.FIVE_SECONDS,
-    val illuminationMode: IlluminationMode = IlluminationMode.ENABLE_FLOODLIGHT,
-    val positiveNegativeMode: PositiveAndNegativeBarcodesMode =
-        PositiveAndNegativeBarcodesMode.POSITIVE_BARCODES,
     val aimingEnabled: Boolean = true,
-    val triggerRepeatEnabled: Boolean = false,
-    val deleteKeyEnabled: Boolean = false,
     val symbologies: Map<SymbologyType, Boolean> = defaultSymbologySelection.associateWith { false },
-    val codabarMode: CodabarMode = CodabarMode.NORMAL,
-    val codabarCheckDigitEnabled: Boolean = false,
-    val preamble: List<DirectInputKey> = emptyList(),
-    val prefixAllCodes: List<DirectInputKey> = emptyList(),
-    val suffixAllCodes: List<DirectInputKey> = emptyList(),
-    val postamble: List<DirectInputKey> = emptyList()
+    val prefixAllCodes: List<DirectInputKey> = emptyList()
 )
 
 private val defaultSymbologySelection = listOf(
     SymbologyType.CODE_39,
     SymbologyType.CODE_128,
-    SymbologyType.EAN_13,
-    SymbologyType.CODABAR,
-    SymbologyType.QR_CODE,
-    SymbologyType.DATA_MATRIX
+    SymbologyType.QR_CODE
 )
 
 private val ledSwatches = listOf(
@@ -168,34 +142,9 @@ class AdvancedScannerActivity : ComponentActivity() {
                             OptiConnect.scannerSettings.indicator.setBuzzerVolume(deviceId, volume)
                         }
                     },
-                    onBuzzerTypeChanged = { deviceId, type ->
-                        applySetting(deviceId, "Buzzer type set to ${type.label()}") {
-                            OptiConnect.scannerSettings.indicator.setBuzzerType(deviceId, type)
-                        }
-                    },
-                    onBuzzerDurationChanged = { deviceId, duration ->
-                        applySetting(deviceId, "Buzzer duration set to ${duration.label()}") {
-                            OptiConnect.scannerSettings.indicator.setBuzzerDuration(deviceId, duration)
-                        }
-                    },
-                    onVibratorEnabledChanged = { deviceId, enabled ->
-                        applySetting(deviceId, "Vibrator ${if (enabled) "enabled" else "disabled"}") {
-                            OptiConnect.scannerSettings.indicator.toggleVibrator(deviceId, enabled)
-                        }
-                    },
-                    onVibratorDurationChanged = { deviceId, duration ->
-                        applySetting(deviceId, "Vibration duration set to ${duration.label()}") {
-                            OptiConnect.scannerSettings.indicator.setVibratorDuration(deviceId, duration)
-                        }
-                    },
                     onLedColorChanged = { deviceId, color ->
                         applySetting(deviceId, "LED color set to ${color.rgbLabel()}") {
                             OptiConnect.scannerSettings.indicator.setLED(deviceId, color)
-                        }
-                    },
-                    onGoodReadLedDurationChanged = { deviceId, duration ->
-                        applySetting(deviceId, "Good-read LED duration set to ${duration.label()}") {
-                            OptiConnect.scannerSettings.indicator.setGoodReadLedDuration(deviceId, duration)
                         }
                     },
                     onReadModeChanged = { deviceId, mode ->
@@ -203,34 +152,9 @@ class AdvancedScannerActivity : ComponentActivity() {
                             OptiConnect.scannerSettings.readOptions.setReadMode(deviceId, mode)
                         }
                     },
-                    onReadTimeChanged = { deviceId, readTime ->
-                        applySetting(deviceId, "Read time set to ${readTime.label()}") {
-                            OptiConnect.scannerSettings.readOptions.setReadTime(deviceId, readTime)
-                        }
-                    },
-                    onIlluminationModeChanged = { deviceId, mode ->
-                        applySetting(deviceId, "Illumination set to ${mode.label()}") {
-                            OptiConnect.scannerSettings.readOptions.setIlluminationMode(deviceId, mode)
-                        }
-                    },
-                    onPositiveNegativeModeChanged = { deviceId, mode ->
-                        applySetting(deviceId, "Barcode polarity set to ${mode.label()}") {
-                            OptiConnect.scannerSettings.readOptions.setPositiveAndNegativeBarcodesMode(deviceId, mode)
-                        }
-                    },
                     onAimingChanged = { deviceId, enabled ->
                         applySetting(deviceId, "Aiming ${if (enabled) "enabled" else "disabled"}") {
                             OptiConnect.scannerSettings.readOptions.setAiming(deviceId, enabled)
-                        }
-                    },
-                    onTriggerRepeatChanged = { deviceId, enabled ->
-                        applySetting(deviceId, "Trigger repeat ${if (enabled) "enabled" else "disabled"}") {
-                            OptiConnect.scannerSettings.readOptions.setTriggerRepeat(deviceId, enabled)
-                        }
-                    },
-                    onDeleteKeyChanged = { deviceId, enabled ->
-                        applySetting(deviceId, "Delete key ${if (enabled) "enabled" else "disabled"}") {
-                            OptiConnect.scannerSettings.readOptions.setDeleteKey(deviceId, enabled)
                         }
                     },
                     onSymbologyChanged = { deviceId, symbology, enabled ->
@@ -238,66 +162,17 @@ class AdvancedScannerActivity : ComponentActivity() {
                             OptiConnect.scannerSettings.symbology.setSymbology(deviceId, symbology, enabled)
                         }
                     },
-                    onCodabarModeChanged = { deviceId, mode ->
-                        applySetting(deviceId, "Codabar mode set to ${mode.label()}") {
-                            OptiConnect.scannerSettings.codeSpecific.codabar.setMode(deviceId, mode)
-                        }
-                    },
-                    onCodabarCheckDigitChanged = { deviceId, enabled ->
-                        applySetting(deviceId, "Codabar check digit ${if (enabled) "enabled" else "disabled"}") {
-                            OptiConnect.scannerSettings.codeSpecific.codabar.setCheckCD(deviceId, enabled)
-                        }
-                    },
-                    onSetPreambleDemo = { deviceId ->
-                        applySetting(deviceId, "Preamble set") {
-                            OptiConnect.scannerSettings.formatting.setPreambleFromKeys(
-                                deviceId,
-                                listOf(DirectInputKey.LETTER_S, DirectInputKey.LETTER_T)
-                            )
-                        }
-                    },
-                    onClearPreamble = { deviceId ->
-                        applySetting(deviceId, "Preamble cleared") {
-                            OptiConnect.scannerSettings.formatting.clearPreamble(deviceId)
-                        }
-                    },
-                    onSetPrefixDemo = { deviceId ->
-                        applySetting(deviceId, "All-codes prefix set") {
+                    onSetPrefix = { deviceId, prefix ->
+                        applySetting(deviceId, "All-codes prefix set to $prefix") {
                             OptiConnect.scannerSettings.formatting.setPrefixFromKeys(
                                 deviceId,
-                                listOf(DirectInputKey.LETTER_P)
+                                prefix.toDirectInputKeys()
                             )
                         }
                     },
                     onClearPrefixes = { deviceId ->
                         applySetting(deviceId, "Prefixes cleared") {
                             OptiConnect.scannerSettings.formatting.clearAllPrefixes(deviceId)
-                        }
-                    },
-                    onSetSuffixDemo = { deviceId ->
-                        applySetting(deviceId, "All-codes suffix set") {
-                            OptiConnect.scannerSettings.formatting.setSuffixFromKeys(
-                                deviceId,
-                                listOf(DirectInputKey.RETURN_KEY)
-                            )
-                        }
-                    },
-                    onClearSuffixes = { deviceId ->
-                        applySetting(deviceId, "Suffixes cleared") {
-                            OptiConnect.scannerSettings.formatting.clearAllSuffixes(deviceId)
-                        }
-                    },
-                    onSetPostambleDemo = { deviceId ->
-                        applySetting(deviceId, "Postamble set") {
-                            OptiConnect.scannerSettings.formatting.setPostambleFromKeys(
-                                deviceId,
-                                listOf(DirectInputKey.LETTER_E, DirectInputKey.LETTER_N, DirectInputKey.LETTER_D)
-                            )
-                        }
-                    },
-                    onClearPostamble = { deviceId ->
-                        applySetting(deviceId, "Postamble cleared") {
-                            OptiConnect.scannerSettings.formatting.clearPostamble(deviceId)
                         }
                     }
                 )
@@ -519,34 +394,18 @@ class AdvancedScannerActivity : ComponentActivity() {
         val indicator = OptiConnect.scannerSettings.indicator
         val readOptions = OptiConnect.scannerSettings.readOptions
         val symbology = OptiConnect.scannerSettings.symbology
-        val codabar = OptiConnect.scannerSettings.codeSpecific.codabar
         val formatting = OptiConnect.scannerSettings.formatting
 
         return ScannerSettingsUiState(
             buzzerEnabled = indicator.isBuzzerEnabled(deviceId),
             buzzerVolume = indicator.getBuzzerVolume(deviceId),
-            buzzerType = indicator.getBuzzerType(deviceId),
-            buzzerDuration = indicator.getBuzzerDuration(deviceId),
-            vibratorEnabled = indicator.isVibratorEnabled(deviceId),
-            vibratorDuration = indicator.getVibratorDuration(deviceId),
             ledColor = indicator.getLED(deviceId),
-            goodReadLedDuration = indicator.getGoodReadLedDuration(deviceId),
             readMode = readOptions.getReadMode(deviceId),
-            readTime = readOptions.getReadTime(deviceId),
-            illuminationMode = readOptions.getIlluminationMode(deviceId),
-            positiveNegativeMode = readOptions.getPositiveAndNegativeBarcodesMode(deviceId),
             aimingEnabled = readOptions.isAimingEnabled(deviceId),
-            triggerRepeatEnabled = readOptions.isTriggerRepeatEnabled(deviceId),
-            deleteKeyEnabled = readOptions.isDeleteKeyEnabled(deviceId),
             symbologies = defaultSymbologySelection.associateWith { type ->
                 symbology.isSymbologyEnabled(deviceId, type)
             },
-            codabarMode = codabar.getMode(deviceId),
-            codabarCheckDigitEnabled = codabar.isCheckCDEnabled(deviceId),
-            preamble = formatting.getPreamble(deviceId),
-            prefixAllCodes = formatting.getPrefix(deviceId),
-            suffixAllCodes = formatting.getSuffix(deviceId),
-            postamble = formatting.getPostamble(deviceId)
+            prefixAllCodes = formatting.getPrefix(deviceId)
         )
     }
 
@@ -612,30 +471,12 @@ fun ScannerListScreen(
     onRefreshSettings: (String) -> Unit,
     onBuzzerEnabledChanged: (String, Boolean) -> Unit,
     onBuzzerVolumeChanged: (String, Int) -> Unit,
-    onBuzzerTypeChanged: (String, BuzzerType) -> Unit,
-    onBuzzerDurationChanged: (String, BuzzerDuration) -> Unit,
-    onVibratorEnabledChanged: (String, Boolean) -> Unit,
-    onVibratorDurationChanged: (String, VibratorDuration) -> Unit,
     onLedColorChanged: (String, LEDColor) -> Unit,
-    onGoodReadLedDurationChanged: (String, GoodReadLedDuration) -> Unit,
     onReadModeChanged: (String, ReadMode) -> Unit,
-    onReadTimeChanged: (String, ReadTime) -> Unit,
-    onIlluminationModeChanged: (String, IlluminationMode) -> Unit,
-    onPositiveNegativeModeChanged: (String, PositiveAndNegativeBarcodesMode) -> Unit,
     onAimingChanged: (String, Boolean) -> Unit,
-    onTriggerRepeatChanged: (String, Boolean) -> Unit,
-    onDeleteKeyChanged: (String, Boolean) -> Unit,
     onSymbologyChanged: (String, SymbologyType, Boolean) -> Unit,
-    onCodabarModeChanged: (String, CodabarMode) -> Unit,
-    onCodabarCheckDigitChanged: (String, Boolean) -> Unit,
-    onSetPreambleDemo: (String) -> Unit,
-    onClearPreamble: (String) -> Unit,
-    onSetPrefixDemo: (String) -> Unit,
-    onClearPrefixes: (String) -> Unit,
-    onSetSuffixDemo: (String) -> Unit,
-    onClearSuffixes: (String) -> Unit,
-    onSetPostambleDemo: (String) -> Unit,
-    onClearPostamble: (String) -> Unit
+    onSetPrefix: (String, String) -> Unit,
+    onClearPrefixes: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -677,32 +518,14 @@ fun ScannerListScreen(
                     onRefreshSettings = { onRefreshSettings(scanner.device.deviceId) },
                     onBuzzerEnabledChanged = { onBuzzerEnabledChanged(scanner.device.deviceId, it) },
                     onBuzzerVolumeChanged = { onBuzzerVolumeChanged(scanner.device.deviceId, it) },
-                    onBuzzerTypeChanged = { onBuzzerTypeChanged(scanner.device.deviceId, it) },
-                    onBuzzerDurationChanged = { onBuzzerDurationChanged(scanner.device.deviceId, it) },
-                    onVibratorEnabledChanged = { onVibratorEnabledChanged(scanner.device.deviceId, it) },
-                    onVibratorDurationChanged = { onVibratorDurationChanged(scanner.device.deviceId, it) },
                     onLedColorChanged = { onLedColorChanged(scanner.device.deviceId, it) },
-                    onGoodReadLedDurationChanged = { onGoodReadLedDurationChanged(scanner.device.deviceId, it) },
                     onReadModeChanged = { onReadModeChanged(scanner.device.deviceId, it) },
-                    onReadTimeChanged = { onReadTimeChanged(scanner.device.deviceId, it) },
-                    onIlluminationModeChanged = { onIlluminationModeChanged(scanner.device.deviceId, it) },
-                    onPositiveNegativeModeChanged = { onPositiveNegativeModeChanged(scanner.device.deviceId, it) },
                     onAimingChanged = { onAimingChanged(scanner.device.deviceId, it) },
-                    onTriggerRepeatChanged = { onTriggerRepeatChanged(scanner.device.deviceId, it) },
-                    onDeleteKeyChanged = { onDeleteKeyChanged(scanner.device.deviceId, it) },
                     onSymbologyChanged = { symbology, enabled ->
                         onSymbologyChanged(scanner.device.deviceId, symbology, enabled)
                     },
-                    onCodabarModeChanged = { onCodabarModeChanged(scanner.device.deviceId, it) },
-                    onCodabarCheckDigitChanged = { onCodabarCheckDigitChanged(scanner.device.deviceId, it) },
-                    onSetPreambleDemo = { onSetPreambleDemo(scanner.device.deviceId) },
-                    onClearPreamble = { onClearPreamble(scanner.device.deviceId) },
-                    onSetPrefixDemo = { onSetPrefixDemo(scanner.device.deviceId) },
-                    onClearPrefixes = { onClearPrefixes(scanner.device.deviceId) },
-                    onSetSuffixDemo = { onSetSuffixDemo(scanner.device.deviceId) },
-                    onClearSuffixes = { onClearSuffixes(scanner.device.deviceId) },
-                    onSetPostambleDemo = { onSetPostambleDemo(scanner.device.deviceId) },
-                    onClearPostamble = { onClearPostamble(scanner.device.deviceId) }
+                    onSetPrefix = { onSetPrefix(scanner.device.deviceId, it) },
+                    onClearPrefixes = { onClearPrefixes(scanner.device.deviceId) }
                 )
             }
         }
@@ -717,30 +540,12 @@ fun ScannerCard(
     onRefreshSettings: () -> Unit,
     onBuzzerEnabledChanged: (Boolean) -> Unit,
     onBuzzerVolumeChanged: (Int) -> Unit,
-    onBuzzerTypeChanged: (BuzzerType) -> Unit,
-    onBuzzerDurationChanged: (BuzzerDuration) -> Unit,
-    onVibratorEnabledChanged: (Boolean) -> Unit,
-    onVibratorDurationChanged: (VibratorDuration) -> Unit,
     onLedColorChanged: (LEDColor) -> Unit,
-    onGoodReadLedDurationChanged: (GoodReadLedDuration) -> Unit,
     onReadModeChanged: (ReadMode) -> Unit,
-    onReadTimeChanged: (ReadTime) -> Unit,
-    onIlluminationModeChanged: (IlluminationMode) -> Unit,
-    onPositiveNegativeModeChanged: (PositiveAndNegativeBarcodesMode) -> Unit,
     onAimingChanged: (Boolean) -> Unit,
-    onTriggerRepeatChanged: (Boolean) -> Unit,
-    onDeleteKeyChanged: (Boolean) -> Unit,
     onSymbologyChanged: (SymbologyType, Boolean) -> Unit,
-    onCodabarModeChanged: (CodabarMode) -> Unit,
-    onCodabarCheckDigitChanged: (Boolean) -> Unit,
-    onSetPreambleDemo: () -> Unit,
-    onClearPreamble: () -> Unit,
-    onSetPrefixDemo: () -> Unit,
-    onClearPrefixes: () -> Unit,
-    onSetSuffixDemo: () -> Unit,
-    onClearSuffixes: () -> Unit,
-    onSetPostambleDemo: () -> Unit,
-    onClearPostamble: () -> Unit
+    onSetPrefix: (String) -> Unit,
+    onClearPrefixes: () -> Unit
 ) {
     val isConnected = scanner.connectionState == BleDeviceConnectionState.CONNECTED
     val isBusy = scanner.connectionState == BleDeviceConnectionState.CONNECTING ||
@@ -793,30 +598,12 @@ fun ScannerCard(
                     onRefreshSettings = onRefreshSettings,
                     onBuzzerEnabledChanged = onBuzzerEnabledChanged,
                     onBuzzerVolumeChanged = onBuzzerVolumeChanged,
-                    onBuzzerTypeChanged = onBuzzerTypeChanged,
-                    onBuzzerDurationChanged = onBuzzerDurationChanged,
-                    onVibratorEnabledChanged = onVibratorEnabledChanged,
-                    onVibratorDurationChanged = onVibratorDurationChanged,
                     onLedColorChanged = onLedColorChanged,
-                    onGoodReadLedDurationChanged = onGoodReadLedDurationChanged,
                     onReadModeChanged = onReadModeChanged,
-                    onReadTimeChanged = onReadTimeChanged,
-                    onIlluminationModeChanged = onIlluminationModeChanged,
-                    onPositiveNegativeModeChanged = onPositiveNegativeModeChanged,
                     onAimingChanged = onAimingChanged,
-                    onTriggerRepeatChanged = onTriggerRepeatChanged,
-                    onDeleteKeyChanged = onDeleteKeyChanged,
                     onSymbologyChanged = onSymbologyChanged,
-                    onCodabarModeChanged = onCodabarModeChanged,
-                    onCodabarCheckDigitChanged = onCodabarCheckDigitChanged,
-                    onSetPreambleDemo = onSetPreambleDemo,
-                    onClearPreamble = onClearPreamble,
-                    onSetPrefixDemo = onSetPrefixDemo,
-                    onClearPrefixes = onClearPrefixes,
-                    onSetSuffixDemo = onSetSuffixDemo,
-                    onClearSuffixes = onClearSuffixes,
-                    onSetPostambleDemo = onSetPostambleDemo,
-                    onClearPostamble = onClearPostamble
+                    onSetPrefix = onSetPrefix,
+                    onClearPrefixes = onClearPrefixes
                 )
             } else if (scanner.settingMessage != null) {
                 Spacer(Modifier.height(8.dp))
@@ -841,32 +628,16 @@ private fun SettingsPanel(
     onRefreshSettings: () -> Unit,
     onBuzzerEnabledChanged: (Boolean) -> Unit,
     onBuzzerVolumeChanged: (Int) -> Unit,
-    onBuzzerTypeChanged: (BuzzerType) -> Unit,
-    onBuzzerDurationChanged: (BuzzerDuration) -> Unit,
-    onVibratorEnabledChanged: (Boolean) -> Unit,
-    onVibratorDurationChanged: (VibratorDuration) -> Unit,
     onLedColorChanged: (LEDColor) -> Unit,
-    onGoodReadLedDurationChanged: (GoodReadLedDuration) -> Unit,
     onReadModeChanged: (ReadMode) -> Unit,
-    onReadTimeChanged: (ReadTime) -> Unit,
-    onIlluminationModeChanged: (IlluminationMode) -> Unit,
-    onPositiveNegativeModeChanged: (PositiveAndNegativeBarcodesMode) -> Unit,
     onAimingChanged: (Boolean) -> Unit,
-    onTriggerRepeatChanged: (Boolean) -> Unit,
-    onDeleteKeyChanged: (Boolean) -> Unit,
     onSymbologyChanged: (SymbologyType, Boolean) -> Unit,
-    onCodabarModeChanged: (CodabarMode) -> Unit,
-    onCodabarCheckDigitChanged: (Boolean) -> Unit,
-    onSetPreambleDemo: () -> Unit,
-    onClearPreamble: () -> Unit,
-    onSetPrefixDemo: () -> Unit,
-    onClearPrefixes: () -> Unit,
-    onSetSuffixDemo: () -> Unit,
-    onClearSuffixes: () -> Unit,
-    onSetPostambleDemo: () -> Unit,
-    onClearPostamble: () -> Unit
+    onSetPrefix: (String) -> Unit,
+    onClearPrefixes: () -> Unit
 ) {
     val settings = scanner.settings
+    val showSettingsProgress = !scanner.settingsLoaded || scanner.settingBusy
+
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -880,6 +651,15 @@ private fun SettingsPanel(
                     style = MaterialTheme.typography.bodySmall
                 )
             }
+            Box(
+                modifier = Modifier.size(28.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (showSettingsProgress) {
+                    CircularProgressIndicator(modifier = Modifier.size(22.dp))
+                }
+            }
+            Spacer(Modifier.width(8.dp))
             OutlinedButton(
                 onClick = onRefreshSettings,
                 enabled = !scanner.settingBusy
@@ -888,29 +668,15 @@ private fun SettingsPanel(
             }
         }
 
-        if (!scanner.settingsLoaded || scanner.settingBusy) {
-            CircularProgressIndicator(modifier = Modifier.size(28.dp))
-        }
-
         SettingsSection("Indicators") {
             SettingSwitch("Good-read buzzer", settings.buzzerEnabled, scanner.settingBusy, onBuzzerEnabledChanged)
             VolumeSetting(settings.buzzerVolume, scanner.settingBusy, onBuzzerVolumeChanged)
-            EnumSetting("Buzzer type", settings.buzzerType, scanner.settingBusy, onBuzzerTypeChanged)
-            EnumSetting("Buzzer duration", settings.buzzerDuration, scanner.settingBusy, onBuzzerDurationChanged)
-            SettingSwitch("Vibrator", settings.vibratorEnabled, scanner.settingBusy, onVibratorEnabledChanged)
-            EnumSetting("Vibration duration", settings.vibratorDuration, scanner.settingBusy, onVibratorDurationChanged)
-            EnumSetting("Good-read LED duration", settings.goodReadLedDuration, scanner.settingBusy, onGoodReadLedDurationChanged)
             LedSwatches(settings.ledColor, scanner.settingBusy, onLedColorChanged)
         }
 
         SettingsSection("Read options") {
             EnumSetting("Read mode", settings.readMode, scanner.settingBusy, onReadModeChanged)
-            EnumSetting("Read time", settings.readTime, scanner.settingBusy, onReadTimeChanged)
-            EnumSetting("Illumination", settings.illuminationMode, scanner.settingBusy, onIlluminationModeChanged)
-            EnumSetting("Barcode polarity", settings.positiveNegativeMode, scanner.settingBusy, onPositiveNegativeModeChanged)
             SettingSwitch("Aiming", settings.aimingEnabled, scanner.settingBusy, onAimingChanged)
-            SettingSwitch("Trigger repeat", settings.triggerRepeatEnabled, scanner.settingBusy, onTriggerRepeatChanged)
-            SettingSwitch("Delete key", settings.deleteKeyEnabled, scanner.settingBusy, onDeleteKeyChanged)
         }
 
         SettingsSection("Readable codes") {
@@ -924,39 +690,12 @@ private fun SettingsPanel(
             }
         }
 
-        SettingsSection("Codabar") {
-            EnumSetting("Mode", settings.codabarMode, scanner.settingBusy, onCodabarModeChanged)
-            SettingSwitch("Check digit", settings.codabarCheckDigitEnabled, scanner.settingBusy, onCodabarCheckDigitChanged)
-        }
-
         SettingsSection("Formatting") {
-            FormattingRow(
-                label = "Preamble",
-                keys = settings.preamble,
-                busy = scanner.settingBusy,
-                onSetDemo = onSetPreambleDemo,
-                onClear = onClearPreamble
-            )
-            FormattingRow(
-                label = "Prefix all",
+            PrefixSetting(
                 keys = settings.prefixAllCodes,
                 busy = scanner.settingBusy,
-                onSetDemo = onSetPrefixDemo,
+                onSetPrefix = onSetPrefix,
                 onClear = onClearPrefixes
-            )
-            FormattingRow(
-                label = "Suffix all",
-                keys = settings.suffixAllCodes,
-                busy = scanner.settingBusy,
-                onSetDemo = onSetSuffixDemo,
-                onClear = onClearSuffixes
-            )
-            FormattingRow(
-                label = "Postamble",
-                keys = settings.postamble,
-                busy = scanner.settingBusy,
-                onSetDemo = onSetPostambleDemo,
-                onClear = onClearPostamble
             )
         }
     }
@@ -1002,31 +741,38 @@ private fun SettingSwitch(
 }
 
 @Composable
-private fun FormattingRow(
-    label: String,
+private fun PrefixSetting(
     keys: List<DirectInputKey>,
     busy: Boolean,
-    onSetDemo: () -> Unit,
+    onSetPrefix: (String) -> Unit,
     onClear: () -> Unit
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    var draftPrefix by remember(keys) { mutableStateOf(keys.directInputText()) }
+    val draftKeys = draftPrefix.toDirectInputKeys()
+    val currentPrefix = keys.directInputDisplay()
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedTextField(
+            value = draftPrefix,
+            onValueChange = { draftPrefix = it.sanitizedPrefixInput() },
+            label = { Text("Prefix") },
+            supportingText = {
+                Text("Current: $currentPrefix")
+            },
+            singleLine = true,
+            enabled = !busy,
+            modifier = Modifier.fillMaxWidth()
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(label)
-                Text(
-                    keys.directInputLabel(),
-                    style = MaterialTheme.typography.bodySmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            OutlinedButton(onClick = onSetDemo, enabled = !busy) {
-                Text("Set")
+            OutlinedButton(
+                onClick = { onSetPrefix(draftPrefix) },
+                enabled = !busy && draftKeys.isNotEmpty() && draftKeys != keys
+            ) {
+                Text("Set prefix")
             }
             Spacer(Modifier.width(8.dp))
             OutlinedButton(onClick = onClear, enabled = !busy && keys.isNotEmpty()) {
@@ -1172,9 +918,42 @@ private fun LEDColor.rgbLabel(): String {
     return "#%02X%02X%02X".format(red, green, blue)
 }
 
-private fun List<DirectInputKey>.directInputLabel(): String {
+private fun String.sanitizedPrefixInput(): String {
+    return filter { it in 'A'..'Z' || it in 'a'..'z' || it in '0'..'9' }.take(4)
+}
+
+private fun String.toDirectInputKeys(): List<DirectInputKey> {
+    return mapNotNull { char -> char.toDirectInputKey() }
+}
+
+private fun Char.toDirectInputKey(): DirectInputKey? {
+    return when (this) {
+        in '0'..'9' -> DirectInputKey.valueOf("DIGIT_$this")
+        in 'A'..'Z' -> DirectInputKey.valueOf("LETTER_$this")
+        in 'a'..'z' -> DirectInputKey.valueOf("LETTER_${uppercaseChar()}_LOWER")
+        else -> null
+    }
+}
+
+private fun List<DirectInputKey>.directInputText(): String {
+    return mapNotNull { key -> key.toInputChar() }.joinToString("")
+}
+
+private fun DirectInputKey.toInputChar(): Char? {
+    return when {
+        name.startsWith("DIGIT_") -> name.removePrefix("DIGIT_").singleOrNull()
+        name.startsWith("LETTER_") && name.endsWith("_LOWER") ->
+            name.removePrefix("LETTER_").removeSuffix("_LOWER").singleOrNull()?.lowercaseChar()
+        name.startsWith("LETTER_") -> name.removePrefix("LETTER_").singleOrNull()
+        else -> null
+    }
+}
+
+private fun List<DirectInputKey>.directInputDisplay(): String {
     return if (isEmpty()) {
         "Empty"
+    } else if (all { it.toInputChar() != null }) {
+        directInputText()
     } else {
         joinToString(", ") { key -> key.label() }
     }

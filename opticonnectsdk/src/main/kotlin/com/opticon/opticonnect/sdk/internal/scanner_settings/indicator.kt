@@ -158,8 +158,7 @@ internal class IndicatorImpl @Inject constructor(
         return sendCommand(
             deviceId,
             IndicatorSettingDescriptors.ledColor.command,
-            parameters = IndicatorSettingDescriptors.ledColor.parametersFor(color),
-            sendFeedback = false
+            parameters = IndicatorSettingDescriptors.ledColor.parametersFor(color)
         )
     }
 

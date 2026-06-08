@@ -17,15 +17,6 @@ internal class BleDevicesStreamsHandler @Inject constructor() {
     private val batteryPercentageStreams = ConcurrentHashMap<String, MutableSharedFlow<Int>>()
     private val commandStreams = ConcurrentHashMap<String, MutableSharedFlow<CommandResponsePacket>>()
 
-    private val defaultBatteryStatus = BatteryLevelStatus(
-        isBatteryPresent = false,
-        isWirelessCharging = false,
-        isWiredCharging = false,
-        isCharging = false,
-        isBatteryFaulty = false,
-        percentage = -1
-    )
-    private val defaultBatteryPercentage = -1
     private val barcodeBufferCapacity = 256
     private val commandBufferCapacity = 64
 
@@ -57,11 +48,11 @@ internal class BleDevicesStreamsHandler @Inject constructor() {
         }
     }
 
-    fun getLatestBatteryPercentage(deviceId: String): Int {
-        return batteryPercentageStreams[deviceId]?.replayCache?.lastOrNull() ?: defaultBatteryPercentage
+    fun getLatestBatteryPercentage(deviceId: String): Int? {
+        return batteryPercentageStreams[deviceId]?.replayCache?.lastOrNull()
     }
 
-    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus {
-        return batteryStatusStreams[deviceId]?.replayCache?.lastOrNull() ?: defaultBatteryStatus
+    fun getLatestBatteryStatus(deviceId: String): BatteryLevelStatus? {
+        return batteryStatusStreams[deviceId]?.replayCache?.lastOrNull()
     }
 }

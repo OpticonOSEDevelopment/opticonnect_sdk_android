@@ -6,12 +6,8 @@ import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.ETX_V
 import com.opticon.opticonnect.sdk.internal.services.ble.streams.data.constants.STX_V
 import com.opticon.opticonnect.sdk.internal.services.core.SymbologyHandler
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
@@ -30,8 +26,6 @@ internal class OpcDataHandler @Inject constructor(
 ) : Closeable {
 
     private val mutex = Mutex()
-    private val job = Job()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
 
     private val _commandDataStream = MutableSharedFlow<CommandResponsePacket>(replay = 0)
     private val _barcodeDataStream = MutableSharedFlow<BarcodeData>(replay = 0)
@@ -181,7 +175,7 @@ internal class OpcDataHandler @Inject constructor(
         }
     }
 
-    private fun postProcessAndSendBarcodeData(data: String, dataBytes: List<Int>, sequenceNumber: Int?) {
+    private suspend fun postProcessAndSendBarcodeData(data: String, dataBytes: List<Int>, sequenceNumber: Int?) {
         var quantity = 1
         var symbologyId = 0
         var symbology = ""
@@ -226,9 +220,7 @@ internal class OpcDataHandler @Inject constructor(
             sequenceNumber = sequenceNumber
         )
 
-        scope.launch {
-            _barcodeDataStream.emit(barcodeData)
-        }
+        _barcodeDataStream.emit(barcodeData)
     }
 
     private fun parseHexBytesToInteger(hexMostSignificant: Int, hexLeastSignificant: Int): Int {
@@ -278,7 +270,5 @@ internal class OpcDataHandler @Inject constructor(
         }
     }
 
-    override fun close() {
-        job.cancel()
-    }
+    override fun close() = Unit
 }

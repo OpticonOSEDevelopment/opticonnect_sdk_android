@@ -28,6 +28,11 @@ internal class DataProcessor(
     // Coroutine job and scope for managing the streams
     private val job = Job()
     private val scope = CoroutineScope(Dispatchers.IO + job)
+    private val notificationProcessor = OrderedNotificationProcessor(deviceId, scope) { data ->
+        val unsignedData = data.map { it.toUByte() }
+        opcDataHandler.processData(unsignedData)
+        Timber.d("Data received and processed: ${unsignedData.joinToString(",")} for device: $deviceId")
+    }
 
     // SharedFlows for broadcasting data to multiple subscribers
     private val _commandStream = bleDeviceStreamManager.getOrCreateCommandStream(deviceId) // Command stream
@@ -76,6 +81,8 @@ internal class DataProcessor(
             }
         }
 
+        notificationProcessor.start()
+
         Timber.d("Setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
         connection.setupNotification(readCharacteristic)
             .doOnNext {
@@ -85,18 +92,7 @@ internal class DataProcessor(
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe(
-                { data ->
-                    scope.launch {
-                        try {
-                            // Process received BLE data bytes as UByte
-                            val unsignedData = data.map { it.toUByte() }
-                            opcDataHandler.processData(unsignedData)
-                            Timber.d("Data received and processed: ${unsignedData.joinToString(",")} for device: $deviceId")
-                        } catch (e: Exception) {
-                            Timber.e(e, "Error processing data for device: $deviceId")
-                        }
-                    }
-                },
+                { data -> notificationProcessor.enqueue(data) },
                 { error ->
                     if (error !is com.polidea.rxandroidble3.exceptions.BleDisconnectedException) {
                         Timber.e(error, "Error setting up notification for readCharacteristic: $readCharacteristic on device: $deviceId")
@@ -107,6 +103,7 @@ internal class DataProcessor(
 
     override fun close() {
         compositeDisposable.clear()
+        notificationProcessor.close()
 
         CoroutineScope(Dispatchers.IO).launch {
             try {

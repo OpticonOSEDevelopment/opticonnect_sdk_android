@@ -20,7 +20,9 @@ internal class DevicesInfoManager @Inject constructor(
     private val localNames = ConcurrentHashMap<String, String>()
     private val firmwareVersions = ConcurrentHashMap<String, String>()
 
-    override fun getInfo(deviceId: String): DeviceInfo {
+    override fun getInfo(deviceId: String): DeviceInfo? {
+        if (!hasCachedInfo(deviceId)) return null
+
         return DeviceInfo(
             deviceId = deviceId,
             macAddress = macAddresses[deviceId] ?: "",
@@ -28,6 +30,13 @@ internal class DevicesInfoManager @Inject constructor(
             localName = localNames[deviceId] ?: "",
             firmwareVersion = firmwareVersions[deviceId] ?: ""
         )
+    }
+
+    private fun hasCachedInfo(deviceId: String): Boolean {
+        return macAddresses.containsKey(deviceId) ||
+            serialNumbers.containsKey(deviceId) ||
+            localNames.containsKey(deviceId) ||
+            firmwareVersions.containsKey(deviceId)
     }
 
     suspend fun fetchInfo(deviceId: String) {
