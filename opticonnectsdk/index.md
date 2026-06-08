@@ -133,10 +133,10 @@ At runtime, request `BLUETOOTH_SCAN` and `BLUETOOTH_CONNECT` on Android 12+ (API
 
 ## Examples
 
-Complete working examples are available in the repository:
+Complete working apps are available in the repository:
 
 - [Kotlin example app](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin): simple Compose app for discovery, connection, barcode data, battery percentage, charging state, and disconnect.
-- [Advanced Kotlin example app](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin-advanced): manual scanner list with per-device connect/disconnect controls, live barcode and battery fields, and a scanner setting toggle.
+- [Advanced Kotlin example app](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/kotlin-advanced): manual scanner list with per-device connect/disconnect controls, live barcode and battery fields, and scanner setting controls.
 - [Java example app](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/tree/main/examples/java): Java/XML app using callback APIs and explicit listener cleanup.
 
 For the shortest copyable integration snippets, see the [README](https://github.com/OpticonOSEDevelopment/opticonnect_sdk_android/blob/main/README.md).

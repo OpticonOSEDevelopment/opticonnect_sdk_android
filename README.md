@@ -199,15 +199,9 @@ override fun onDestroy() {
 
 Complete working apps are available in:
 
-- [Kotlin example app](examples/kotlin)
-- [Advanced Kotlin example app](examples/kotlin-advanced)
-- [Java example app](examples/java)
-- [Kotlin MainActivity.kt](examples/kotlin/app/src/main/kotlin/com/opticon/opticonnect_sdk_example/MainActivity.kt)
-- [AdvancedScannerActivity.kt](examples/kotlin-advanced/app/src/main/kotlin/com/opticon/opticonnect_sdk_example/AdvancedScannerActivity.kt)
-- [Java MainActivity.java](examples/java/app/src/main/java/com/example/opticonnect_sdk_example_java/MainActivity.java)
-- [Java activity_main.xml](examples/java/app/src/main/res/layout/activity_main.xml)
-
-The simple Kotlin and Java examples show the basic BLE flow. The advanced Kotlin example shows a manual scanner list with per-device connect/disconnect controls, live barcode and battery fields, and a small scanner setting toggle.
+- [Kotlin example app](examples/kotlin) - basic Kotlin BLE flow.
+- [Advanced Kotlin example app](examples/kotlin-advanced) - scanner list, per-device controls, live barcode and battery fields, and scanner setting controls.
+- [Java example app](examples/java) - basic Java callback-based BLE flow.
 
 ## Build The SDK AAR
 
