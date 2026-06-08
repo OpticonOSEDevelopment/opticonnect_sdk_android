@@ -30,21 +30,6 @@ internal class ScannerSettingsStateStore @Inject constructor(
         }
     }
 
-    fun getParameters(deviceId: String, commandCode: String): List<String>? {
-        val normalizedCode = settingsHandler.normalizeCode(commandCode)
-        return synchronized(lock) {
-            settingsByDevice[deviceId]?.get(normalizedCode)?.toList()
-        }
-    }
-
-    fun snapshot(deviceId: String): Map<String, List<String>> {
-        return synchronized(lock) {
-            settingsByDevice[deviceId]
-                ?.mapValues { it.value.toList() }
-                ?: emptyMap()
-        }
-    }
-
     fun settingsFor(deviceId: String): Map<String, List<String>> {
         return synchronized(lock) {
             val deviceSettings = settingsByDevice[deviceId]
@@ -53,12 +38,6 @@ internal class ScannerSettingsStateStore @Inject constructor(
             }
 
             deviceSettings.mapValues { it.value.toList() }
-        }
-    }
-
-    fun isInitialized(deviceId: String): Boolean {
-        return synchronized(lock) {
-            settingsByDevice.containsKey(deviceId)
         }
     }
 
