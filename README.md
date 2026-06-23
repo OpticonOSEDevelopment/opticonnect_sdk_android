@@ -220,3 +220,7 @@ On Windows:
 The generated AAR is written to `opticonnectsdk/build/outputs/aar/opticonnectsdk.aar`.
 
 The shaded AAR relocates SDK-internal dependencies such as Room, Dagger, SQLite, and Timber to reduce conflicts with the host app. External runtime/API dependencies such as Kotlin, coroutines, RxAndroidBLE, and RxKotlin remain normal app dependencies so the host app can control those versions.
+
+## License
+
+OptiConnect SDK is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
